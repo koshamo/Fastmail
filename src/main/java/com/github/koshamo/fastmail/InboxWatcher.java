@@ -37,6 +37,7 @@ import javafx.concurrent.Task;
 public class InboxWatcher extends ScheduledService<Void> {
 
 	MailAccount account;
+	
 	/**
 	 * the constructorof InboxWatcher adds Action Listeners to the INBOX folder
 	 * <p>
@@ -83,7 +84,6 @@ public class InboxWatcher extends ScheduledService<Void> {
 			});
 		}
 	}
-
 
 	
 	/* (non-Javadoc)

@@ -150,8 +150,8 @@ public class SerializeManager {
 	 */
 	private static SerializeManager manager = null;
 	
-	private final String settingsPath = "/.FDE/fastmail/";
-	private final String settingsFile = "fastmail.fms"; //$NON-NLS-1$
+	private final String settingsPath = "/.FDE/fastmail/";	//$NON-NLS-1$
+	private final String settingsFile = "fastmail.fms";	//$NON-NLS-1$
 	private String homeDir;
 	private Vector<MailAccountData> mailAccounts;
 	

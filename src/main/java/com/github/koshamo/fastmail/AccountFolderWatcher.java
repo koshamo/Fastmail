@@ -19,6 +19,7 @@
 package com.github.koshamo.fastmail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
@@ -68,7 +69,7 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 			if (acc.getValue().equals(account.getAccountName()))
 				toRemove = acc;
 		if (toRemove != null)
-			rootItem.getChildren().removeAll(toRemove);
+			rootItem.getChildren().removeAll(Arrays.asList(toRemove));
 	}
 		
 	/* 

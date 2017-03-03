@@ -19,7 +19,6 @@
 package com.github.koshamo.fastmail;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -118,7 +117,7 @@ public class MailContentLister {
 	public String getMessage(int messageID) {
 
 		String result = "";
-		InputStream is;
+//		InputStream is;
 //		folder = account.getFolder(folderName);
 
 //		if (!folder.isOpen())
