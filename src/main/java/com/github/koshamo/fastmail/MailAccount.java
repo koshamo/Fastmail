@@ -71,6 +71,10 @@ public class MailAccount {
 
 	private ObservableList<EmailTableData> inbox;
 	private HashMap<String, SoftReference<ObservableList<EmailTableData>>> folderContentMap;
+	
+	private AccountFolderWatcher accountFolderWatcher;
+	private InboxWatcher inboxWatcher;
+	
 	/* InboxWatcher detects new Messages at startup and adds mails to inbox redundant.
 	 * This can be avoided, if InboxWatcher checks, if inbox has been initialized.
 	 */
@@ -444,7 +448,45 @@ public class MailAccount {
 		}
 	}
 	
+	/**
+	 * Get the settings data of this mail account as a sumarized object
+	 * @return the settings data object for this account
+	 */
 	public MailAccountData getMailAccountData() {
 		return data;
 	}
+
+	/**
+	 * Get the Account Folder Watcher for this account
+	 * @return account's AccountFolderWatcher
+	 */
+	public AccountFolderWatcher getAccountFolderWatcher() {
+		return accountFolderWatcher;
+	}
+
+	/** 
+	 * Set the Account Folder Watcher for this account
+	 * @param accountFolderWatcher this account's AccountFolderWatcher
+	 */
+	public void setAccountFolderWatcher(AccountFolderWatcher accountFolderWatcher) {
+		this.accountFolderWatcher = accountFolderWatcher;
+	}
+
+	/**
+	 * Get the Inbox Watcher for this account
+	 * @return account's InboxWatcher
+	 */
+	public InboxWatcher getInboxWatcher() {
+		return inboxWatcher;
+	}
+
+	/** 
+	 * Set the Inbox Watcher for this account
+	 * @param inboxWatcher this account's InboxWatcher
+	 */
+	public void setInboxWatcher(InboxWatcher inboxWatcher) {
+		this.inboxWatcher = inboxWatcher;
+	}
+	
+	
 }

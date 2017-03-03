@@ -65,7 +65,7 @@ public final class MailLister extends Task<Boolean>{
 	 * content. This is due to the current design of holding only data, which is
 	 * actually needed 
 	 */
-	public void setStop() {
+	public void stop() {
 		stop = true;
 	}
 

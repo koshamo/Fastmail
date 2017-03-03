@@ -12,6 +12,9 @@ on to suit my needs.
 I am developing on FreeBSD using OpenJDK. 
 So please provide me with feedback for other platforms and compilers.
 
+Version 0.0.2
+* added functionality to remove mail account
+
 Version 0.0.1
 * write emails
 * read emails

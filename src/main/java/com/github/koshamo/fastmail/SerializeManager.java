@@ -85,6 +85,7 @@ public class SerializeManager {
 								new FileOutputStream(file)), cipher))) {
 			oos.flush();
 			oos.writeObject(mailAccounts);
+			oos.flush();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -131,6 +132,10 @@ public class SerializeManager {
 		mailAccounts.add(data);
 	}
 	
+	public void removeMailAccount(MailAccountData data) {
+		mailAccounts.remove(data);
+	}
+	
 	public List<MailAccountData> getMailAccounts() {
 		return mailAccounts;
 	}
@@ -145,8 +150,8 @@ public class SerializeManager {
 	 */
 	private static SerializeManager manager = null;
 	
-	private final String settingsPath = "/.FDE/com.github.koshamo.fastmail/";
-	private final String settingsFile = "com.github.koshamo.fastmail.fms"; //$NON-NLS-1$
+	private final String settingsPath = "/.FDE/fastmail/";
+	private final String settingsFile = "fastmail.fms"; //$NON-NLS-1$
 	private String homeDir;
 	private Vector<MailAccountData> mailAccounts;
 	

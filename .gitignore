@@ -1,0 +1,15 @@
+# .gitignore
+# this file contains patterns of files which should not go to git archive
+
+# ignore everything in build
+build/
+
+# ignore all javadoc
+doc/
+/bin/
+
+# gradle and eclipse files
+.classpath
+.gradle/
+.project
+.settings/

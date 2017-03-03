@@ -41,7 +41,7 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	/**
 	 * Basic constructor
 	 * 
-	 * @param accounts2 this is the list containing all mail accounts
+	 * @param accounts this is the list containing all mail accounts
 	 * @param root root item of the tree view
 	 */
 	AccountFolderWatcher(MailAccount account, TreeItem<String> rootItem) {
@@ -49,6 +49,28 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 		this.rootItem = rootItem;
 	}
 	
+	/**
+	 * Overrides superclass' cancel method to add functionality:
+	 * this account has to be removed from the treeview
+	 * 
+	 * @see javafx.concurrent.ScheduledService#cancel()
+	 */
+	@Override 
+	public boolean cancel() {
+		boolean ret = super.cancel();
+		removeFromTree();
+		return ret;
+	}
+	
+	private void removeFromTree() {
+		TreeItem<String> toRemove = null;
+		for (TreeItem<String> acc : rootItem.getChildren())
+			if (acc.getValue().equals(account.getAccountName()))
+				toRemove = acc;
+		if (toRemove != null)
+			rootItem.getChildren().removeAll(toRemove);
+	}
+		
 	/* 
 	 * This method iterates over all mail accounts.
 	 * It adds all mail accounts to the tree view and cares for the folders.

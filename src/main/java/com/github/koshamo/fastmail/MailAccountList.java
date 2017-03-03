@@ -74,11 +74,24 @@ public class MailAccountList {
 				new AccountFolderWatcher(account, rootItem);
 		accountFolderWatcher.setPeriod(Duration.seconds(60));
 		accountFolderWatcher.start();
+		account.setAccountFolderWatcher(accountFolderWatcher);
 		
 		InboxWatcher inboxWatcher = new InboxWatcher(account);
 		inboxWatcher.setPeriod(Duration.seconds(20));
 		inboxWatcher.start();
-
+		account.setInboxWatcher(inboxWatcher);
+		
+}
+	
+	public void removeAccount(String account) {
+		MailAccount acc = getAccount(account);
+		if (accounts.contains(acc)) {
+			acc.getInboxWatcher().cancel();
+			acc.getAccountFolderWatcher().cancel();
+			accounts.remove(acc);
+		}
+		
+		System.out.println("Size after " + accounts.size());
 	}
 	
 	/**

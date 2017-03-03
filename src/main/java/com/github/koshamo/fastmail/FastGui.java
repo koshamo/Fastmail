@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -126,6 +127,30 @@ public class FastGui extends Application {
 		});
 		MenuItem editAccountItem = new MenuItem("Edit Accounts");
 		MenuItem removeAccountItem = new MenuItem("Remove Account");
+		removeAccountItem.setOnAction(ev -> {
+			if (accounts.getCurrentAccount() == null)
+				return;
+			Alert alert = new Alert(Alert.AlertType.WARNING,
+					"Are you sure you want to remove the account\n" +
+					accounts.getCurrentAccount(), 
+					ButtonType.YES, ButtonType.CANCEL);
+			alert.setTitle("Remove current account");
+			alert.setHeaderText("You are about to remove an account from Fastmail");
+			Optional<ButtonType> opt = alert.showAndWait();
+			if (opt.get().equals(ButtonType.CANCEL))
+				return;
+			if (opt.get().equals(ButtonType.YES)) {
+				SerializeManager.getInstance().removeMailAccount(
+						accounts.getAccount(accounts.getCurrentAccount()).getMailAccountData());
+				accounts.removeAccount(accounts.getCurrentAccount());
+				accounts.setCurrentAccount(null);
+				accounts.setCurrentFolder(null);
+				folderMailTable.getItems().clear();
+				accounts.setCurrentMail(0);
+				mailBody.setText(null);
+			}
+			return;
+		});
 		accountMenu.getItems().addAll(addAccountItem, editAccountItem, removeAccountItem);
 		
 		// Help Menu
@@ -285,6 +310,8 @@ public class FastGui extends Application {
 					@Override
 					public void changed(ObservableValue<? extends TreeItem<String>> observedItem, TreeItem<String> oldVal,
 							TreeItem<String> newVal) {
+						if (newVal == null)
+							return;	// this should only be the case if a account has been removed
 						if (newVal.getValue().equals(rootItem.getValue()))
 							return;
 						TreeItem<String> upItem = newVal;
