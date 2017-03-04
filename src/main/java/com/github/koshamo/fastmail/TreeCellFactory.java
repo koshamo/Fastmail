@@ -91,7 +91,6 @@ public class TreeCellFactory extends TreeCell<String> {
 	@Override
 	public void updateItem(String item, boolean empty) {
 		super.updateItem(item, empty);
-		// TODO: add updating on server
 		
 		if (empty) {
 			setText(null);
@@ -111,6 +110,40 @@ public class TreeCellFactory extends TreeCell<String> {
 				}
 			}
 		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see javafx.scene.control.TreeCell#commitEdit(java.lang.Object)
+	 */
+	// TODO: test and fix this method
+	/*
+	 * This method currently doesn't work as wished. But this may be
+	 * because of overriding from account folder watcher.
+	 * Need further investigation of this topic
+	 */
+	@Override 
+	public void commitEdit(String newValue) {
+		// account item should not be modified here
+		if (getTreeItem().getParent() != null && 
+				getTreeItem().getParent().getParent() == null) {
+			setText(getItem());
+			setGraphic(getTreeItem().getGraphic());
+			return;
+		}
+		// special folders also should not be renamed
+		if (getText().equals("INBOX") || getText().equals("Drafts")
+				|| getText().equals("Sent") || getText().equals("Trash")) {
+			setText(getItem());
+			setGraphic(getTreeItem().getGraphic());
+			return;
+		}
+		
+		// TODO: add updating on server
+
+		setText(getString());
+		setGraphic(getTreeItem().getGraphic());
+		super.commitEdit(newValue);
 	}
 	
 	/**
