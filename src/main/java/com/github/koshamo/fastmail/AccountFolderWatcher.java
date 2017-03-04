@@ -63,6 +63,9 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 		return ret;
 	}
 	
+	/**
+	 * Functionality to remove the account from the tree view
+	 */
 	private void removeFromTree() {
 		TreeItem<String> toRemove = null;
 		for (TreeItem<String> acc : rootItem.getChildren())

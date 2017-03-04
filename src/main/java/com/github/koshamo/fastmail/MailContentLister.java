@@ -173,7 +173,7 @@ public class MailContentLister {
 	 * @return the mails content as plain text
 	 */
 	private String getBodyContent(Multipart mp) {
-		String result = "";
+		String result = ""; //$NON-NLS-1$
 		// seems that most Multipart messages have 2 Body parts
 		// first body part: plain text
 		// second body part: HTML message

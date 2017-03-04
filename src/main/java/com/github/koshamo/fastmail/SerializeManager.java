@@ -128,10 +128,19 @@ public class SerializeManager {
 		return true;
 	}
 	
+	/**
+	 * Add a mail account to serialization
+	 * 
+	 * @param data the MailAccountData object belonging to the mail account
+	 */
 	public void addMailAccount(MailAccountData data) {
 		mailAccounts.add(data);
 	}
 	
+	/**
+	 * Remove a mail account from serialization
+	 * @param data the MailAccountData object belonging to the mail account
+	 */
 	public void removeMailAccount(MailAccountData data) {
 		mailAccounts.remove(data);
 	}
@@ -164,6 +173,12 @@ public class SerializeManager {
 		
 	}
 	
+	/**
+	 * Initialize the Cipher for en-/decrypted settings stream
+	 * 
+	 * @param mode	Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
+	 * @return		the Cipher for the stream
+	 */
 	private Cipher getCipher(int mode) {
 		SecretKey key64 = new SecretKeySpec(
 				new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}, 

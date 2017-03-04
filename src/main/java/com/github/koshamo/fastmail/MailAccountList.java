@@ -80,9 +80,14 @@ public class MailAccountList {
 		inboxWatcher.setPeriod(Duration.seconds(20));
 		inboxWatcher.start();
 		account.setInboxWatcher(inboxWatcher);
-		
-}
+	}
 	
+	/**
+	 * This methods provides the implementation to remove a account
+	 * from the application
+	 * 
+	 * @param account the account name to remove
+	 */
 	public void removeAccount(String account) {
 		MailAccount acc = getAccount(account);
 		if (accounts.contains(acc)) {
@@ -90,8 +95,6 @@ public class MailAccountList {
 			acc.getAccountFolderWatcher().cancel();
 			accounts.remove(acc);
 		}
-		
-		System.out.println("Size after " + accounts.size());
 	}
 	
 	/**
