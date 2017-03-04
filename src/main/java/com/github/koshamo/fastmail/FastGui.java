@@ -118,7 +118,7 @@ public class FastGui extends Application {
 		Menu accountMenu = new Menu("Account");
 		MenuItem addAccountItem = new MenuItem("Add Account");
 		addAccountItem.setOnAction(ev -> {
-			AddMailAccountDialog dialog = new AddMailAccountDialog();
+			MailAccountDialog dialog = new MailAccountDialog();
 			MailAccount account = dialog.showAndWait();
 			if (account == null)
 				return;
@@ -126,6 +126,12 @@ public class FastGui extends Application {
 			SerializeManager.getInstance().addMailAccount(account.getMailAccountData());
 		});
 		MenuItem editAccountItem = new MenuItem("Edit Accounts");
+		editAccountItem.setOnAction(ev -> {
+			if (accounts.getCurrentAccount() == null)
+				return;
+			MailAccountDialog dialog = new MailAccountDialog(accounts.getAccount(accounts.getCurrentAccount()));
+			dialog.showAndWait();
+		});
 		MenuItem removeAccountItem = new MenuItem("Remove Account");
 		removeAccountItem.setOnAction(ev -> {
 			if (accounts.getCurrentAccount() == null)

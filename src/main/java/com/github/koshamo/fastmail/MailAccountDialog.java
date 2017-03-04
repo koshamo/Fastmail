@@ -46,34 +46,43 @@ import javafx.scene.layout.GridPane;
  * @author jochen
  *
  */
-public class AddMailAccountDialog {
+public class MailAccountDialog {
 
 	/**
 	 * The constructor to build the dialog.
 	 */
-	public AddMailAccountDialog() {
-		dialog = new Dialog<MailAccount>();
-		ButtonType add = new ButtonType("Add Account", ButtonData.OK_DONE);
-		ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+	public MailAccountDialog() {
 		
-		dialog.setTitle("Add a new Mail Account");
-		dialog.setHeaderText(
-				"To add a new Mail Account, some basic information is needed.");
-		
-		addComponents();
-		
-		DialogPane pane = dialog.getDialogPane();
-		pane.setContent(grid);
-		pane.getButtonTypes().addAll(cancel, add);
+		addComponents(TYPE.ADD);
 		
 		dialog.setResultConverter(buttonType -> {
-			MailAccount account = null;
 			ButtonData data = buttonType.getButtonData();
 			if (data == ButtonData.OK_DONE)
 				return createAccount(false);
 			return account;
 		});
+	}
+	
+	public MailAccountDialog(MailAccount account) {
+		this.account = account;
+		addComponents(TYPE.CHANGE);
 		
+		dialog.setResultConverter(buttonType -> {
+			ButtonData buttonData = buttonType.getButtonData();
+			if (buttonData == ButtonData.OK_DONE) {
+				MailAccountData data = account.getMailAccountData();
+				data.setUsername(usernameField.getText());
+				data.setDisplayName(displaynameField.getText());
+				data.setPassword(passwordField.getText());
+				data.setInboxType(serverTypeBox.getSelectionModel().getSelectedItem());
+				data.setInboxHost(imapField.getText());
+				data.setSsl(sslBox.isSelected());
+				data.setSmtpHost(smtpField.getText());
+				data.setTls(tlsBox.isSelected());
+				account.setMailAccountData(data);
+			}
+			return account;
+		});
 	}
 	
 	/**
@@ -92,6 +101,7 @@ public class AddMailAccountDialog {
 	 * 					PRIVATE
 	 * ******************************************************
 	 */
+	private enum TYPE {ADD, CHANGE};
 	private Dialog<MailAccount> dialog;
 	private GridPane grid;
 	private TextField usernameField;
@@ -104,11 +114,26 @@ public class AddMailAccountDialog {
 	private CheckBox tlsBox;
 	private Button testButton;
 	private Label statusLabel;
+	private MailAccount account = null;
 	
 	/**
 	 * create the actual GUI
 	 */
-	private void addComponents() {
+	private void addComponents(TYPE type) {
+		dialog = new Dialog<MailAccount>();
+		ButtonType add = new ButtonType("Add Account", ButtonData.OK_DONE);
+		ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+		
+		if (type == TYPE.ADD) {
+			dialog.setTitle("Add a new Mail Account");
+			dialog.setHeaderText(
+					"To add a new Mail Account, some basic information is needed.");
+		}
+		else {	// TYPE.CHANGE
+			dialog.setTitle("Change a Mail Account");
+			dialog.setHeaderText("Change the settings of your mail accoutn.");
+		}
+
 		grid = new GridPane();
 		grid.setHgap(30);
 		grid.setVgap(15);
@@ -166,6 +191,22 @@ public class AddMailAccountDialog {
 		grid.add(testButton, 1, 8);
 		statusLabel = new Label();
 		grid.add(statusLabel, 0, 9, 2, 1);
+		
+		if (type == TYPE.CHANGE) {
+			MailAccountData data = account.getMailAccountData();
+			usernameField.setText(data.getUsername());
+			displaynameField.setText(data.getDisplayName());	
+			passwordField.setText(data.getPassword());	
+			serverTypeBox.setValue(data.getInboxType());
+			imapField.setText(data.getInboxHost());
+			sslBox.setSelected(data.isSsl());
+			smtpField.setText(data.getSmtpHost());
+			tlsBox.setSelected(data.isTls());
+		}
+		
+		DialogPane pane = dialog.getDialogPane();
+		pane.setContent(grid);
+		pane.getButtonTypes().addAll(cancel, add);
 	}
 	
 	/**

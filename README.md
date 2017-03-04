@@ -14,6 +14,7 @@ So please provide me with feedback for other platforms and compilers.
 
 Version 0.0.2
 * added functionality to remove mail account
+* added functionality to edit an existing account
 
 Version 0.0.1
 * write emails

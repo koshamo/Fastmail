@@ -457,6 +457,15 @@ public class MailAccount {
 	}
 
 	/**
+	 * Set the settings data of this mail account
+	 * 
+	 * @param data a MailAccountData object
+	 */
+	public void setMailAccountData(MailAccountData data) {
+		this.data = data;
+	}
+	
+	/**
 	 * Get the Account Folder Watcher for this account
 	 * @return account's AccountFolderWatcher
 	 */
