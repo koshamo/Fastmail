@@ -38,11 +38,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -77,7 +77,7 @@ public class FastGui extends Application {
 	// fields for handling accounts and mails
 	private TreeItem<String> rootItem;
 	String rootItemString = "Mail Accounts";
-	private TextArea mailBody;
+	private MailView mailBody;
 	TableView<EmailTableData> folderMailTable;
 
 	
@@ -153,7 +153,7 @@ public class FastGui extends Application {
 				accounts.setCurrentFolder(null);
 				folderMailTable.getItems().clear();
 				accounts.setCurrentMail(0);
-				mailBody.setText(null);
+				mailBody.clear();
 			}
 			return;
 		});
@@ -202,7 +202,7 @@ public class FastGui extends Application {
 			new MailComposer(accounts, 
 					folderMailTable.getSelectionModel().getSelectedItem().getFromAddress(), 
 					folderMailTable.getSelectionModel().getSelectedItem().getSubject(),
-					mailBody.getText());
+					mailBody.getMailText());
 		});
 		btnReply.setDisable(true);
 		btnReplyAll = new Button("Reply All");
@@ -286,7 +286,7 @@ public class FastGui extends Application {
 						btnReply.setDisable(false);
 //						btnReplyAll.setDisable(false);
 						btnDelete.setDisable(false);
-						mailBody.setText(mcl.getMessage(newVal.getId()));
+						mailBody.setContent(mcl.getMessage(newVal.getId()));
 					}
 				});
 
@@ -295,14 +295,11 @@ public class FastGui extends Application {
 		folderScroller.setFitToWidth(true);
 		
 		// lower side: message body
-		mailBody = new TextArea();
-		ScrollPane mailbodyScroller = new ScrollPane(mailBody);
-		mailbodyScroller.setFitToHeight(true);
-		mailbodyScroller.setFitToWidth(true);
-		
+		mailBody = new MailView();
+
 		// build right side
-		SplitPane mailfolderSplitter = new SplitPane(folderScroller, mailbodyScroller);
-		mailfolderSplitter.setDividerPosition(0, 0.5);
+		SplitPane mailfolderSplitter = new SplitPane(folderScroller, mailBody);
+		mailfolderSplitter.setDividerPosition(0, 0.4);
 		mailfolderSplitter.setOrientation(Orientation.VERTICAL);
 		
 		// left side: Mailboxes and their folders
@@ -343,7 +340,7 @@ public class FastGui extends Application {
 		
 		// building it all together
 		SplitPane mainSplitter = new SplitPane(mailboxScroller, mailfolderSplitter);
-		mainSplitter.setDividerPosition(0, 0.3);
+		mainSplitter.setDividerPosition(0, 0.25);
 		VBox.setVgrow(mainSplitter, Priority.ALWAYS);
 		overallPane.getChildren().add(mainSplitter);
 	}

@@ -22,9 +22,13 @@ import java.io.IOException;
 
 import javax.mail.Folder;
 import javax.mail.Message;
+import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMultipart;
+
+import javafx.beans.property.SimpleStringProperty;
 
 /**
  * The class MailContentLister reads a given Mail from the server 
@@ -114,35 +118,24 @@ public class MailContentLister {
 	 * @param messageID the message number within the folder
 	 * @return the mail content as plain text
 	 */
-	public String getMessage(int messageID) {
+	public MailData getMessage(int messageID) {
 
-		String result = "";
-//		InputStream is;
-//		folder = account.getFolder(folderName);
-
-//		if (!folder.isOpen())
-//			try {
-//				folder.open(Folder.READ_WRITE);
-//			} catch (MessagingException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
+		MailData md = null;
+		
+		String from = ""; //$NON-NLS-1$
+		String[] to = null;
+		String[] cc = null;
+		String subject = ""; //$NON-NLS-1$
+		String content = ""; //$NON-NLS-1$
 		try {
-//			is = message.getInputStream();
-//			if (!(is instanceof BufferedInputStream))
-//				is = new BufferedInputStream(is);
-
-			if (message.isMimeType("text/plain")) {
-//				System.out.println("this is a plain text message");
-				result = (String) message.getContent();
-			} else if (message.isMimeType("multipart/*")) {
-//				System.out.println("this is a multipart message");
+			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
+				content = (String) message.getContent();
+			} else if (message.isMimeType("multipart/*")) { //$NON-NLS-1$
 				Multipart mp = (Multipart)message.getContent();
-				result = getBodyContent(mp);
-			} else if (message.isMimeType("message/rfc822")) {
-//				System.out.println("this is a rfc822 message");
-				// again recursive reading
-				result = getMessage(messageID);
+				content = getBodyContent(mp);
+			} else if (message.isMimeType("message/rfc822")) { //$NON-NLS-1$
+				// recursive reading
+				md = getMessage(messageID);
 			} else {
 				System.out.println("this is an unknown message type");
 			}
@@ -155,7 +148,26 @@ public class MailContentLister {
 			e.printStackTrace();
 		}
 				
-		return result;
+		try {
+			from = ((InternetAddress[]) message.getFrom())[0].getPersonal();
+			if (from == null || from.isEmpty())
+				from = ((InternetAddress[]) message.getFrom())[0].getAddress();
+			to = InternetAddress.toString(
+					message.getRecipients(RecipientType.TO)).split(","); //$NON-NLS-1$
+			String ccLine = InternetAddress.toString(
+					message.getRecipients(RecipientType.CC));
+			if (ccLine != null && !ccLine.isEmpty())
+				cc = ccLine.split(",");  //$NON-NLS-1$
+			subject = message.getSubject();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (md == null)
+			md = new MailData(from, to, cc, subject, content);
+
+		return md;
 
 	}
 
