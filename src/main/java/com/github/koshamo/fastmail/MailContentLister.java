@@ -19,16 +19,17 @@
 package com.github.koshamo.fastmail;
 
 import java.io.IOException;
+import java.io.InputStream;
 
+import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
-
-import javafx.beans.property.SimpleStringProperty;
 
 /**
  * The class MailContentLister reads a given Mail from the server 
@@ -127,12 +128,28 @@ public class MailContentLister {
 		String[] cc = null;
 		String subject = ""; //$NON-NLS-1$
 		String content = ""; //$NON-NLS-1$
+		AttachmentData[] attachments = null;
 		try {
 			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
 				content = (String) message.getContent();
 			} else if (message.isMimeType("multipart/*")) { //$NON-NLS-1$
 				Multipart mp = (Multipart)message.getContent();
-				content = getBodyContent(mp);
+				content = getTextBodyContent(mp);
+				if (message.isMimeType("multipart/mixed")) { //$NON-NLS-1$
+					int cnt = mp.getCount();
+					if (cnt > 1) {
+						attachments = new AttachmentData[cnt-1];
+						for (int i = 1; i < cnt; i++) {
+							BodyPart bp = mp.getBodyPart(i); 
+							if (bp.getContent() instanceof InputStream) {
+								attachments[i-1] = new AttachmentData(
+										bp.getFileName(), bp.getSize(), 
+										(InputStream) bp.getContent());
+							} else
+								attachments[i-1] = getAttachmentBodyContent(bp);
+						}
+					}
+				}
 			} else if (message.isMimeType("message/rfc822")) { //$NON-NLS-1$
 				// recursive reading
 				md = getMessage(messageID);
@@ -165,7 +182,7 @@ public class MailContentLister {
 		}
 
 		if (md == null)
-			md = new MailData(from, to, cc, subject, content);
+			md = new MailData(from, to, cc, subject, content, attachments);
 
 		return md;
 
@@ -184,7 +201,7 @@ public class MailContentLister {
 	 * @param mp the Multipart message of the mail, which is the body part
 	 * @return the mails content as plain text
 	 */
-	private String getBodyContent(Multipart mp) {
+	private String getTextBodyContent(Multipart mp) {
 		String result = ""; //$NON-NLS-1$
 		// seems that most Multipart messages have 2 Body parts
 		// first body part: plain text
@@ -200,7 +217,7 @@ public class MailContentLister {
 					break;
 				} 
 				else if (obj instanceof MimeMultipart) {
-					result = getBodyContent((Multipart) obj);
+					result = getTextBodyContent((Multipart) obj);
 				}
 			}
 		} catch (IOException e) {
@@ -211,5 +228,44 @@ public class MailContentLister {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	/**
+	 * if BodyPart is recursively packed, this method is convenient 
+	 * to get the attachments
+	 * @param bp the BodyPart of a MimeMultipart message
+	 * @return the AttachmentData object with the proper input stream
+	 */
+	// TODO: test this with a proper mail.... if not testable, remove!
+	private AttachmentData getAttachmentBodyContent(BodyPart bp) {
+		String fileName = null;
+		int size = 0;
+		InputStream is = null;
+		try {
+				Object obj = bp.getContent();
+				System.out.println("Object " + obj.toString());
+				if (obj instanceof String) {
+					System.out.println("String....");
+				} 
+				else if (obj instanceof MimeMultipart) {
+					System.out.println("Multipart");
+					getAttachmentBodyContent(((MimeMultipart) obj).getBodyPart(0));
+					fileName = ((MimeMultipart) obj).getBodyPart(0).getFileName();
+					System.out.println("Filename " + fileName);
+					size = ((MimeMultipart) obj).getBodyPart(0).getSize();
+					System.out.println("Size " + size);
+				}
+				else if (obj instanceof InputStream) {
+					System.out.println("InputStream " + obj);
+					is = (InputStream) obj;
+				}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new AttachmentData(fileName, size, is);
 	}
 }

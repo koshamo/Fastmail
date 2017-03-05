@@ -19,6 +19,9 @@
 package com.github.koshamo.fastmail;
 
 /**
+ * The MailData class is a pure data class to get pure data into
+ * the GUI without dealing with JavaMail API in the GUI
+ * 
  * @author jochen
  *
  */
@@ -29,50 +32,80 @@ public final class MailData {
 	private final String[] cc;
 	private final String subject;
 	private final String content;
-//	private final whatever[] attachments;
+	private final AttachmentData[] attachments;
 
 	
 	/**
-	 * @param from
-	 * @param to
-	 * @param cc
-	 * @param subject
-	 * @param content
+	 * @param from	the from address of the mail
+	 * @param to	the to addresses of the mail as array
+	 * @param cc	the cc addresses of the mail as array
+	 * @param subject	the mail's subject
+	 * @param content	the mail's actual message content
+	 * @param attachments	all attachments assigned to this mail
 	 */
-	public MailData(String from, String[] to, String[] cc, String subject, String content) {
+	public MailData(String from, String[] to, String[] cc, String subject, 
+			String content, AttachmentData[] attachments) {
 		super();
 		this.from = from;
 		this.to = to;
 		this.cc = cc;
 		this.subject = subject;
 		this.content = content;
+		this.attachments = attachments;
 	}
 
 
+	/**
+	 * Get the senders address
+	 * @return	the senders address
+	 */
 	public String getFrom() {
 		return from;
 	}
 
 
+	/**
+	 * Get all directly addressed recipients of this mail
+	 * @return	the recipients as array
+	 */
 	public String[] getTo() {
 		return to;
 	}
 
 
+	/**
+	 * Get all indirectly addressed recipients of this mail
+	 * @return	the cc recipients as array
+	 */
 	public String[] getCc() {
 		return cc;
 	}
 
 
+	/**
+	 * Get the mail's subject
+	 * @return	the subject
+	 */
 	public String getSubject() {
 		return subject;
 	}
 
 
+	/**
+	 * Get the mail's text content
+	 * @return	the content as string
+	 */
 	public String getContent() {
 		return content;
 	}
-	
-	
+
+
+	/**
+	 * Get the contained attachments
+	 * @return	the attachment data object
+	 */
+	public AttachmentData[] getAttachments() {
+		return attachments;
+	}
 	
 }
