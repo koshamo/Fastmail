@@ -19,15 +19,12 @@
 
 package com.github.koshamo.fastmail;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.mail.MessagingException;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -46,6 +43,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 /**
@@ -97,16 +95,13 @@ public class MailView extends StackPane {
 		HBox btnBox = new HBox();
 		saveAsBtn = new Button("save as");
 		saveAsBtn.setDisable(true);
-		saveAllBtn = new Button("save all");
-		saveAllBtn.setDisable(true);
 		saveAsBtn.setOnAction(ev -> {
 			int item = attachmentBox.getSelectionModel().getSelectedIndex();
-			AttachmentData[] attachData = data.getAttachments();
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Save attachment as ...");
 			fileChooser.setInitialDirectory(
 					new File(System.getProperty("user.home")));
-			fileChooser.setInitialFileName(attachData[item].getFileName());
+			fileChooser.setInitialFileName(data.getAttachments()[item].getFileName());
 			File outputFile = fileChooser.showSaveDialog(getScene().getWindow());
 			if (outputFile == null)
 				return;
@@ -124,6 +119,37 @@ public class MailView extends StackPane {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+		});
+		saveAllBtn = new Button("save all");
+		saveAllBtn.setDisable(true);
+		saveAllBtn.setOnAction(ev -> {
+			DirectoryChooser directoryChooser = new DirectoryChooser();
+			directoryChooser.setTitle("Save all attachments ...");
+			directoryChooser.setInitialDirectory(
+					new File(System.getProperty("user.home")));
+			File outputDir = directoryChooser.showDialog(getScene().getWindow());
+			if (outputDir == null)
+				return;
+			for (int i = 0; i < data.getAttachments().length; i++) {
+				try (InputStream is = (data.getAttachments())[i].getInputStream()) {
+					if (is == null)
+						return;
+					BufferedOutputStream bos = new BufferedOutputStream(
+							new FileOutputStream(
+									new File(outputDir.toString() + File.separator + 
+											data.getAttachments()[i].getFileName())));
+					byte[] pipe = new byte[1000];
+					while (is.read(pipe) > 0)
+						bos.write(pipe);
+					bos.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+			}
 			}
 		});
 		btnBox.getChildren().addAll(saveAsBtn, saveAllBtn);
