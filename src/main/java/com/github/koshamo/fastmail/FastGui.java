@@ -191,11 +191,13 @@ public class FastGui extends Application {
 		HBox hbox = new HBox();
 		Button btnNew = new Button("New");
 		btnNew.setPrefSize(90, 50);
+		btnNew.setMinSize(90, 50);
 		btnNew.setOnAction(ev -> {
 			new MailComposer(accounts);
 		});
 		btnReply = new Button("Reply");
 		btnReply.setPrefSize(90, 50);
+		btnReply.setMinSize(90, 50);
 		btnReply.setOnAction(ev -> {
 			if (accounts.getCurrentMessage() == 0)
 				return;
@@ -207,9 +209,11 @@ public class FastGui extends Application {
 		btnReply.setDisable(true);
 		btnReplyAll = new Button("Reply All");
 		btnReplyAll.setPrefSize(90, 50);
+		btnReplyAll.setMinSize(90, 50);
 		btnReplyAll.setDisable(true);
 		btnDelete = new Button("Delete");
 		btnDelete.setPrefSize(90, 50);
+		btnDelete.setMinSize(90, 50);
 		btnDelete.setOnAction(ev -> {
 			accounts.getAccount(
 				accounts.getCurrentAccount()).
