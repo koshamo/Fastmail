@@ -240,8 +240,8 @@ public class MailView extends StackPane {
 	 * Get the actual mail text
 	 * @return	the mail text as String
 	 */
-	public String getMailText() {
-		return mailBody.getText();
+	public MailData getMailContent() {
+		return data;
 	}
 	
 	/*

@@ -42,7 +42,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -77,7 +76,7 @@ public class FastGui extends Application {
 	// fields for handling accounts and mails
 	private TreeItem<String> rootItem;
 	String rootItemString = "Mail Accounts";
-	private MailView mailBody;
+	MailView mailBody;
 	TableView<EmailTableData> folderMailTable;
 
 	
@@ -204,7 +203,7 @@ public class FastGui extends Application {
 			new MailComposer(accounts, 
 					folderMailTable.getSelectionModel().getSelectedItem().getFromAddress(), 
 					folderMailTable.getSelectionModel().getSelectedItem().getSubject(),
-					mailBody.getMailText());
+					mailBody.getMailContent().getContent());
 		});
 		btnReply.setDisable(true);
 		btnReplyAll = new Button("Reply All");
@@ -219,6 +218,7 @@ public class FastGui extends Application {
 				accounts.getCurrentAccount()).
 				deleteMessage(folderMailTable.getSelectionModel().getSelectedItem(), 
 				accounts.getCurrentFolder());
+			mailBody.clear();
 		});
 		btnDelete.setDisable(true);
 		
@@ -317,8 +317,10 @@ public class FastGui extends Application {
 					@Override
 					public void changed(ObservableValue<? extends TreeItem<String>> observedItem, TreeItem<String> oldVal,
 							TreeItem<String> newVal) {
-						if (newVal == null)
+						if (newVal == null) {
+							mailBody.clear();
 							return;	// this should only be the case if a account has been removed
+						}
 						if (newVal.getValue().equals(rootItem.getValue()))
 							return;
 						TreeItem<String> upItem = newVal;
