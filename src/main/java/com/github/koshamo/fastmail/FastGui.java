@@ -124,7 +124,7 @@ public class FastGui extends Application {
 			accounts.add(account);
 			SerializeManager.getInstance().addMailAccount(account.getMailAccountData());
 		});
-		MenuItem editAccountItem = new MenuItem("Edit Accounts");
+		MenuItem editAccountItem = new MenuItem("Edit Account");
 		editAccountItem.setOnAction(ev -> {
 			if (accounts.getCurrentAccount() == null)
 				return;

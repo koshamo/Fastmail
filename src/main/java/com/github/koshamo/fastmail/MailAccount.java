@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -434,29 +436,11 @@ public class MailAccount {
 	 * @param subject	the email subject
 	 * @param text		the email text
 	 */
-	public void sendMail(String to, String cc, String subject, String text) {
-		MimeMessage msg = new MimeMessage(session);
-		try {
-			msg.setFrom(data.getUsername());
-			msg.setRecipients(RecipientType.TO, MailTools.parseAddresses(to));
-			if (cc != null && !cc.isEmpty())
-				msg.setRecipients(RecipientType.CC, MailTools.parseAddresses(cc));
-			msg.setSubject(subject);
-			msg.setSentDate(Date.from(Instant.now()));
-			msg.setText(text);
-			msg.setHeader("X-mailer", FastMailGenerals.getNameVersion()); //$NON-NLS-1$
-			Transport.send(msg, data.getUsername(), data.getPassword());
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 	public void sendMail(String to, String cc, String subject, String text, List<File> attachments) {
 		MimeMessage msg = new MimeMessage(session);
-		MimeMultipart mmp = new MimeMultipart("mixed");
 		try {
-			msg.setFrom(data.getUsername());
+			InternetAddress ia = new InternetAddress(data.getUsername(), data.getDisplayName());
+			msg.setFrom(ia);
 			msg.setRecipients(RecipientType.TO, MailTools.parseAddresses(to));
 			if (cc != null && !cc.isEmpty())
 				msg.setRecipients(RecipientType.CC, MailTools.parseAddresses(cc));
@@ -464,17 +448,19 @@ public class MailAccount {
 			msg.setSentDate(Date.from(Instant.now()));
 			msg.setText(text);
 			msg.setHeader("X-mailer", FastMailGenerals.getNameVersion()); //$NON-NLS-1$
-			MimeBodyPart content = new MimeBodyPart();
-			content.setContent(text, "text/plain");
-			mmp.addBodyPart(content);
 			// attachments
-			for (File file : attachments) {
-				MimeBodyPart mbp = new MimeBodyPart();
-				mbp.attachFile(file);
-				mmp.addBodyPart(mbp);
+			if (attachments != null && !attachments.isEmpty()) {
+				MimeMultipart mmp = new MimeMultipart("mixed");
+				MimeBodyPart content = new MimeBodyPart();
+				content.setContent(text, "text/plain");
+				mmp.addBodyPart(content);
+				for (File file : attachments) {
+					MimeBodyPart mbp = new MimeBodyPart();
+					mbp.attachFile(file);
+					mmp.addBodyPart(mbp);
+				}
+				msg.setContent(mmp);
 			}
-			msg.setContent(mmp);
-			
 			// send
 			Transport.send(msg, data.getUsername(), data.getPassword());
 		} catch (MessagingException e) {

@@ -166,7 +166,7 @@ public class MailComposer {
 			if (attachmentList.isEmpty())
 				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
 					.sendMail(toAddress.getText(), ccAddress.getText(), 
-						subjectText.getText(), area.getText());
+						subjectText.getText(), area.getText(), null);
 			else 
 				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
 				.sendMail(toAddress.getText(), ccAddress.getText(), 
