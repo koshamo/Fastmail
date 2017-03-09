@@ -198,7 +198,8 @@ public class MailComposer {
 		grid.add(subject, 0, 3);
 		subjectText = new TextField();
 		grid.add(subjectText, 1, 3);
-		
+		stage.setTitle(subjectText.getText());
+		stage.titleProperty().bindBidirectional(subjectText.textProperty());		
 		pane.getChildren().add(grid);
 	}
 
