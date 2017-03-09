@@ -90,7 +90,16 @@ public class MailComposer {
 		subjectText.setText(MailTools.makeSubject(subject));
 		area.setText(MailTools.decorateMailText(text));
 	}
-	
+
+	public MailComposer(MailAccountList accounts, String to, String cc, String subject, String text) {
+		this.accounts = accounts;
+		buildGui();
+		toAddress.setText(to);
+		ccAddress.setText(cc);
+		subjectText.setText(MailTools.makeSubject(subject));
+		area.setText(MailTools.decorateMailText(text));
+	}
+
 	/**
 	 * main method to construct the GUI
 	 */

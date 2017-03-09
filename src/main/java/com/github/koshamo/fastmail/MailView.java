@@ -204,16 +204,29 @@ public class MailView extends StackPane {
 	public void setContent(MailData data) {
 		clear();
 		this.data = data;
-		from.setText(data.getFrom());
+		if (data.getFromName() != null)
+			from.setText(data.getFromName());
+		else
+			from.setText(data.getFrom());
 		subject.setText(data.getSubject());
 		StringBuilder sb = new StringBuilder();
-		for (String s : data.getTo())
-			sb.append(s).append("; "); //$NON-NLS-1$
+		for (int i = 0; i < data.getTo().length; i++ ) {
+			if (data.getToName()[i] != null)
+				sb.append(data.getToName()[i]);
+			else
+				sb.append(data.getTo()[i]);
+			sb.append("; "); //$NON-NLS-1$
+		}
 		to.setText(sb.toString());
 		sb = new StringBuilder();
 		if (data.getCc() != null) {
-			for (String s : data.getCc())
-				sb.append(s).append("; "); //$NON-NLS-1$
+			for (int i = 0; i < data.getCc().length; i++) {
+				if (data.getCcName()[i] != null)
+					sb.append(data.getCcName()[i]);
+				else
+					sb.append(data.getCc()[i]);
+				sb.append("; "); //$NON-NLS-1$
+			}
 			mailHeader.add(ccLbl, 0, 3);
 			mailHeader.add(cc, 1, 3);
 		}

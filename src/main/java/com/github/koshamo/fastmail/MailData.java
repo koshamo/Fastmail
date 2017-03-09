@@ -28,8 +28,11 @@ package com.github.koshamo.fastmail;
 public final class MailData {
 
 	private final String from;
+	private final String fromName;
 	private final String[] to;
+	private final String[] toName;
 	private final String[] cc;
+	private final String[] ccName;
 	private final String subject;
 	private final String content;
 	private final AttachmentData[] attachments;
@@ -43,12 +46,18 @@ public final class MailData {
 	 * @param content	the mail's actual message content
 	 * @param attachments	all attachments assigned to this mail
 	 */
-	public MailData(String from, String[] to, String[] cc, String subject, 
-			String content, AttachmentData[] attachments) {
+	public MailData(final String from, final String fromName,
+			final String[] to, final String[] toName,
+			final String[] cc, final String[] ccName,
+			final String subject, final String content, 
+			final AttachmentData[] attachments) {
 		super();
 		this.from = from;
+		this.fromName = fromName;
 		this.to = to;
+		this.toName = toName;
 		this.cc = cc;
+		this.ccName = ccName;
 		this.subject = subject;
 		this.content = content;
 		this.attachments = attachments;
@@ -65,11 +74,40 @@ public final class MailData {
 
 
 	/**
+	 * Get the senders Name
+	 * @return the sender name
+	 */
+	public String getFromName() {
+		return fromName;
+	}
+
+
+	/**
 	 * Get all directly addressed recipients of this mail
 	 * @return	the recipients as array
 	 */
 	public String[] getTo() {
 		return to;
+	}
+	
+	/**
+	 * Get all directly addressed recipients of this mail
+	 * @return	the recipients as string
+	 */
+	public String getToAsLine() {
+		StringBuilder sb = new StringBuilder();
+		for (String str: to)
+			sb.append(str).append(";"); //$NON-NLS-1$
+		return sb.toString();
+	}
+
+
+	/** 
+	 * Get all directly addressed recipients of this mail as name
+	 * @return	get the recipients names as array
+	 */
+	public String[] getToName() {
+		return toName;
 	}
 
 
@@ -79,6 +117,27 @@ public final class MailData {
 	 */
 	public String[] getCc() {
 		return cc;
+	}
+
+
+	/**
+	 * Get all indirectly addressed recipients of this mail
+	 * @return	the cc recipients as string
+	 */
+	public String getCcAsLine() {
+		StringBuilder sb = new StringBuilder();
+		for (String str : cc)
+			sb.append(str).append(";");
+		return sb.toString();
+	}
+
+	
+	/**
+	 * Get all indirectly addressed recipients of this mail as name
+	 * @return	get the cc recipients names as array
+	 */
+	public String[] getCcName() {
+		return ccName;
 	}
 
 

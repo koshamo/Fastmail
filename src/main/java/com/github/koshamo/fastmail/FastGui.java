@@ -201,14 +201,24 @@ public class FastGui extends Application {
 			if (accounts.getCurrentMessage() == 0)
 				return;
 			new MailComposer(accounts, 
-					folderMailTable.getSelectionModel().getSelectedItem().getFromAddress(), 
-					folderMailTable.getSelectionModel().getSelectedItem().getSubject(),
+					mailBody.getMailContent().getFrom(), 
+					mailBody.getMailContent().getSubject(),
 					mailBody.getMailContent().getContent());
 		});
 		btnReply.setDisable(true);
 		btnReplyAll = new Button("Reply All");
 		btnReplyAll.setPrefSize(90, 50);
 		btnReplyAll.setMinSize(90, 50);
+		btnReplyAll.setOnAction(ev -> {
+			if (accounts.getCurrentMessage() == 0)
+				return;
+			new MailComposer(accounts, 
+					mailBody.getMailContent().getFrom(),
+					mailBody.getMailContent().getToAsLine() 
+					+ mailBody.getMailContent().getCcAsLine(),
+					mailBody.getMailContent().getSubject(),
+					mailBody.getMailContent().getContent());
+		});
 		btnReplyAll.setDisable(true);
 		btnDelete = new Button("Delete");
 		btnDelete.setPrefSize(90, 50);
@@ -288,7 +298,7 @@ public class FastGui extends Application {
 								new MailContentLister(accounts.getAccount(accounts.getCurrentAccount()), accounts.getCurrentFolder(), newVal.getId());
 						accounts.setCurrentMail(newVal.getId());
 						btnReply.setDisable(false);
-//						btnReplyAll.setDisable(false);
+						btnReplyAll.setDisable(false);
 						btnDelete.setDisable(false);
 						mailBody.setContent(mcl.getMessage(newVal.getId()));
 					}

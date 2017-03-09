@@ -124,8 +124,11 @@ public class MailContentLister {
 		MailData md = null;
 		
 		String from = ""; //$NON-NLS-1$
+		String fromName = ""; //$NON-NLS-1$
 		String[] to = null;
+		String[] toName = null;
 		String[] cc = null;
+		String[] ccName = null;
 		String subject = ""; //$NON-NLS-1$
 		String content = ""; //$NON-NLS-1$
 		AttachmentData[] attachments = null;
@@ -166,15 +169,24 @@ public class MailContentLister {
 		}
 				
 		try {
-			from = ((InternetAddress[]) message.getFrom())[0].getPersonal();
-			if (from == null || from.isEmpty())
-				from = ((InternetAddress[]) message.getFrom())[0].getAddress();
-			to = InternetAddress.toString(
-					message.getRecipients(RecipientType.TO)).split(","); //$NON-NLS-1$
-			String ccLine = InternetAddress.toString(
-					message.getRecipients(RecipientType.CC));
-			if (ccLine != null && !ccLine.isEmpty())
-				cc = ccLine.split(",");  //$NON-NLS-1$
+			from = ((InternetAddress[]) message.getFrom())[0].getAddress();
+			fromName = ((InternetAddress[]) message.getFrom())[0].getPersonal();
+			int toLength = ((InternetAddress[])message.getRecipients(RecipientType.TO)).length;
+			to = new String[toLength];
+			toName = new String[toLength];
+			for (int i = 0; i < toLength; i++) {
+				to[i] = ((InternetAddress[])message.getRecipients(RecipientType.TO))[i].getAddress();
+				toName[i] = ((InternetAddress[])message.getRecipients(RecipientType.TO))[i].getPersonal();
+			}
+			if (message.getRecipients(RecipientType.CC) != null) {
+				int ccLength = ((InternetAddress[])message.getRecipients(RecipientType.CC)).length;
+				cc = new String[ccLength];
+				ccName = new String[ccLength];
+				for (int i = 0; i < ccLength; i++) {
+					cc[i] = ((InternetAddress[])message.getRecipients(RecipientType.CC))[i].getAddress();
+					ccName[i] = ((InternetAddress[])message.getRecipients(RecipientType.CC))[i].getPersonal();
+				}
+			}
 			subject = message.getSubject();
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
@@ -182,7 +194,7 @@ public class MailContentLister {
 		}
 
 		if (md == null)
-			md = new MailData(from, to, cc, subject, content, attachments);
+			md = new MailData(from, fromName, to, toName, cc, ccName , subject, content, attachments);
 
 		return md;
 
