@@ -18,6 +18,10 @@
 
 package com.github.koshamo.fastmail;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -26,6 +30,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
@@ -33,6 +38,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -55,6 +61,8 @@ public class MailComposer {
 	private MailAccountList accounts;
 	private Stage stage;
 	private Label status;
+	private TextField attachmentLine;
+	private List<File> attachmentList;
 	private ChoiceBox<String> fromBox;
 	private TextField toAddress;
 	private TextField ccAddress;
@@ -113,6 +121,7 @@ public class MailComposer {
 		status = new Label();
 		overallPane.getChildren().add(status);
 		
+		attachmentList = new ArrayList<File>();
 		Scene scene = new Scene(overallPane, 600, 500);
 		stage.setScene(scene);
 		stage.show();
@@ -154,15 +163,37 @@ public class MailComposer {
 				return;
 			}
 			// get the values an send the mail
-			accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
-				.sendMail(toAddress.getText(), ccAddress.getText(), 
+			if (attachmentList.isEmpty())
+				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
+					.sendMail(toAddress.getText(), ccAddress.getText(), 
 						subjectText.getText(), area.getText());
+			else 
+				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
+				.sendMail(toAddress.getText(), ccAddress.getText(), 
+					subjectText.getText(), area.getText(), attachmentList);
+				
 			stage.close();
 		});
+
+		Button btnAttach = new Button("attach File");
+		btnAttach.setPrefSize(90, 50);
+		btnAttach.setOnAction(ev -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Attach file");
+			File selFile = fileChooser.showOpenDialog(stage.getOwner());
+			if (selFile != null) {
+				if (attachmentLine.getText().isEmpty())
+					attachmentLine.setText(selFile.getName());
+				else
+					attachmentLine.setText(attachmentLine.getText() + ";" + selFile.getName());
+				attachmentList.add(selFile);
+			}
+		});
 		
-		hbox.getChildren().add(btnSend);
+		hbox.getChildren().addAll(btnSend, btnAttach);
 		pane.getChildren().add(hbox);
 	}
+	
 	
 	/**
 	 * this method constructs the Mail Composer window's head.
@@ -199,10 +230,20 @@ public class MailComposer {
 		subjectText = new TextField();
 		grid.add(subjectText, 1, 3);
 		stage.setTitle(subjectText.getText());
-		stage.titleProperty().bindBidirectional(subjectText.textProperty());		
+		stage.titleProperty().bindBidirectional(subjectText.textProperty());
+		Separator sep = new Separator();
+		grid.add(sep, 0, 4, 2, 1);
+		Label attachmentLbl = new Label("attached :");
+		grid.add(attachmentLbl, 0, 5);
+		attachmentLine = new TextField();
+		attachmentLine.setEditable(false);
+		grid.add(attachmentLine, 1, 5);
+
 		pane.getChildren().add(grid);
 	}
 
+
+	
 	/**
 	 * this is a helper method to fill the items for the Choice Box.
 	 * <p>

@@ -18,12 +18,15 @@
 
 package com.github.koshamo.fastmail;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.AuthenticationFailedException;
@@ -36,7 +39,9 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Transport;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -429,7 +434,6 @@ public class MailAccount {
 	 * @param subject	the email subject
 	 * @param text		the email text
 	 */
-	// TODO: extend this method with a list of attachments
 	public void sendMail(String to, String cc, String subject, String text) {
 		MimeMessage msg = new MimeMessage(session);
 		try {
@@ -447,7 +451,41 @@ public class MailAccount {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public void sendMail(String to, String cc, String subject, String text, List<File> attachments) {
+		MimeMessage msg = new MimeMessage(session);
+		MimeMultipart mmp = new MimeMultipart("mixed");
+		try {
+			msg.setFrom(data.getUsername());
+			msg.setRecipients(RecipientType.TO, MailTools.parseAddresses(to));
+			if (cc != null && !cc.isEmpty())
+				msg.setRecipients(RecipientType.CC, MailTools.parseAddresses(cc));
+			msg.setSubject(subject);
+			msg.setSentDate(Date.from(Instant.now()));
+			msg.setText(text);
+			msg.setHeader("X-mailer", FastMailGenerals.getNameVersion()); //$NON-NLS-1$
+			MimeBodyPart content = new MimeBodyPart();
+			content.setContent(text, "text/plain");
+			mmp.addBodyPart(content);
+			// attachments
+			for (File file : attachments) {
+				MimeBodyPart mbp = new MimeBodyPart();
+				mbp.attachFile(file);
+				mmp.addBodyPart(mbp);
+			}
+			msg.setContent(mmp);
+			
+			// send
+			Transport.send(msg, data.getUsername(), data.getPassword());
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Get the settings data of this mail account as a sumarized object
 	 * @return the settings data object for this account

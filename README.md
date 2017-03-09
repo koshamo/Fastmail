@@ -19,6 +19,7 @@ Version 0.0.2 HEAD
 * added functionality to edit an existing account
 * added ReplyAll
 * added functionality to save and save all attachments
+* added functionality to attach files to mails
 
 Version 0.0.1
 * write emails
