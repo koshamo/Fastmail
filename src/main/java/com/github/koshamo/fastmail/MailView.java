@@ -169,6 +169,7 @@ public class MailView extends StackPane {
 
 		mailBody = new TextArea();
 		mailBody.setEditable(false);
+		mailBody.setWrapText(true);
 		ScrollPane bodyScroller = new ScrollPane(mailBody);
 		bodyScroller.setFitToHeight(true);
 		bodyScroller.setFitToWidth(true);

@@ -269,6 +269,7 @@ public class MailComposer {
 	 */
 	private void buildBottom(VBox pane) {
 		area = new TextArea();
+		area.setWrapText(true);
 		VBox.setVgrow(area, Priority.ALWAYS);
 		pane.getChildren().add(area);
 	}
