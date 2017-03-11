@@ -18,6 +18,8 @@
 
 package com.github.koshamo.fastmail;
 
+import javax.mail.Message;
+
 /**
  * The MailData class is a pure data class to get pure data into
  * the GUI without dealing with JavaMail API in the GUI
@@ -36,6 +38,7 @@ public final class MailData {
 	private final String subject;
 	private final String content;
 	private final AttachmentData[] attachments;
+	private final Message message;
 
 	
 	/**
@@ -50,7 +53,8 @@ public final class MailData {
 			final String[] to, final String[] toName,
 			final String[] cc, final String[] ccName,
 			final String subject, final String content, 
-			final AttachmentData[] attachments) {
+			final AttachmentData[] attachments,
+			final Message message) {
 		super();
 		this.from = from;
 		this.fromName = fromName;
@@ -61,6 +65,7 @@ public final class MailData {
 		this.subject = subject;
 		this.content = content;
 		this.attachments = attachments;
+		this.message = message;
 	}
 
 
@@ -166,5 +171,15 @@ public final class MailData {
 	public AttachmentData[] getAttachments() {
 		return attachments;
 	}
+
+
+	/**
+	 * Get the original Message object
+	 * @return	the containing message object
+	 */
+	public Message getMessage() {
+		return message;
+	}
+	
 	
 }

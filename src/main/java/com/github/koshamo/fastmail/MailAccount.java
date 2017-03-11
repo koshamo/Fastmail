@@ -435,10 +435,22 @@ public class MailAccount {
 	 * addresses stored in a string
 	 * @param subject	the email subject
 	 * @param text		the email text
+	 * @param message	the message object to reply to
 	 */
-	public void sendMail(String to, String cc, String subject, String text, List<File> attachments) {
-		MimeMessage msg = new MimeMessage(session);
+	public void sendMail(String to, String cc, String subject, String text, 
+			List<File> attachments, Message message) {
+		MimeMessage msg;
+		Message m;
 		try {
+			if (message != null) {
+				if (message instanceof MimeMessage) 
+					m = ((MimeMessage) message).reply(true, true);
+				else
+					m = message.reply(true);
+				msg = (MimeMessage) m;
+			}
+			else
+			msg = new MimeMessage(session);
 			InternetAddress ia = new InternetAddress(data.getUsername(), data.getDisplayName());
 			msg.setFrom(ia);
 			msg.setRecipients(RecipientType.TO, MailTools.parseAddresses(to));

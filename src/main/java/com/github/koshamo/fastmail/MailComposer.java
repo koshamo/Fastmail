@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.Message;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -68,6 +70,7 @@ public class MailComposer {
 	private TextField ccAddress;
 	private TextField subjectText;
 	private TextArea area;
+	private Message message;
 	
 	/**
 	 * Basic constructor to compose a new mail. 
@@ -90,17 +93,32 @@ public class MailComposer {
 	 * with Re: if not already present
 	 * @param text		the email's text, which will be prepended with > line by
 	 * line to visualize the citing
+	 * @param message	the message abject needed to inform the server about a reply
 	 */
-	public MailComposer(MailAccountList accounts, String to, String subject, String text) {
+	public MailComposer(MailAccountList accounts, String to, String subject, String text, Message message) {
 		this.accounts = accounts;
+		this.message = message;
 		buildGui();
 		toAddress.setText(to);
 		subjectText.setText(MailTools.makeSubject(subject));
 		area.setText(MailTools.decorateMailText(text));
 	}
 
-	public MailComposer(MailAccountList accounts, String to, String cc, String subject, String text) {
+	/**
+	 * This constructor is used to reply to alll
+	 * 
+	 * @param accounts	the list that holds the mail accounts
+	 * @param to		all email addresses in the TO field, semicolon separated
+	 * @param cc		all email addresses in the CC field, semicolon separated
+	 * @param subject	the subject of the existing email, which will be prepended
+	 * with Re: if not already present
+	 * @param text		the email's text, which will be prepended with > line by
+	 * line to visualize the citing
+	 * @param message	the message abject needed to inform the server about a reply
+	 */
+	public MailComposer(MailAccountList accounts, String to, String cc, String subject, String text, Message message) {
 		this.accounts = accounts;
+		this.message = message;
 		buildGui();
 		toAddress.setText(to);
 		ccAddress.setText(cc);
@@ -166,11 +184,11 @@ public class MailComposer {
 			if (attachmentList.isEmpty())
 				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
 					.sendMail(toAddress.getText(), ccAddress.getText(), 
-						subjectText.getText(), area.getText(), null);
+						subjectText.getText(), area.getText(), null, message);
 			else 
 				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
 				.sendMail(toAddress.getText(), ccAddress.getText(), 
-					subjectText.getText(), area.getText(), attachmentList);
+					subjectText.getText(), area.getText(), attachmentList, message);
 				
 			stage.close();
 		});

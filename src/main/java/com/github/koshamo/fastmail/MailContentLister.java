@@ -117,9 +117,9 @@ public class MailContentLister {
 	 * See @com.github.koshamo.fastmail.MailContentLister#getBodyContent() where the body parts are read
 	 * 
 	 * @param messageID the message number within the folder
-	 * @return the mail content as plain text
+	 * @return the mail content Data object
 	 */
-	public MailData getMessage(int messageID) {
+	public MailData getMessage() {
 
 		MailData md = null;
 		
@@ -155,7 +155,7 @@ public class MailContentLister {
 				}
 			} else if (message.isMimeType("message/rfc822")) { //$NON-NLS-1$
 				// recursive reading
-				md = getMessage(messageID);
+				md = getMessage();
 			} else {
 				System.out.println("this is an unknown message type");
 			}
@@ -194,7 +194,8 @@ public class MailContentLister {
 		}
 
 		if (md == null)
-			md = new MailData(from, fromName, to, toName, cc, ccName , subject, content, attachments);
+			md = new MailData(from, fromName, to, toName, cc, ccName , 
+					subject, content, attachments, message);
 
 		return md;
 

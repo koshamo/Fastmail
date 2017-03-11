@@ -203,7 +203,8 @@ public class FastGui extends Application {
 			new MailComposer(accounts, 
 					mailBody.getMailContent().getFrom(), 
 					mailBody.getMailContent().getSubject(),
-					mailBody.getMailContent().getContent());
+					mailBody.getMailContent().getContent(),
+					mailBody.getMailContent().getMessage());
 		});
 		btnReply.setDisable(true);
 		btnReplyAll = new Button("Reply All");
@@ -217,7 +218,8 @@ public class FastGui extends Application {
 					mailBody.getMailContent().getToAsLine() 
 					+ mailBody.getMailContent().getCcAsLine(),
 					mailBody.getMailContent().getSubject(),
-					mailBody.getMailContent().getContent());
+					mailBody.getMailContent().getContent(),
+					mailBody.getMailContent().getMessage());
 		});
 		btnReplyAll.setDisable(true);
 		btnDelete = new Button("Delete");
@@ -300,7 +302,7 @@ public class FastGui extends Application {
 						btnReply.setDisable(false);
 						btnReplyAll.setDisable(false);
 						btnDelete.setDisable(false);
-						mailBody.setContent(mcl.getMessage(newVal.getId()));
+						mailBody.setContent(mcl.getMessage());
 					}
 				});
 
