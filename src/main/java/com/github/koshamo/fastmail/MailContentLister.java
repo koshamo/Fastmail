@@ -74,6 +74,8 @@ public class MailContentLister {
 			}
 		}
 		if (msg != null) {
+			System.out.println("msg.length: " + msg.length);
+			System.out.println("messageID: " + messageID);
 			// just write the wanted message to internal field for further processing
 			message = msg[messageID-1];
 		}

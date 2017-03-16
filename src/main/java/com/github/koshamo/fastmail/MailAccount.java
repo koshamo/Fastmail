@@ -407,8 +407,22 @@ public class MailAccount {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (deleted)
-			inbox.remove(msg);
+		// delete message locally and update IDs
+		if (deleted) {
+			ObservableList<EmailTableData> mailList = null;
+			if ("INBOX".equals(currentFolder))
+				mailList = inbox;
+			else if (!folderContentMap.isEmpty() && folderContentMap.containsKey(currentFolder)) 
+				mailList = folderContentMap.get(currentFolder).get();
+			if (mailList == null)
+				return false;
+			// delete message
+			int index = msg.getId();
+			mailList.remove(msg);
+			// update IDs
+			for (int i = index - 1; i < mailList.size(); i++)
+				mailList.get(i).setId(i + 1);
+		}
 		return deleted;
 	}
 	

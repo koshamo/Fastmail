@@ -80,12 +80,14 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			if (adr == null || adr.isEmpty())
 				adr = fromAddress.get();
 			boolean attachment = false;
-			if (msg.isMimeType("multipart/mixed")) {
+			if (msg.isMimeType("multipart/mixed")) { //$NON-NLS-1$
 				Multipart mp = (Multipart) msg.getContent();
 				if (mp.getCount() > 1)
 					attachment = true;
 			}
 			this.subject = new SimpleStringProperty(msg.getSubject()); 
+			if (this.subject.get() == null)
+				this.subject.set(""); //$NON-NLS-1$
 			this.from = new SimpleStringProperty(adr); 
 			this.receivedDate = msg.getReceivedDate().toInstant();
 			this.sentDate = msg.getSentDate().toInstant();
@@ -259,8 +261,10 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		if (!this.getSentDate().equals(extern.getSentDate()) ||
 				!this.getReceivedDate().equals(extern.getReceivedDate()) ||
 				!this.getFrom().equals(extern.getFrom()) ||
-				!this.getSubject().equals(extern.getSubject()) ||
-				!(this.getId() == extern.getId()))
+				!this.getSubject().equals(extern.getSubject()))
+				// TODO: test, if ID can be removed, as the ID changes, as 
+				// a mail with a lower ID gets deleted
+//				!(this.getId() == extern.getId()))
 			return false;
 		return true;
 	}
