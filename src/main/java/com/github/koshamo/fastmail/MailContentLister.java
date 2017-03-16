@@ -74,8 +74,10 @@ public class MailContentLister {
 			}
 		}
 		if (msg != null) {
-			System.out.println("msg.length: " + msg.length);
-			System.out.println("messageID: " + messageID);
+			// TODO: here is a bug: if two mails are deleted roght after each other
+			// the message ID is not updated, because the observable list
+			// seems to be faster than the update process in deleteMessage()
+			
 			// just write the wanted message to internal field for further processing
 			message = msg[messageID-1];
 		}
