@@ -39,8 +39,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 
 /**
- * This class creates and shows a dialog to add a new MailAccount to
- * the application configuration.
+ * This class creates and shows a dialog to add or modify a MailAccount 
+ * for the application configuration.
  * <p>
  * This class is a wrapper to the JavaFX Dialog to hide the implementation
  * in the main GUI to keep that one clean. 
@@ -53,49 +53,57 @@ import javafx.scene.layout.GridPane;
 public class MailAccountDialog {
 
 	/**
-	 * The constructor to build the dialog.
+	 * The constructor to build the dialog. This constructor is used to
+	 * add a new account, which means that to this point no account data
+	 * is available
 	 */
 	public MailAccountDialog() {
+		accountData = new MailAccountData();
 		
 		addComponents(TYPE.ADD);
 		
 		dialog.setResultConverter(buttonType -> {
-			ButtonData data = buttonType.getButtonData();
-			if (data == ButtonData.OK_DONE)
-				return createAccount(false);
-			return account;
-		});
-	}
-	
-	public MailAccountDialog(MailAccount account) {
-		this.account = account;
-		addComponents(TYPE.CHANGE);
-		
-		dialog.setResultConverter(buttonType -> {
 			ButtonData buttonData = buttonType.getButtonData();
-			if (buttonData == ButtonData.OK_DONE) {
-				MailAccountData data = account.getMailAccountData();
-				data.setUsername(usernameField.getText());
-				data.setDisplayName(displaynameField.getText());
-				data.setPassword(passwordField.getText());
-				data.setInboxType(serverTypeBox.getSelectionModel().getSelectedItem());
-				data.setInboxHost(imapField.getText());
-				data.setSsl(sslBox.isSelected());
-				data.setSmtpHost(smtpField.getText());
-				data.setTls(tlsBox.isSelected());
-				account.setMailAccountData(data);
-			}
-			return account;
+			if (buttonData == ButtonData.OK_DONE) 
+				if (fillAccountData(false))
+					return accountData;
+			return null;
 		});
 	}
 	
 	/**
-	 * This methods shows the dialog and waits for it to return. Thus it is modal.
+	 * This constructor builds the dialog and fills it with available
+	 * account data. Thus this constructor is best used to modify an 
+	 * existing mail account.
 	 * 
-	 * @return a new MailAccount or null
+	 * @param accountData the data object of an existing mail account
+	 * @throws NullPointerException	if the MailAccountData object given
+	 * as parameter is null, this constructor throws a NullPointerException
 	 */
-	public MailAccount showAndWait() {
-		Optional<MailAccount> opt = dialog.showAndWait();
+	public MailAccountDialog(MailAccountData accountData) {
+		if (accountData == null)
+			throw new NullPointerException(
+					"You need to provide actual MailAccountData, if you use this constructor");
+		this.accountData = accountData;
+		addComponents(TYPE.CHANGE);
+		
+		dialog.setResultConverter(buttonType -> {
+			ButtonData buttonData = buttonType.getButtonData();
+			if (buttonData == ButtonData.OK_DONE) 
+				if (fillAccountData(false))
+					return accountData;
+			return null;
+		});
+	}
+	
+	/**
+	 * This methods shows the dialog and waits for it to return. 
+	 * Thus it is modal.
+	 * 
+	 * @return a MailAccountData object or null
+	 */
+	public MailAccountData showAndWait() {
+		Optional<MailAccountData> opt = dialog.showAndWait();
 		if (opt.isPresent())
 			return opt.get();
 		return null;
@@ -106,7 +114,7 @@ public class MailAccountDialog {
 	 * ******************************************************
 	 */
 	private enum TYPE {ADD, CHANGE};
-	private Dialog<MailAccount> dialog;
+	private Dialog<MailAccountData> dialog;
 	private GridPane grid;
 	private TextField usernameField;
 	private TextField displaynameField;
@@ -118,13 +126,13 @@ public class MailAccountDialog {
 	private CheckBox tlsBox;
 	private Button testButton;
 	private Label statusLabel;
-	private MailAccount account = null;
+	private MailAccountData accountData = null;
 	
 	/**
 	 * create the actual GUI
 	 */
 	private void addComponents(TYPE type) {
-		dialog = new Dialog<MailAccount>();
+		dialog = new Dialog<MailAccountData>();
 		ButtonType add = new ButtonType("Add Account", ButtonData.OK_DONE);
 		ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 		
@@ -135,7 +143,7 @@ public class MailAccountDialog {
 		}
 		else {	// TYPE.CHANGE
 			dialog.setTitle("Change a Mail Account");
-			dialog.setHeaderText("Change the settings of your mail accoutn.");
+			dialog.setHeaderText("Change the settings of your mail account.");
 		}
 
 		grid = new GridPane();
@@ -189,7 +197,7 @@ public class MailAccountDialog {
 		grid.add(tlsBox, 1, 7);
 		testButton = new Button("test configuration");
 		testButton.setOnAction(ev -> {
-			createAccount(true);
+			fillAccountData(true);
 		});
 		testButton.setTooltip(new Tooltip("test the server settings before you add the mail account"));
 		grid.add(testButton, 1, 8);
@@ -197,15 +205,14 @@ public class MailAccountDialog {
 		grid.add(statusLabel, 0, 9, 2, 1);
 		
 		if (type == TYPE.CHANGE) {
-			MailAccountData data = account.getMailAccountData();
-			usernameField.setText(data.getUsername());
-			displaynameField.setText(data.getDisplayName());	
-			passwordField.setText(data.getPassword());	
-			serverTypeBox.setValue(data.getInboxType());
-			imapField.setText(data.getInboxHost());
-			sslBox.setSelected(data.isSsl());
-			smtpField.setText(data.getSmtpHost());
-			tlsBox.setSelected(data.isTls());
+			usernameField.setText(accountData.getUsername());
+			displaynameField.setText(accountData.getDisplayName());	
+			passwordField.setText(accountData.getPassword());	
+			serverTypeBox.setValue(accountData.getInboxType());
+			imapField.setText(accountData.getInboxHost());
+			sslBox.setSelected(accountData.isSsl());
+			smtpField.setText(accountData.getSmtpHost());
+			tlsBox.setSelected(accountData.isTls());
 		}
 		
 		DialogPane pane = dialog.getDialogPane();
@@ -217,53 +224,55 @@ public class MailAccountDialog {
 	 * Helper method that validates the fields.
 	 * <p>
 	 * If test is true, it checks if the account is valid and can be added. <br>
-	 * If test is false, it creates a new MailAccount and returns it.
+	 * If test is false, it fills the internal MailAccountData object that
+	 * can be returned by this class.
 	 * 
 	 * @param test true for account testing, false for production
-	 * @return a new MailAccount or null
+	 * @return true, if all fields are valid, false otherwise
 	 */
-	private MailAccount createAccount(boolean test) {
-		MailAccount account = null;
+	private boolean fillAccountData(boolean test) {
 		if (usernameField.getText().isEmpty()) {
 			statusLabel.setText("Please enter username");
-			return null;
+			return false;
 		}
 		if (!MailTools.isValid(usernameField.getText())) {
 			statusLabel.setText("Username is not valid");
-			return null;
+			return false;
 		}
 		if (passwordField.getText().isEmpty()) {
 			statusLabel.setText("Please enter password");
-			return null;
+			return false;
 		}
 		if (imapField.getText().isEmpty()) {
 			statusLabel.setText("Please enter IMAP address");
-			return null;
+			return false;
 		}
 		if (!MailTools.isServerValid(imapField.getText())) {
 			statusLabel.setText("IMAP address doesn't seem to be valid");
-			return null;
+			return false;
 		}
 		if (smtpField.getText().isEmpty()) {
 			statusLabel.setText("Please enter SMTP address");
-			return null;
+			return false;
 		}
 		if (!MailTools.isServerValid(smtpField.getText())) {
 			statusLabel.setText("SMTP address doesn't seem to be valid");
-			return null;
+			return false;
 		}
-		if (test)
-			statusLabel.setText(MailAccount.testConnection(
-					usernameField.getText(), passwordField.getText(), null, 
-					serverTypeBox.getSelectionModel().getSelectedItem(), 
-					imapField.getText(), smtpField.getText(), 
-					sslBox.isSelected(), tlsBox.isSelected()));
+		accountData.setUsername(usernameField.getText());
+		accountData.setDisplayName(displaynameField.getText());
+		accountData.setPassword(passwordField.getText());
+		accountData.setInboxType(serverTypeBox.getSelectionModel().getSelectedItem());
+		accountData.setInboxHost(imapField.getText());
+		accountData.setSsl(sslBox.isSelected());
+		accountData.setSmtpHost(smtpField.getText());
+		accountData.setTls(tlsBox.isSelected());
+
+		if (test) {
+			statusLabel.setText(MailAccount.testConnection(accountData));
+			return false;
+		}
 		else
-			account = new MailAccount(usernameField.getText(), passwordField.getText(), 
-					displaynameField.getText(), 
-					serverTypeBox.getSelectionModel().getSelectedItem(), 
-					imapField.getText(), smtpField.getText(), 
-					sslBox.isSelected(), tlsBox.isSelected());
-		return account;
+			return true;
 	}
 }

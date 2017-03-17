@@ -106,13 +106,13 @@ public class MailAccount {
 	 * @param ssl			use SSL connection
 	 * @param tls			use TLS authentification
 	 */
-	public MailAccount(String username, String password, String displayName,
-			String inboxType, String inboxHost, String smtpHost,
-			boolean ssl, boolean tls) {
-		data = new MailAccountData(username, password, displayName,
-				inboxType, inboxHost, smtpHost, ssl, tls);
-		buildConnection();
-	}
+//	public MailAccount(String username, String password, String displayName,
+//			String inboxType, String inboxHost, String smtpHost,
+//			boolean ssl, boolean tls) {
+//		data = new MailAccountData(username, password, displayName,
+//				inboxType, inboxHost, smtpHost, ssl, tls);
+//		buildConnection();
+//	}
 
 	/**
 	 * In this constructor we initialize the account.
@@ -183,20 +183,18 @@ public class MailAccount {
 	 * @param tls			use TLS authentification
 	 * @return				a String with a success or failure description
 	 */
-	public static String testConnection(String username, String password, String displayName,
-	String inboxType, String inboxHost, String smtpHost,
-	boolean ssl, boolean tls) {
+	public static String testConnection(MailAccountData data) {
 		Properties props = new Properties();
-		if ("IMAP".equals(inboxType)) { //$NON-NLS-1$
-			props.setProperty("mail.imap.ssl.enable", new Boolean(ssl).toString()); //$NON-NLS-1$
+		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
+			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
 		}
-	    props.put("mail.smtp.host", smtpHost); //$NON-NLS-1$
-	    props.setProperty("mail.smtp.starttls.enable", new Boolean(tls).toString()); //$NON-NLS-1$
+	    props.put("mail.smtp.host", data.getSmtpHost()); //$NON-NLS-1$
+	    props.setProperty("mail.smtp.starttls.enable", new Boolean(data.isTls()).toString()); //$NON-NLS-1$
 		Session session = Session.getInstance(props);
 		Store store = null;
 		try {
-			store = session.getStore(inboxType.toLowerCase());
-			store.connect(inboxHost, username, password);
+			store = session.getStore(data.getInboxType().toLowerCase());
+			store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
 		} catch (NoSuchProviderException e) {
 			return "Failed to get connection to server. Please check server URLs and Protocol type.";
 		} catch (AuthenticationFailedException e) {
