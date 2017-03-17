@@ -131,7 +131,7 @@ public class MailAccountDialog {
 	/**
 	 * create the actual GUI
 	 */
-	private void addComponents(TYPE type) {
+	private void addComponents(final TYPE type) {
 		dialog = new Dialog<MailAccountData>();
 		ButtonType add = new ButtonType("Add Account", ButtonData.OK_DONE);
 		ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
@@ -230,7 +230,7 @@ public class MailAccountDialog {
 	 * @param test true for account testing, false for production
 	 * @return true, if all fields are valid, false otherwise
 	 */
-	private boolean fillAccountData(boolean test) {
+	private boolean fillAccountData(final boolean test) {
 		if (usernameField.getText().isEmpty()) {
 			statusLabel.setText("Please enter username");
 			return false;
