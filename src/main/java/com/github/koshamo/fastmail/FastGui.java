@@ -374,6 +374,9 @@ public class FastGui extends Application {
 								.getMessages(accounts.getCurrentFolder()));
 					}
 				});
+		// we do not want to see the root item: simulate the Accounts as 
+		// multiple roots
+		accountTree.setShowRoot(false);
 		
 		// ScrollPane below should then use AccountPane...
 		ScrollPane mailboxScroller = new ScrollPane(accountTree);
