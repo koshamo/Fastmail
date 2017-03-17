@@ -16,11 +16,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail;
+package com.github.koshamo.fastmail.gui;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import com.github.koshamo.fastmail.FastMailGenerals;
+import com.github.koshamo.fastmail.mail.EmailTableData;
+import com.github.koshamo.fastmail.mail.MailAccount;
+import com.github.koshamo.fastmail.mail.MailAccountData;
+import com.github.koshamo.fastmail.mail.MailAccountList;
+import com.github.koshamo.fastmail.mail.MailContentLister;
+import com.github.koshamo.fastmail.util.DateCellComparator;
+import com.github.koshamo.fastmail.util.DateCellFactory;
+import com.github.koshamo.fastmail.util.SerializeManager;
+import com.github.koshamo.fastmail.util.TreeCellFactory;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;

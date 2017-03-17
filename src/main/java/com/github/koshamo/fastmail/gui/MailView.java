@@ -17,7 +17,7 @@
  */
 
 
-package com.github.koshamo.fastmail;
+package com.github.koshamo.fastmail.gui;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -25,6 +25,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import com.github.koshamo.fastmail.mail.AttachmentData;
+import com.github.koshamo.fastmail.mail.MailData;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

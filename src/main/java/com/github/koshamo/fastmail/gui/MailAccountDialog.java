@@ -16,9 +16,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail;
+package com.github.koshamo.fastmail.gui;
 
 import java.util.Optional;
+
+import com.github.koshamo.fastmail.mail.MailAccount;
+import com.github.koshamo.fastmail.mail.MailAccountData;
+import com.github.koshamo.fastmail.util.MailTools;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.Button;

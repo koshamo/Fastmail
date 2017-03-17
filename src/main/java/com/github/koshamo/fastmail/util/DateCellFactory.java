@@ -16,12 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail;
+package com.github.koshamo.fastmail.util;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+
+import com.github.koshamo.fastmail.mail.EmailTableData;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

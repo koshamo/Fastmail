@@ -18,6 +18,9 @@
 
 package com.github.koshamo.fastmail;
 
+import com.github.koshamo.fastmail.gui.FastGui;
+import com.github.koshamo.fastmail.util.SerializeManager;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 
