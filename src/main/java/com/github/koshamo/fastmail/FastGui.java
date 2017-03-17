@@ -249,12 +249,39 @@ public class FastGui extends Application {
 	private void buildBody(VBox overallPane) {
 		// the body must be build upside down, as we use Splitter
 
+		// upper right side:
+		ScrollPane folderScroller = buildTableView();
+		
+		// lower side: message body
+		mailBody = new MailView();
+
+		// build right side
+		SplitPane mailfolderSplitter = new SplitPane(folderScroller, mailBody);
+		mailfolderSplitter.setDividerPosition(0, 0.4);
+		mailfolderSplitter.setOrientation(Orientation.VERTICAL);
+		
+		// left side: Mailboxes and their folders
+		ScrollPane mailboxScroller = buildTreeView();
+		
+		// building it all together
+		SplitPane mainSplitter = new SplitPane(mailboxScroller, mailfolderSplitter);
+		mainSplitter.setDividerPosition(0, 0.25);
+		VBox.setVgrow(mainSplitter, Priority.ALWAYS);
+		overallPane.getChildren().add(mainSplitter);
+	}
+
+	
+	/**
+	 * Builds the TableView representing the mail folders content
+	 * and returns the content in a ScrollPane
+	 * @return	the ScrollPane representing the TableView
+	 */
+	private ScrollPane buildTableView() {
 		// local fields
 		rootItem = new TreeItem<String>(rootItemString);
 		rootItem.setExpanded(true);
 		
-		// right side: folder content and message body
-		// upper side: folder
+		// upper right side: folder
 		folderMailTable = new TableView<EmailTableData>();
 		folderMailTable.setEditable(true);	// need to check, that only few fields can be modyfied
 		folderMailTable.setPlaceholder(new Label("choose Folder on the left side to show Emails"));
@@ -292,7 +319,6 @@ public class FastGui extends Application {
 				subjectCol, fromCol, dateCol, readCol, attachmentCol, 
 				markerCol, idCol));
 		// local field representing the mails in a folder, that should be shown
-//		folderMailTable.setItems(emailList);
 		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
 				(obs, oldVal, newVal) -> {
 					if (newVal != null) {
@@ -310,17 +336,15 @@ public class FastGui extends Application {
 		folderScroller.setFitToHeight(true);
 		folderScroller.setFitToWidth(true);
 		
-		// lower side: message body
-		mailBody = new MailView();
-
-		// build right side
-		SplitPane mailfolderSplitter = new SplitPane(folderScroller, mailBody);
-		mailfolderSplitter.setDividerPosition(0, 0.4);
-		mailfolderSplitter.setOrientation(Orientation.VERTICAL);
-		
-		// left side: Mailboxes and their folders
-		
-
+		return folderScroller;
+	}
+	
+	
+	/** Builds the TreeView representing the mail accounts and returns it
+	 * within a ScrollPane
+	 * @return	the ScrollPane representing the TableView 
+	 */
+	private ScrollPane buildTreeView() {
 		TreeView<String> accountTree = new TreeView<String>(rootItem);
 		accountTree.setEditable(true);
 		accountTree.setCellFactory((TreeView<String> p) -> new TreeCellFactory());
@@ -355,14 +379,10 @@ public class FastGui extends Application {
 		ScrollPane mailboxScroller = new ScrollPane(accountTree);
 		mailboxScroller.setFitToHeight(true);
 		mailboxScroller.setFitToWidth(true);
-		
-		// building it all together
-		SplitPane mainSplitter = new SplitPane(mailboxScroller, mailfolderSplitter);
-		mainSplitter.setDividerPosition(0, 0.25);
-		VBox.setVgrow(mainSplitter, Priority.ALWAYS);
-		overallPane.getChildren().add(mainSplitter);
-	}
 
+		return mailboxScroller;
+	}
+	
 	/**
 	 * buildStatusLine is a simple status line, where we can provide some
 	 * current messages for the user, that don't have to be prompted.
