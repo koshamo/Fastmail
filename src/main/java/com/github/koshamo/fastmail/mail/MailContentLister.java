@@ -39,13 +39,14 @@ import javax.mail.internet.MimeMultipart;
  * @author jochen
  *
  */
+
+// TODO: this class may be deleted after clearifying, if code is used here or in MailTools
+
 public class MailContentLister {
 
 	// internal fields...
-	private Message[] msg = null;
-	private Message message = null;
-	private Folder folder = null;
-
+	private EmailTableData emailTableData;
+	
 	/**
 	 * The constructor takes all fields necessary to read the mail from the server
 	 * and stores the mail content to global fields for further processing.
@@ -55,63 +56,11 @@ public class MailContentLister {
 	 * @param folderName the folder, in which the selected mail is
 	 * @param messageID the ID of the message within the given folder
 	 */
-	public MailContentLister(MailAccount account, String folderName, int messageID) {
-
-		// iterate over the accounts to find the matching one
-		for (String f : account.getFolders()) {
-			if (f.equals(folderName)) {
-				folder = account.getFolder(folderName);
-				if (folder == null) return;
-				// get the messages from the folder
-				try {
-					folder.open(Folder.READ_WRITE);
-					msg = folder.getMessages();
-				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		}
-		if (msg != null) {
-			// TODO: here is a bug: if two mails are deleted roght after each other
-			// the message ID is not updated, because the observable list
-			// seems to be faster than the update process in deleteMessage()
-			
-			// just write the wanted message to internal field for further processing
-			message = msg[messageID-1];
-		}
-		// close folder after usage, but prevent INBOX to be closed, as we need 
-		// it to check for new mails
-//		if ((folder != null) && !folder.equals("INBOX")) {
-//			try {
-//				folder.close(true);
-//			} catch (MessagingException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
+	public MailContentLister(EmailTableData emailTableData) {
+		this.emailTableData = emailTableData;
 	}
 	
-	
-	/* (non-Javadoc)
-	 * 
-	 * this method just closes the mail folder
-	 * 
-	 * @see java.lang.Object#finalize()
-	 */
-	@Override
-	protected void finalize() {
-		if (folder != null) {
-			try {
-				folder.close(true);
-			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
+		
 	/**
 	 * The method getMessage returns the mail's content in plain text format
 	 * <p>
@@ -123,8 +72,10 @@ public class MailContentLister {
 	 * @param messageID the message number within the folder
 	 * @return the mail content Data object
 	 */
+	// TODO: this method is duplicated: once here, once in MailTools
 	public MailData getMessage() {
 
+		Message message = emailTableData.getMailData().getMessage();
 		MailData md = null;
 		
 		String from = ""; //$NON-NLS-1$
@@ -159,6 +110,7 @@ public class MailContentLister {
 				}
 			} else if (message.isMimeType("message/rfc822")) { //$NON-NLS-1$
 				// recursive reading
+				System.out.println("original version of MailContentLister::getMessage()");
 				md = getMessage();
 			} else {
 				System.out.println("this is an unknown message type");

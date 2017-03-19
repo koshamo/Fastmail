@@ -22,9 +22,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.mail.Message;
-
-import com.github.koshamo.fastmail.mail.MailAccountList;
+import com.github.koshamo.fastmail.mail.MailAccount;
+import com.github.koshamo.fastmail.mail.MailData;
 import com.github.koshamo.fastmail.util.MailTools;
 
 import javafx.collections.FXCollections;
@@ -63,7 +62,7 @@ import javafx.stage.Stage;
  */
 public class MailComposer {
 
-	private MailAccountList accounts;
+	private MailAccount[] accounts;
 	private Stage stage;
 	private Label status;
 	private TextField attachmentLine;
@@ -73,61 +72,40 @@ public class MailComposer {
 	private TextField ccAddress;
 	private TextField subjectText;
 	private TextArea area;
-	private Message message;
+	private MailData mail;
+	private int curAccnt;
 	
 	/**
 	 * Basic constructor to compose a new mail. 
 	 * <p> 
 	 * Only the information about the mail accounts is needed
 	 * 
-	 * @param accounts the list that holds the mail accounts
+	 * @param accounts the array that holds the mail accounts
 	 */
-	public MailComposer(MailAccountList accounts) {
+	public MailComposer(MailAccount[] accounts) {
 		this.accounts = accounts;
 		buildGui();
 	}
 	
 	/**
 	 * This constructor is used to reply to a message
-	 * 
-	 * @param accounts 	the list that holds the mail accounts
-	 * @param to 		all email addresses in the TO field, semicolon separated
-	 * @param subject	the subject of the existing email, which will be prepended
-	 * with Re: if not already present
-	 * @param text		the email's text, which will be prepended with > line by
-	 * line to visualize the citing
-	 * @param message	the message abject needed to inform the server about a reply
+	 * @param accounts	the array that holds the mail accounts
+	 * @param curAccnt	the index of the active account in the array
+	 * @param mail		the MailData object to reply to
+	 * @param replyAll	set this to true, if the message is reply to all
 	 */
-	public MailComposer(MailAccountList accounts, String to, String subject, String text, Message message) {
+	public MailComposer(MailAccount[] accounts, int curAccnt, MailData mail, boolean replyAll) {
 		this.accounts = accounts;
-		this.message = message;
+		this.mail = mail;
+		this.curAccnt = curAccnt;
 		buildGui();
-		toAddress.setText(to);
-		subjectText.setText(MailTools.makeSubject(subject));
-		area.setText(MailTools.decorateMailText(text));
+		toAddress.setText(mail.getToAsLine());
+		if (replyAll)
+			ccAddress.setText(mail.getCcAsLine());
+		subjectText.setText(MailTools.makeSubject(mail.getSubject()));
+		area.setText(MailTools.decorateMailText(mail.getContent()));
 	}
 
-	/**
-	 * This constructor is used to reply to alll
-	 * 
-	 * @param accounts	the list that holds the mail accounts
-	 * @param to		all email addresses in the TO field, semicolon separated
-	 * @param cc		all email addresses in the CC field, semicolon separated
-	 * @param subject	the subject of the existing email, which will be prepended
-	 * with Re: if not already present
-	 * @param text		the email's text, which will be prepended with > line by
-	 * line to visualize the citing
-	 * @param message	the message abject needed to inform the server about a reply
-	 */
-	public MailComposer(MailAccountList accounts, String to, String cc, String subject, String text, Message message) {
-		this.accounts = accounts;
-		this.message = message;
-		buildGui();
-		toAddress.setText(to);
-		ccAddress.setText(cc);
-		subjectText.setText(MailTools.makeSubject(subject));
-		area.setText(MailTools.decorateMailText(text));
-	}
 
 	/**
 	 * main method to construct the GUI
@@ -184,14 +162,9 @@ public class MailComposer {
 				return;
 			}
 			// get the values an send the mail
-			if (attachmentList.isEmpty())
-				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
-					.sendMail(toAddress.getText(), ccAddress.getText(), 
-						subjectText.getText(), area.getText(), null, message);
-			else 
-				accounts.getAccount(fromBox.getSelectionModel().getSelectedItem().toString())
-				.sendMail(toAddress.getText(), ccAddress.getText(), 
-					subjectText.getText(), area.getText(), attachmentList, message);
+			accounts[fromBox.getSelectionModel().getSelectedIndex()].
+					sendMail(toAddress.getText(), ccAddress.getText(), 
+						subjectText.getText(), area.getText(), null, mail.getMessage());
 				
 			stage.close();
 		});
@@ -236,7 +209,7 @@ public class MailComposer {
 		grid.add(from, 0, 0);
 		fromBox = new ChoiceBox<String>(fillList());
 		fromBox.setMaxWidth(Double.MAX_VALUE);
-		fromBox.setValue(accounts.getCurrentAccount());
+		fromBox.setValue(accounts[curAccnt].getAccountName());
 		grid.add(fromBox, 1, 0);
 		Label to = new Label("to :");
 		grid.add(to, 0, 1);
@@ -275,10 +248,8 @@ public class MailComposer {
 	 */
 	private ObservableList<String> fillList() {
 		final ObservableList<String> list = FXCollections.observableArrayList();
-		accounts
-			.getList()
-			.stream()
-			.forEach(ma -> list.add(ma.getAccountName()));
+		for (MailAccount a : accounts)
+			list.add(a.getAccountName());
 		return list;
 	}
 	

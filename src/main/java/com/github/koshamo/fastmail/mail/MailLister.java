@@ -22,6 +22,7 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
 /**
@@ -40,8 +41,9 @@ import javafx.concurrent.Task;
  *
  */
 public final class MailLister extends Task<Boolean>{
-	private final MailAccount account;
-	private final String folderName;
+
+	private Folder folder;
+	private ObservableList<EmailTableData> mailList;
 	private volatile boolean stop = false;
 	
 	/**
@@ -51,9 +53,9 @@ public final class MailLister extends Task<Boolean>{
 	 * @param emailList the observable list, that holds the table items 
 	 * to be filled dynamically
 	 */
-	public MailLister(MailAccount account, String folderName) {
-		this.account = account;
-		this.folderName = folderName;
+	public MailLister(Folder folder, ObservableList<EmailTableData> mailList) {
+		this.folder = folder;
+		this.mailList = mailList;
 	}
 
 	/**
@@ -79,35 +81,24 @@ public final class MailLister extends Task<Boolean>{
 	@Override
 	protected Boolean call() throws Exception {
 		Message[] msg = null;
-		Folder folder = null;
 		// iterate over the accounts to find the matching one
 		if (stop) return new Boolean(false); // check if thread needs to be stopped
-		// find the folder to be processed
-		for (String f : account.getFolders()) {
-			if (stop) return new Boolean(false); // check if thread needs to be stopped
-			if (f.equals(folderName)) {
-				// folder found! read the items and populate the list
-				folder = account.getFolder(folderName);
-				if (folder == null) return new Boolean(false);
-				if (stop) return new Boolean(false); // check if thread needs to be stopped
-				try {
-					folder.open(Folder.READ_WRITE);
-					msg = folder.getMessages();
-				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
-			}
+		try {
+			folder.open(Folder.READ_WRITE);
+			msg = folder.getMessages();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 		if (msg != null) {
 			// get messages and add them to the observable table view list
 			for (Message message : msg) {
 				if (stop) return null; // check if thread needs to be stopped
-				account.getMessages(folderName).add(new EmailTableData(message));
-//				System.out.println(message.getMessageNumber());
+				mailList.add(new EmailTableData(message));
 			}
-			account.getMessages(folderName).sort(null);
+			mailList.sort(null);
 		}
 		return new Boolean(true);
 	}

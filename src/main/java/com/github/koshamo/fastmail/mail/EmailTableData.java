@@ -28,6 +28,8 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
 
+import com.github.koshamo.fastmail.util.MailTools;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -62,6 +64,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	private SimpleBooleanProperty read;
 	private SimpleBooleanProperty marked;
 	private SimpleIntegerProperty id;
+	private MailData mailData;
 //	private Message msg;
 	
 
@@ -130,6 +133,10 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		// TODO: maybe this method is more convenient to fill the properties
+		// than the code above.
+		// at least check, which code is duplicated
+		MailTools.getMessage(msg);
 	}
 	
 	
@@ -238,6 +245,9 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		this.id.set(newId);
 	}
 
+	public MailData getMailData() {
+		return mailData;
+	}
 
 	/* The natural order of Emails should be the ID in the mailbox
 	 * 

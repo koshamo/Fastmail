@@ -18,6 +18,12 @@
 
 package com.github.koshamo.fastmail.util;
 
+import javax.mail.Folder;
+import javax.mail.MessagingException;
+
+import com.github.koshamo.fastmail.mail.FolderItem;
+import com.github.koshamo.fastmail.mail.MailTreeViewable;
+
 import javafx.event.ActionEvent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -35,25 +41,52 @@ import javafx.scene.input.KeyEvent;
  * @author jochen
  *
  */
-public class TreeCellFactory extends TreeCell<String> {
+public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 
 	private TextField textField;
 	private final ContextMenu contextMenu = new ContextMenu();
+	private MailTreeViewable editItem;
 	
 	/**
 	 * The class constructor builds the context menu
 	 */
 	public TreeCellFactory() {
-		MenuItem addMenuItem = new MenuItem("Add Folder");
-		contextMenu.getItems().add(addMenuItem);
-		addMenuItem.setOnAction((ActionEvent t) -> {
-			TreeItem<String> newFolder = new TreeItem<>("New Folder");
-			getTreeItem().getChildren().add(newFolder);
+		if (getTreeItem().getValue().isAccount()) {
+			MenuItem editAccountMenu = new MenuItem("Edit Account");
+			// TODO: add action listener
+			MenuItem deleteAccountMenu = new MenuItem("Delete Account");
+			// TODO: add action listener
+			contextMenu.getItems().addAll(editAccountMenu, deleteAccountMenu);
+		}
+		else {
+			MenuItem addSubFolderMenu = new MenuItem("Add Sub Folder");
+			// TODO: add action listener
+			contextMenu.getItems().add(addSubFolderMenu);
+		}
+		MenuItem addFolderMenu = new MenuItem("Add Folder");
+		contextMenu.getItems().add(addFolderMenu);
+		addFolderMenu.setOnAction((ActionEvent t) -> {
+			// TODO: the Folder class should not be used here. 
+			// TODO: Add interface for folder creation in the FolderItem class
+			Folder parent = getTreeItem().getValue().getParentFolder();
+			Folder newFolder = null;
+			try {
+				newFolder = parent.getFolder("new Folder");
+				if (!newFolder.exists())
+					newFolder.create(Folder.HOLDS_MESSAGES);
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}
+			FolderItem newFolderItem = new FolderItem(newFolder);
+			if (!getTreeItem().getChildren().contains(newFolderItem))
+				getTreeItem().getChildren().add(new TreeItem<MailTreeViewable>(newFolderItem));
 		});
 	}
 	
 	/* 
-	 * Beginn editing: create text field and initialize it.
+	 * Begin editing: create text field and initialize it.
 	 * 
 	 * @see javafx.scene.control.TreeCell#startEdit()
 	 */
@@ -78,7 +111,7 @@ public class TreeCellFactory extends TreeCell<String> {
 	public void cancelEdit() {
 		super.cancelEdit();
 		
-		setText(getItem());
+		setText(getItem().getName());
 		setGraphic(getTreeItem().getGraphic());
 	}
 
@@ -89,8 +122,18 @@ public class TreeCellFactory extends TreeCell<String> {
 	 * @see javafx.scene.control.Cell#updateItem(java.lang.Object, boolean)
 	 */
 	@Override
-	public void updateItem(String item, boolean empty) {
+	public void updateItem(MailTreeViewable item, boolean empty) {
+		// Account and special folders are not renameable!
+		if (item.isAccount() || 
+				"INBOX".equals(item.getName()) ||
+				"Drafts".equals(item.getName()) || 
+				"Sent".equals(item.getName()) ||
+				"Trash".equals(item.getName())) {
+			cancelEdit();
+			return;
+		}
 		super.updateItem(item, empty);
+		editItem = item;
 		
 		if (empty) {
 			setText(null);
@@ -105,9 +148,7 @@ public class TreeCellFactory extends TreeCell<String> {
 			} else {
 				setText(getString());
 				setGraphic(getTreeItem().getGraphic());
-				if (!getTreeItem().isLeaf() && getTreeItem().getParent() != null) {
-					setContextMenu(contextMenu);
-				}
+				setContextMenu(contextMenu);
 			}
 		}
 	}
@@ -123,27 +164,10 @@ public class TreeCellFactory extends TreeCell<String> {
 	 * Need further investigation of this topic
 	 */
 	@Override 
-	public void commitEdit(String newValue) {
-		// account item should not be modified here
-		if (getTreeItem().getParent() != null && 
-				getTreeItem().getParent().getParent() == null) {
-			setText(getItem());
-			setGraphic(getTreeItem().getGraphic());
-			return;
-		}
-		// special folders also should not be renamed
-		if (getText().equals("INBOX") || getText().equals("Drafts")
-				|| getText().equals("Sent") || getText().equals("Trash")) {
-			setText(getItem());
-			setGraphic(getTreeItem().getGraphic());
-			return;
-		}
-		
-		// TODO: add updating on server
-
-		setText(getString());
-		setGraphic(getTreeItem().getGraphic());
+	public void commitEdit(MailTreeViewable newValue) {
 		super.commitEdit(newValue);
+		FolderItem folderItem = (FolderItem) editItem;
+		folderItem.renameTo(((FolderItem)newValue).getFolder());
 	}
 	
 	/**
@@ -152,7 +176,7 @@ public class TreeCellFactory extends TreeCell<String> {
 	 * @return the String the user entered in the text field
 	 */
 	private String getString() {
-		return getItem() == null ? "" : getItem().toString();
+		return getItem().getName() == null ? "" : getItem().getName();
 	}
 
 	/**

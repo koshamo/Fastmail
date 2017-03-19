@@ -50,6 +50,8 @@ import com.github.koshamo.fastmail.util.MailTools;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TreeItem;
+import javafx.util.Duration;
 
 /**
  * MailAccount is the class that contains a mail accounts information.
@@ -65,54 +67,30 @@ import javafx.collections.ObservableList;
  * @author jochen
  *
  */
-public class MailAccount {
+public class MailAccount implements MailTreeViewable{
 	// some fields needed to create connection
-	MailAccountData data;
-	Properties props;
-	Session session;
-	Store store;
-	boolean connected = false;
-	boolean imap = false;
+	private MailAccountData data;
+	private Properties props;
+	private Session session;
+	private Store store;
+	private boolean connected = false;
+	private boolean imap = false;
 	
 	// stores the folders within the mail account
 	// TODO: think about fetching these dynamically, but maybe this will be done by
 	// the to be implemented method to watch the account...
-	Folder[] folders;
+	private Folder[] folders;
+	private Folder parentFolder; 
 
-	private ObservableList<EmailTableData> inbox;
-	private HashMap<String, SoftReference<ObservableList<EmailTableData>>> folderContentMap;
-	
 	private AccountFolderWatcher accountFolderWatcher;
-	private InboxWatcher inboxWatcher;
+	
+	private TreeItem<MailTreeViewable> account;
 	
 	/* InboxWatcher detects new Messages at startup and adds mails to inbox redundant.
 	 * This can be avoided, if InboxWatcher checks, if inbox has been initialized.
 	 */
 	private boolean setup;
 	
-	/**
-	 * In this constructor we initialize the account.
-	 * <p>
-	 * The constructor also loads the inbox's content and stores it locally for
-	 * faster access
-	 * 
-	 * @param username		the username for this account as fullly qualified 
-	 * email address
-	 * @param password		the account's password
-	 * @param displayName	the display name for most email clients
-	 * @param inboxType		type of inbox, currently only IMAP is supported
-	 * @param inboxHost		host URL for retrieving (e.g. imap.gmail.com)
-	 * @param smtpHost		host URL for sending (e.g. smtp.gmail.com)
-	 * @param ssl			use SSL connection
-	 * @param tls			use TLS authentification
-	 */
-//	public MailAccount(String username, String password, String displayName,
-//			String inboxType, String inboxHost, String smtpHost,
-//			boolean ssl, boolean tls) {
-//		data = new MailAccountData(username, password, displayName,
-//				inboxType, inboxHost, smtpHost, ssl, tls);
-//		buildConnection();
-//	}
 
 	/**
 	 * In this constructor we initialize the account.
@@ -155,14 +133,19 @@ public class MailAccount {
 			e.printStackTrace();
 		}
 		connected = true;
-		// get all the content of this accounts inbox and store it in the list
-		inbox = FXCollections.observableArrayList();
-		MailLister ml = new MailLister(this, "INBOX");
-		ml.setOnSucceeded(ev -> {setup = ml.getValue().booleanValue();});
-		Thread mlt = new Thread(ml);
-		mlt.start();
-		inbox.sort(null);
-		folderContentMap = new HashMap<String, SoftReference<ObservableList<EmailTableData>>>();
+	}
+	
+	
+	public void addFolderWatcher(TreeItem<MailTreeViewable> account) {
+		this.account = account;
+		accountFolderWatcher = new AccountFolderWatcher(this, account);
+		accountFolderWatcher.setPeriod(Duration.seconds(60));
+		accountFolderWatcher.start();
+	}
+
+	public void remove() {
+		accountFolderWatcher.cancel();
+		account.getParent().getChildren().remove(account);
 	}
 	
 	/**
@@ -233,6 +216,20 @@ public class MailAccount {
 		return imap;
 	}
 	
+	
+	public Folder[] getFolders() {
+		try {
+			parentFolder = store.getDefaultFolder();
+			folders = parentFolder.list();
+			return folders;
+		} catch(MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
 	/**
 	 * method reads the folders of the mail account and stores it in a field.
 	 * folders are INBOX, Trash,... and all user generated folders to archive 
@@ -248,7 +245,7 @@ public class MailAccount {
 	 * 
 	 * @return all folders within the mail account as a String array
 	 */
-	public String[] getFolders() {
+	public String[] getFoldersAsString() {
 		try {
 			Folder rf = store.getDefaultFolder();
 			folders = rf.list();
@@ -298,7 +295,7 @@ public class MailAccount {
 	 */
 	public Folder getFolder(String folderName) {
 		if (folders == null)
-			getFolders();
+			getFoldersAsString();
 		for (Folder f : folders) {
 			if (f.getFullName().equals(folderName))
 				return f;
@@ -306,67 +303,7 @@ public class MailAccount {
 		return null;
 	}
 	
-	/**
-	 * read all the messages within a given mail folder.
-	 * <p>
-	 * If the folder already has been read, the content can be returned directly.
-	 * If the folder hasn't been read yet or be removed by the Garbage Collector,
-	 * load the content and return it.
-	 * 
-	 * @param folder the folder, which mails will be read
-	 * 
-	 * @return the emails read as an ObservableList for direct usage in a TableView
-	 */
-	public ObservableList<EmailTableData> getMessages(String folder) {
-		if ("INBOX".equals(folder))
-			return inbox;
-		if (!folderContentMap.isEmpty() && folderContentMap.containsKey(folder)) {
-			ObservableList<EmailTableData> data = folderContentMap.get(folder).get();
-			if (data != null)
-				return data;
-			// the SoftReference has been removed from Garbage Collector, so remove entry
-			folderContentMap.remove(folder);
-		}
-		ObservableList<EmailTableData> data = FXCollections.observableArrayList();
-		for (Folder f : folders) {
-			if (folder.equals(f.getFullName())) {
-				try {
-					f.open(Folder.READ_WRITE);
-					MailLister lister = new MailLister(this, folder);
-					Thread t = new Thread(lister);
-					t.start();
-					folderContentMap.put(
-							folder, new SoftReference<ObservableList<EmailTableData>>(data));
-					f.close(true);
-				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-			}
-		}
-		data.sort(null);
-		return data;
-	}
-	
-	
-	/**
-	 * this method informs about the number of mails in the inbox
-	 * 
-	 * @return number of messages in the inbox
-	 */
-	public int getInboxCount() {
-		return inbox.size();
-	}
 		
-	/**
-	 * Direct access to the INBOX
-	 * 
-	 * @return the ObservableList of the account's inbox
-	 */
-	public ObservableList<EmailTableData> getInbox() {
-		return inbox;
-	}
-	
 	/* (non-Javadoc)
 	 * closes the connection to the server
 	 * 
@@ -385,45 +322,54 @@ public class MailAccount {
 	/**
 	 * Removes a message from the email folder locally as well as on the server.
 	 * 
-	 * @param msg the email message to remove
-	 * @param currentFolder the folder, where the email is in
+	 * @param folderItem	the folderItem, in which the mail resides
+	 * @param emailTableData the email message to remove
 	 * @return true, if the mail could be removed, otherwise false
 	 */
-	public boolean deleteMessage(EmailTableData msg, String currentFolder) {
-		Folder f = getFolder(currentFolder);
+	public boolean deleteMessage(FolderItem folderItem, EmailTableData emailTableData) {
+		// TODO: to much calls in a row, make clearer design
+		Folder f = emailTableData.getMailData().getMessage().getFolder();
 		boolean deleted = false;
 		try {
 			if (!f.isOpen())
 				f.open(Folder.READ_WRITE);
-			Message[] messages = f.getMessages();
-			for (Message m : messages) {
-				if (msg.equals(new EmailTableData(m))) {
-					f.setFlags(new Message[] {m}, new Flags(Flags.Flag.DELETED), true);
-					deleted = true;
-					break; // message found, so no further processing needed
-				}
-			}
+			// this code works on the folders
+//			Message[] messages = f.getMessages();
+//			for (Message m : messages) {
+//				if (msg.equals(new EmailTableData(m))) {
+//					f.setFlags(new Message[] {m}, new Flags(Flags.Flag.DELETED), true);
+//					deleted = true;
+//					break; // message found, so no further processing needed
+//				}
+//			}
+			// TODO: check if the code also works on the message as
+			// described in javamail documentation
+			emailTableData.getMailData().getMessage().setFlag(Flags.Flag.DELETED, true);
+			deleted = true;
 			f.close(true);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// delete message locally and update IDs
-		if (deleted) {
-			ObservableList<EmailTableData> mailList = null;
-			if ("INBOX".equals(currentFolder))
-				mailList = inbox;
-			else if (!folderContentMap.isEmpty() && folderContentMap.containsKey(currentFolder)) 
-				mailList = folderContentMap.get(currentFolder).get();
-			if (mailList == null)
-				return false;
-			// delete message
-			int index = msg.getId();
-			mailList.remove(msg);
-			// update IDs
-			for (int i = index - 1; i < mailList.size(); i++)
-				mailList.get(i).setId(i + 1);
-		}
+		// TODO: delete mail locally
+		// to achieve this, move folder lists to folders!
+		
+//		if (deleted) {
+//			ObservableList<EmailTableData> mailList = null;
+//			if ("INBOX".equals(currentFolder))
+//				mailList = inbox;
+//			else if (!folderContentMap.isEmpty() && folderContentMap.containsKey(currentFolder)) 
+//				mailList = folderContentMap.get(currentFolder).get();
+//			if (mailList == null)
+//				return false;
+//			// delete message
+//			int index = emailTableData.getId();
+//			mailList.remove(emailTableData);
+//			// update IDs
+//			for (int i = index - 1; i < mailList.size(); i++)
+//				mailList.get(i).setId(i + 1);
+//		}
 		return deleted;
 	}
 	
@@ -465,7 +411,7 @@ public class MailAccount {
 				msg = (MimeMessage) m;
 			}
 			else
-			msg = new MimeMessage(session);
+				msg = new MimeMessage(session);
 			InternetAddress ia = new InternetAddress(data.getUsername(), data.getDisplayName());
 			msg.setFrom(ia);
 			msg.setRecipients(RecipientType.TO, MailTools.parseAddresses(to));
@@ -515,38 +461,42 @@ public class MailAccount {
 	public void setMailAccountData(MailAccountData data) {
 		this.data = data;
 	}
-	
-	/**
-	 * Get the Account Folder Watcher for this account
-	 * @return account's AccountFolderWatcher
-	 */
-	public AccountFolderWatcher getAccountFolderWatcher() {
-		return accountFolderWatcher;
-	}
 
-	/** 
-	 * Set the Account Folder Watcher for this account
-	 * @param accountFolderWatcher this account's AccountFolderWatcher
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#isAccount()
 	 */
-	public void setAccountFolderWatcher(AccountFolderWatcher accountFolderWatcher) {
-		this.accountFolderWatcher = accountFolderWatcher;
-	}
-
-	/**
-	 * Get the Inbox Watcher for this account
-	 * @return account's InboxWatcher
-	 */
-	public InboxWatcher getInboxWatcher() {
-		return inboxWatcher;
-	}
-
-	/** 
-	 * Set the Inbox Watcher for this account
-	 * @param inboxWatcher this account's InboxWatcher
-	 */
-	public void setInboxWatcher(InboxWatcher inboxWatcher) {
-		this.inboxWatcher = inboxWatcher;
+	@Override
+	public boolean isAccount() {
+		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return data.getUsername();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolderContent()
+	 */
+	@Override
+	public ObservableList<EmailTableData> getFolderContent() {
+		return FXCollections.observableArrayList();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getParentFolder()
+	 */
+	@Override
+	public Folder getParentFolder() {
+		return parentFolder;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getName()
+	 */
+	@Override
+	public String getName() {
+		return getAccountName();
+	}
 	
 }

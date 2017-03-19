@@ -24,6 +24,7 @@ import javax.mail.MessagingException;
 import javax.mail.event.MessageCountAdapter;
 import javax.mail.event.MessageCountEvent;
 
+import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 
@@ -36,53 +37,22 @@ import javafx.concurrent.Task;
  */
 public class InboxWatcher extends ScheduledService<Void> {
 
-	MailAccount account;
+	/*package private*/ Folder folder;
+	/*package private*/ ObservableList<EmailTableData> mailList;
 	
 	/**
-	 * the constructorof InboxWatcher adds Action Listeners to the INBOX folder
+	 * the constructor of InboxWatcher adds Action Listeners to the INBOX folder
 	 * <p>
-	 * It seems that the action listeners don't work as expected.
+	 * As POP3 accounts don't support action listeners at all and they did not
+	 * work on my IMAP folders, we chose an implementation totally without
+	 * folder action listeners
 	 * 
-	 * @param account the object storing all available mail accounts
-	 * @param emailList the observable list of mails, to add newly arrived mails
+	 * @param folder	the folder to watch
+	 * @param mailList	the observable list to connect the server folder to the GUI
 	 */
-	// TODO: check the usage and/or usability of the action listeners, as they 
-	// don't work currently
-	public InboxWatcher(MailAccount account) {
-		this.account = account;
-		Folder inbox = null;
-		try {
-			inbox = account.getFolder("INBOX");
-			if (inbox == null || !inbox.exists())
-				return;
-			if (!inbox.isOpen())
-				inbox.open(Folder.READ_WRITE);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// POP3 accounts don't allow message handler, thus we only use IMAP accounts
-		// TODO: my IMAP accounts don't respond to the handlers
-		if (account.isIMAP()) {
-			inbox.addMessageCountListener(new MessageCountAdapter() {
-				@Override
-				public void messagesAdded(MessageCountEvent mce) {
-					Message[] msgs = mce.getMessages();
-					System.out.println("****");
-					System.out.println("Account: " + account.getAccountName() 
-					+ " hat " + msgs.length + " neue Nachrichten");
-					System.out.println("****");
-					for (Message msg : msgs) {
-						account.getInbox().add(new EmailTableData(msg));
-					}
-				}
-				@Override
-				public void messagesRemoved(MessageCountEvent mce) {
-					// TODO: synchronize the mailbox
-					System.out.println("Message Removed Event");
-				}
-			});
-		}
+	public InboxWatcher(Folder folder, ObservableList<EmailTableData> mailList) {
+		this.folder = folder;
+		this.mailList = mailList;
 	}
 
 	
@@ -99,28 +69,21 @@ public class InboxWatcher extends ScheduledService<Void> {
 
 			@Override
 			protected Void call() throws Exception {
-				if (!account.isSetup())
-					return null;
-				Folder serverInbox = account.getFolder("INBOX");
-				if (serverInbox == null || !serverInbox.exists())
-					return null;
-				int cnt = serverInbox.getMessageCount();
-				if (cnt != account.getInboxCount()) {
-					int newMails = cnt - account.getInboxCount();
+				int localCnt = mailList.size();
+				int serverCnt = folder.getMessageCount();
+				if (serverCnt != localCnt) {
+					int newMails = serverCnt - localCnt;
 					if (newMails > 0) {
-						// TODO: add this message to the GUI, however this will be done
-						// (using status line, using popup,...)
-						System.out.println(account.getAccountName() + " has " + newMails + " new Mails!");
 						// as the number of mails has changed update the folder
-						if (!serverInbox.isOpen())
-							serverInbox.open(Folder.READ_WRITE);
-						for (int i = account.getInboxCount(); i < cnt; i++) {
-							Message msg = serverInbox.getMessage(i+1);
+						if (!folder.isOpen())
+							folder.open(Folder.READ_WRITE);
+						for (int i = localCnt; i < serverCnt; i++) {
+							Message msg = folder.getMessage(i+1);
 							if (msg != null)
-								account.getInbox().add(new EmailTableData(msg));
+								mailList.add(new EmailTableData(msg));
 						}
-						account.getInbox().sort(null);
-						serverInbox.close(true);
+						mailList.sort(null);
+						folder.close(true);
 					}
 				}
 				return null;

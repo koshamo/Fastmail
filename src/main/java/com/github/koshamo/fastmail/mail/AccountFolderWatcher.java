@@ -20,7 +20,11 @@ package com.github.koshamo.fastmail.mail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import javax.mail.Folder;
+
+import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
@@ -37,15 +41,17 @@ import javafx.scene.control.TreeItem;
 public class AccountFolderWatcher extends ScheduledService<Void> {
 
 	MailAccount account;
-	TreeItem<String> rootItem;
+	TreeItem<MailTreeViewable> rootItem;
+	boolean stop = false;
 	
 	/**
 	 * Basic constructor
 	 * 
 	 * @param accounts this is the list containing all mail accounts
-	 * @param root root item of the tree view
+	 * @param root root item of the account
 	 */
-	AccountFolderWatcher(MailAccount account, TreeItem<String> rootItem) {
+	AccountFolderWatcher(final MailAccount account, 
+			final TreeItem<MailTreeViewable> rootItem) {
 		this.account = account;
 		this.rootItem = rootItem;
 	}
@@ -59,27 +65,17 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	@Override 
 	public boolean cancel() {
 		boolean ret = super.cancel();
-		removeFromTree();
+		stop = true;
+//		rootItem.getParent().getChildren().remove(rootItem);
 		return ret;
 	}
 	
-	/**
-	 * Functionality to remove the account from the tree view
-	 */
-	private void removeFromTree() {
-		TreeItem<String> toRemove = null;
-		for (TreeItem<String> acc : rootItem.getChildren())
-			if (acc.getValue().equals(account.getAccountName()))
-				toRemove = acc;
-		if (toRemove != null)
-			rootItem.getChildren().removeAll(Arrays.asList(toRemove));
-	}
 		
 	/* 
-	 * This method iterates over all mail accounts.
-	 * It adds all mail accounts to the tree view and cares for the folders.
-	 * New folders will be added, old folders will be removed
-	 * 
+	 * This task iterates over all folders within a given account and
+	 * adds all folder to the tree view that aren't already there.
+	 * Excessive folders will be removed.
+	 *   
 	 * @see javafx.concurrent.Service#createTask()
 	 */
 	@Override
@@ -88,53 +84,33 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 
 			@Override
 			protected Void call() {
-				// iterate over all Mail accounts
-				TreeItem<String> accountItem = new TreeItem<String>(account.getAccountName());
-				boolean found = false;
+				if (stop) return null;	// thread needs to be stopped
 				
-				for (TreeItem<String> accNode : rootItem.getChildren()) {
-					// make sure account hasn't been added yet
-					if (accNode.getValue().contentEquals(accountItem.getValue())) {
-						found = true;
-						// account already exists, check folders
-						String[] serverFolders = account.getFolders();
-						ArrayList<TreeItem<String>> clientFolders = new ArrayList<>(accNode.getChildren());
-						// if new folders exist, add them
-						for (String folder : serverFolders) {
-							boolean itemfound = false;
-							for (TreeItem<String> clientItem : clientFolders) {
-								if (folder.equals(clientItem.getValue()))
-									itemfound = true;
-							}
-							if (!itemfound){
-								TreeItem<String> leaf = new TreeItem<>(folder);
-								accNode.getChildren().add(leaf);
-								clientFolders.add(leaf);
-							}
+				Folder[] folders = account.getFolders();
+				if (folders == null)
+					return null;
+				
+				if (stop) return null;	// thread needs to be stopped
 
-						}
-						// if folder has been deleted, remove it, should be rare
-						if (clientFolders.size() > serverFolders.length) {
-							ArrayList<String> sF = new ArrayList<>(serverFolders.length);
-							for (String folder : serverFolders)
-								sF.add(folder);
-							for (TreeItem<String> cF : clientFolders) {
-								if (!sF.contains(cF.getValue())) {
-									accNode.getChildren().remove(cF);
-								}
-							}
-						}
-						break;
-					}
+				ObservableList<TreeItem<MailTreeViewable>> localList = rootItem.getChildren();
+				// add folders, if they aren't already in the tree view
+				for (Folder f : folders) {
+					FolderItem folderItem = new FolderItem(f);
+					TreeItem<MailTreeViewable> item = new TreeItem<MailTreeViewable>(folderItem);
+					if (!localList.contains(item)) 
+						localList.add(item);
 				}
-				// account is new, so add it and build the folders
-				if (!found) {
-					for (String folder : account.getFolders()) {
-						TreeItem<String> leaf = new TreeItem<>(folder);
-						accountItem.getChildren().add(leaf);
-					}
-					accountItem.setExpanded(true);
-					rootItem.getChildren().add(accountItem);
+				
+				if (stop) return null;	// thread needs to be stopped
+
+				// remove items from tree view, that aren't on the server anymore
+				// (e.g. because they are renamed)
+				List<Folder> serverList = new ArrayList<Folder>(folders.length);
+				for (Folder f : folders)
+					serverList.add(f);
+				for (int i = 0; i < localList.size(); i++) {
+					if (!serverList.contains(localList.get(i).getValue()))
+						localList.remove(i);
 				}
 				return null;
 			}

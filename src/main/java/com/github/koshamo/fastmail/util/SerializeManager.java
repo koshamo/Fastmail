@@ -177,6 +177,10 @@ public class SerializeManager {
 	
 	/**
 	 * Initialize the Cipher for en-/decrypted settings stream
+	 * <p>
+	 * The encryption currently is only needed to hide account passwords on
+	 * disk. The serialization allows anyone to read the password in plaintext
+	 * in the settings file, if one uses an editor capable of UTF-8 strings.
 	 * 
 	 * @param mode	Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
 	 * @return		the Cipher for the stream
