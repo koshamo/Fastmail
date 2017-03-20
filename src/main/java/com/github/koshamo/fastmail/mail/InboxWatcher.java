@@ -79,8 +79,11 @@ public class InboxWatcher extends ScheduledService<Void> {
 							folder.open(Folder.READ_WRITE);
 						for (int i = localCnt; i < serverCnt; i++) {
 							Message msg = folder.getMessage(i+1);
-							if (msg != null)
-								mailList.add(new EmailTableData(msg));
+							if (msg != null) {
+								EmailTableData etd = new EmailTableData(msg);
+								if (!mailList.contains(etd))
+									mailList.add(etd);
+							}
 						}
 						mailList.sort(null);
 						folder.close(true);

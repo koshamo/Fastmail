@@ -49,10 +49,12 @@ public class FolderItem implements MailTreeViewable {
 			inbox = FXCollections.observableArrayList();
 			MailLister ml = new MailLister(this.folder, inbox);
 			Thread mlt = new Thread(ml);
+			mlt.setDaemon(true);
 			mlt.start();
 			// add a listener to the inbox
 			inboxWatcher = new InboxWatcher(this.folder, inbox);
 			inboxWatcher.setPeriod(Duration.seconds(20));
+			inboxWatcher.setDelay(Duration.seconds(30));
 			inboxWatcher.start();
 			inbox.sort(null);
 		}
@@ -86,6 +88,7 @@ public class FolderItem implements MailTreeViewable {
 			ObservableList<EmailTableData> mails = FXCollections.observableArrayList();
 			MailLister ml = new MailLister(this.folder, mails);
 			Thread mlt = new Thread(ml);
+			mlt.setDaemon(true);
 			mlt.start();
 			folderContent = new SoftReference<ObservableList<EmailTableData>>(mails);
 		}

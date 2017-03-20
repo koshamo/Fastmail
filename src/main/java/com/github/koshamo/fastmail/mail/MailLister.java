@@ -96,7 +96,7 @@ public final class MailLister extends Task<Boolean>{
 			// get messages and add them to the observable table view list
 			for (Message message : msg) {
 				if (stop) return null; // check if thread needs to be stopped
-				mailList.add(new EmailTableData(message));
+					mailList.add(new EmailTableData(message));
 			}
 			mailList.sort(null);
 		}
