@@ -327,7 +327,7 @@ public class FastGui extends Application {
 		TableColumn<EmailTableData, String> dateCol = new TableColumn<>("Date");
 		dateCol.setMinWidth(150);
 		dateCol.setCellValueFactory(new PropertyValueFactory<>("receivedDate"));
-		dateCol.setCellFactory(new DateCellFactory());
+		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
 		dateCol.setComparator(new DateCellComparator());
 		TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>("R");
 		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read"));
@@ -418,14 +418,9 @@ public class FastGui extends Application {
 							TreeItem<MailTreeViewable> newVal) {
 						// this should only be the case if a account has been removed
 						if (newVal == null) {
-							mailBody.clear();
 							return;	
 						}
-						// TODO: is the folders account information really needed?
-//						TreeItem<MailTreeViewable> upItem = newVal;
-//						while (!upItem.getValue().isAccount()
-//								&& upItem.getParent() != null)
-//							upItem = upItem.getParent();
+						mailBody.clear();
 						btnReply.setDisable(true);
 						btnReplyAll.setDisable(true);
 						btnDelete.setDisable(true);

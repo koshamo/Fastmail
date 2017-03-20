@@ -27,10 +27,9 @@ import com.github.koshamo.fastmail.mail.EmailTableData;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.util.Callback;
 
-/** The DateCellFactory is a general formatter class to work with Java's new Time 
- * and Date API
+/** The DateCellFactory is a table cell formatter class to work with Java's 
+ * new Time and Date API
  * <p>
  * The design is, that the current date and time is shown using the following 
  * rules
@@ -45,9 +44,19 @@ import javafx.util.Callback;
  * @author jochen
  *
  */
-public class DateCellFactory implements 
-	Callback<TableColumn<EmailTableData, String>, TableCell<EmailTableData, String>> {
+public class DateCellFactory extends TableCell<EmailTableData, String> {
 
+	@Override
+	protected void updateItem(String item, boolean empty) {
+		super.updateItem(item, empty);
+		if (empty || item == null) {
+			setText(null);
+			setGraphic(null);
+		} else {
+			setText(formatString(item));
+		}
+	}
+	
 	
 	/**
 	 * format the incoming date String using the rules described above
@@ -55,7 +64,7 @@ public class DateCellFactory implements
 	 * @param date the String representing the date 
 	 * @return the formatted String using above rules
 	 */
-	static String formatString(String date) {
+	private String formatString(String date) {
 		Instant mailDate = Instant.parse(date);
 		ZonedDateTime zonedDate = mailDate.atZone(ZoneId.systemDefault());
 		ZonedDateTime today = ZonedDateTime.now();
@@ -77,19 +86,5 @@ public class DateCellFactory implements
 	}
 
 
-	/* (non-Javadoc)
-	 * @see javafx.util.Callback#call(java.lang.Object)
-	 */
-	@Override
-	public TableCell<EmailTableData, String> call(TableColumn<EmailTableData, String> col) {
-		TableCell<EmailTableData, String> cell = new TableCell<EmailTableData, String>() {
-			@Override
-			public void updateItem (final String item, boolean empty) {
-				if (item != null)
-					setText(DateCellFactory.formatString(item));
-			}
-		};
-		return cell;
-	}
 	
 }
