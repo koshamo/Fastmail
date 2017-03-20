@@ -115,6 +115,8 @@ public class FastGui extends Application {
 		List<MailAccountData> mad = SerializeManager.getInstance().getMailAccounts();
 		for (MailAccountData d : mad) {
 			TreeItem<MailTreeViewable> account = new TreeItem<MailTreeViewable>(new MailAccount(d));
+			((MailAccount) account.getValue()).addFolderWatcher(account);
+			account.setExpanded(true);
 			rootItem.getChildren().add(account);
 		}
 
@@ -138,7 +140,9 @@ public class FastGui extends Application {
 			if (accountData == null)
 				return;
 			TreeItem<MailTreeViewable> account = new TreeItem<MailTreeViewable>(new MailAccount(accountData));
+			((MailAccount) account.getValue()).addFolderWatcher(account);
 			rootItem.getChildren().add(account);
+			account.setExpanded(true);
 			SerializeManager.getInstance().addMailAccount(accountData);
 		});
 		MenuItem editAccountItem = new MenuItem("Edit Account");

@@ -51,6 +51,8 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 * The class constructor builds the context menu
 	 */
 	public TreeCellFactory() {
+		if (getTreeItem() == null)	// prevent root item to get a menu
+			return;
 		if (getTreeItem().getValue().isAccount()) {
 			MenuItem editAccountMenu = new MenuItem("Edit Account");
 			// TODO: add action listener
@@ -110,8 +112,10 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	@Override
 	public void cancelEdit() {
 		super.cancelEdit();
-		
-		setText(getItem().getName());
+		if (getItem() == null)	// root item
+			setText(null);
+		else
+			setText(getItem().getName());
 		setGraphic(getTreeItem().getGraphic());
 	}
 
@@ -123,6 +127,12 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 */
 	@Override
 	public void updateItem(MailTreeViewable item, boolean empty) {
+		super.updateItem(item, empty);
+		if (item == null) {	// here again: root item
+			setText(null);
+			setGraphic(null);
+			return;
+		}
 		// Account and special folders are not renameable!
 		if (item.isAccount() || 
 				"INBOX".equals(item.getName()) ||
@@ -132,7 +142,6 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 			cancelEdit();
 			return;
 		}
-		super.updateItem(item, empty);
 		editItem = item;
 		
 		if (empty) {
