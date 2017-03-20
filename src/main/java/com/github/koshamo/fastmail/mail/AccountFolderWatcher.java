@@ -66,11 +66,9 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	public boolean cancel() {
 		boolean ret = super.cancel();
 		stop = true;
-//		rootItem.getParent().getChildren().remove(rootItem);
 		return ret;
 	}
-	
-		
+
 	/* 
 	 * This task iterates over all folders within a given account and
 	 * adds all folder to the tree view that aren't already there.
@@ -109,9 +107,29 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 				for (Folder f : folders)
 					serverList.add(f);
 				for (int i = 0; i < localList.size(); i++) {
-					if (!serverList.contains(localList.get(i).getValue()))
+					if (!serverList.contains(localList.get(i).getValue().getFolder()))
 						localList.remove(i);
 				}
+				
+				localList.sort((i1, i2) -> {
+					if ("INBOX".equals(i1.getValue().getName()))
+						return -1;
+					if ("INBOX".equals(i2.getValue().getName()))
+						return 1;
+					if ("Drafts".equals(i1.getValue().getName()))
+						return -1;
+					if ("Drafts".equals(i2.getValue().getName()))
+						return 1;
+					if ("Sent".equals(i1.getValue().getName()))
+						return -1;
+					if ("Sent".equals(i2.getValue().getName()))
+						return 1;
+					if ("Trash".equals(i1.getValue().getName()))
+						return -1;
+					if ("Trash".equals(i2.getValue().getName()))
+						return 1;
+					return i1.getValue().getName().compareTo(i2.getValue().getName());
+				});
 				return null;
 			}
 		};

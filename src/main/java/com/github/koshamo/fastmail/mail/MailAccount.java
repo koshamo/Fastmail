@@ -498,5 +498,13 @@ public class MailAccount implements MailTreeViewable{
 	public String getName() {
 		return getAccountName();
 	}
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
+	 */
+	@Override
+	public Folder getFolder() {
+		return parentFolder;
+	}
 	
 }

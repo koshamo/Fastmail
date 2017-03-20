@@ -399,6 +399,10 @@ public class FastGui extends Application {
 			public String getName() {
 				return null;
 			}
+			@Override
+			public Folder getFolder() {
+				return null;
+			}
 		});
 		rootItem.setExpanded(true);
 

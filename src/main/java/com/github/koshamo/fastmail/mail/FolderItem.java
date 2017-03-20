@@ -124,7 +124,30 @@ public class FolderItem implements MailTreeViewable {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
+	 */
+	@Override
 	public Folder getFolder() {
 		return folder;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof FolderItem))
+			return false;
+		FolderItem other = (FolderItem) obj;
+		if (!this.isAccount() && !other.isAccount())
+			return this.folder.getStore().equals(other.folder.getStore())
+					&& this.getName().equals(other.getName());
+		return this.getName().equals(other.getName());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		return folder.getFullName().hashCode() + folder.getStore().hashCode();
 	}
 }
