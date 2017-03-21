@@ -165,11 +165,13 @@ public class MailComposer {
 			if (mail == null)
 				accounts[fromBox.getSelectionModel().getSelectedIndex()].
 						sendMail(toAddress.getText(), ccAddress.getText(), 
-						subjectText.getText(), area.getText(), null, null);
+						subjectText.getText(), area.getText(), attachmentList, 
+						null);
 			else
 				accounts[fromBox.getSelectionModel().getSelectedIndex()].
 						sendMail(toAddress.getText(), ccAddress.getText(), 
-						subjectText.getText(), area.getText(), null, mail.getMessage());
+						subjectText.getText(), area.getText(), attachmentList, 
+						mail.getMessage());
 				
 			stage.close();
 		});
@@ -179,12 +181,15 @@ public class MailComposer {
 		btnAttach.setOnAction(ev -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Attach file");
+			fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 			File selFile = fileChooser.showOpenDialog(stage.getOwner());
 			if (selFile != null) {
 				if (attachmentLine.getText().isEmpty())
 					attachmentLine.setText(selFile.getName());
 				else
 					attachmentLine.setText(attachmentLine.getText() + ";" + selFile.getName());
+				if (attachmentList == null)
+					attachmentList = new ArrayList<File>();
 				attachmentList.add(selFile);
 			}
 		});

@@ -370,11 +370,13 @@ public class MailAccount implements MailTreeViewable{
 			msg.setHeader("X-mailer", FastMailGenerals.getNameVersion()); //$NON-NLS-1$
 			// attachments
 			if (attachments != null && !attachments.isEmpty()) {
+				System.out.println("Attachments");
 				MimeMultipart mmp = new MimeMultipart("mixed");
 				MimeBodyPart content = new MimeBodyPart();
 				content.setContent(text, "text/plain");
 				mmp.addBodyPart(content);
 				for (File file : attachments) {
+					System.out.println("attaching file " + file.getName());
 					MimeBodyPart mbp = new MimeBodyPart();
 					mbp.attachFile(file);
 					mmp.addBodyPart(mbp);

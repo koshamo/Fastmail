@@ -26,6 +26,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.mail.Folder;
+import javax.mail.MessagingException;
+
 import com.github.koshamo.fastmail.mail.AttachmentData;
 import com.github.koshamo.fastmail.mail.MailData;
 
@@ -109,6 +112,8 @@ public class MailView extends StackPane {
 			if (outputFile == null)
 				return;
 			try (InputStream is = (data.getAttachments())[item].getInputStream()) {
+				if (!data.getMessage().getFolder().isOpen())
+					data.getMessage().getFolder().open(Folder.READ_WRITE);
 				if (is == null)
 					return;
 				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile));
@@ -116,10 +121,14 @@ public class MailView extends StackPane {
 				while (is.read(pipe) > 0)
 					bos.write(pipe);
 				bos.close();
+				data.getMessage().getFolder().close(true);
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MessagingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
