@@ -274,10 +274,16 @@ public class FastGui extends Application {
 			TreeItem<MailTreeViewable> treeItem = accountTree.getSelectionModel().getSelectedItem(); 
 			if (treeItem == null || treeItem.getValue().isAccount())
 				return;
-			EmailTableData tableData = folderMailTable.getSelectionModel().getSelectedItem(); 
+			EmailTableData tableData = folderMailTable.getSelectionModel().getSelectedItem();
 			if (tableData == null)
 				return;
 			((FolderItem) treeItem.getValue()).deleteMessage(tableData);
+			// after mail has been deleted, clear selection and mail view
+			// and disable buttons, as nothing is selected
+			folderMailTable.getSelectionModel().clearSelection();
+			btnReply.setDisable(false);
+			btnReplyAll.setDisable(false);
+			btnDelete.setDisable(false);
 			mailBody.clear();
 		});
 		btnDelete.setDisable(true);
@@ -327,7 +333,7 @@ public class FastGui extends Application {
 	private ScrollPane buildTableView() {
 		// upper right side: folder
 		folderMailTable = new TableView<EmailTableData>();
-		folderMailTable.setEditable(true);	// need to check, that only few fields can be modyfied
+		folderMailTable.setEditable(true);	
 		folderMailTable.setPlaceholder(new Label("choose Folder on the left side to show Emails"));
 		TableColumn<EmailTableData, String> subjectCol = new TableColumn<>("Subject");
 		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject"));
