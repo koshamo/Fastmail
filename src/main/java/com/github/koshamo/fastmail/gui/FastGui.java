@@ -29,7 +29,6 @@ import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccount;
 import com.github.koshamo.fastmail.mail.MailAccountData;
-import com.github.koshamo.fastmail.mail.MailContentLister;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
 import com.github.koshamo.fastmail.util.DateCellComparator;
 import com.github.koshamo.fastmail.util.DateCellFactory;
@@ -355,11 +354,12 @@ public class FastGui extends Application {
 		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
 				(obs, oldVal, newVal) -> {
 					if (newVal != null) {
-						MailContentLister mcl = new MailContentLister(newVal);
+//						MailContentLister mcl = new MailContentLister(newVal);
 						btnReply.setDisable(false);
 						btnReplyAll.setDisable(false);
 						btnDelete.setDisable(false);
-						mailBody.setContent(mcl.getMessage());
+//						mailBody.setContent(mcl.getMessage());
+						mailBody.setContent(newVal.getMailData());
 					}
 				});
 

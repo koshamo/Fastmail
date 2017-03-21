@@ -134,11 +134,6 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 						toRemove.add(lf);
 					}
 				}
-				System.out.println("to remove size " + toRemove.size());
-				if (!toRemove.isEmpty()) {
-					for (Folder f : toRemove)
-						System.out.println("Folder to remove: " + f.getFullName());
-				}
 				if (!toRemove.isEmpty()) {
 					for (Folder tr : toRemove) {
 						for (TreeItem<MailTreeViewable> item : localList) {

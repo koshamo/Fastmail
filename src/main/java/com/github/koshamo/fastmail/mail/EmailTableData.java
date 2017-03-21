@@ -136,7 +136,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		// TODO: maybe this method is more convenient to fill the properties
 		// than the code above.
 		// at least check, which code is duplicated
-		MailTools.getMessage(msg);
+		mailData = MailTools.getMessage(msg);
 	}
 	
 	
