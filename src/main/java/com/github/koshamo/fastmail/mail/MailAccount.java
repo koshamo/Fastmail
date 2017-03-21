@@ -319,59 +319,6 @@ public class MailAccount implements MailTreeViewable{
 		}
 	}
 
-	/**
-	 * Removes a message from the email folder locally as well as on the server.
-	 * 
-	 * @param folderItem	the folderItem, in which the mail resides
-	 * @param emailTableData the email message to remove
-	 * @return true, if the mail could be removed, otherwise false
-	 */
-	public boolean deleteMessage(FolderItem folderItem, EmailTableData emailTableData) {
-		// TODO: to much calls in a row, make clearer design
-		Folder f = emailTableData.getMailData().getMessage().getFolder();
-		boolean deleted = false;
-		try {
-			if (!f.isOpen())
-				f.open(Folder.READ_WRITE);
-			// this code works on the folders
-//			Message[] messages = f.getMessages();
-//			for (Message m : messages) {
-//				if (msg.equals(new EmailTableData(m))) {
-//					f.setFlags(new Message[] {m}, new Flags(Flags.Flag.DELETED), true);
-//					deleted = true;
-//					break; // message found, so no further processing needed
-//				}
-//			}
-			// TODO: check if the code also works on the message as
-			// described in javamail documentation
-			emailTableData.getMailData().getMessage().setFlag(Flags.Flag.DELETED, true);
-			deleted = true;
-			f.close(true);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// delete message locally and update IDs
-		// TODO: delete mail locally
-		// to achieve this, move folder lists to folders!
-		
-//		if (deleted) {
-//			ObservableList<EmailTableData> mailList = null;
-//			if ("INBOX".equals(currentFolder))
-//				mailList = inbox;
-//			else if (!folderContentMap.isEmpty() && folderContentMap.containsKey(currentFolder)) 
-//				mailList = folderContentMap.get(currentFolder).get();
-//			if (mailList == null)
-//				return false;
-//			// delete message
-//			int index = emailTableData.getId();
-//			mailList.remove(emailTableData);
-//			// update IDs
-//			for (int i = index - 1; i < mailList.size(); i++)
-//				mailList.get(i).setId(i + 1);
-//		}
-		return deleted;
-	}
 	
 	/**
 	 * This Method is for InboxWatcher to check, if mailbox has been set up.

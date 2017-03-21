@@ -162,8 +162,13 @@ public class MailComposer {
 				return;
 			}
 			// get the values an send the mail
-			accounts[fromBox.getSelectionModel().getSelectedIndex()].
-					sendMail(toAddress.getText(), ccAddress.getText(), 
+			if (mail == null)
+				accounts[fromBox.getSelectionModel().getSelectedIndex()].
+						sendMail(toAddress.getText(), ccAddress.getText(), 
+						subjectText.getText(), area.getText(), null, null);
+			else
+				accounts[fromBox.getSelectionModel().getSelectedIndex()].
+						sendMail(toAddress.getText(), ccAddress.getText(), 
 						subjectText.getText(), area.getText(), null, mail.getMessage());
 				
 			stage.close();

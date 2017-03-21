@@ -216,7 +216,12 @@ public class FastGui extends Application {
 		btnNew.setPrefSize(90, 50);
 		btnNew.setMinSize(90, 50);
 		btnNew.setOnAction(ev -> {
-			new MailComposer(rootItem.getChildren().toArray(new MailAccount[0]));
+			ObservableList<TreeItem<MailTreeViewable>> accountList = 
+					rootItem.getChildren();
+			MailAccount[] ma = new MailAccount[accountList.size()];
+			for (int i = 0; i < ma.length; i++)
+				ma[i] = (MailAccount)accountList.get(i).getValue();
+			new MailComposer(ma);
 		});
 		btnReply = new Button("Reply");
 		btnReply.setPrefSize(90, 50);
@@ -267,15 +272,12 @@ public class FastGui extends Application {
 		btnDelete.setMinSize(90, 50);
 		btnDelete.setOnAction(ev -> {
 			TreeItem<MailTreeViewable> treeItem = accountTree.getSelectionModel().getSelectedItem(); 
-			if (treeItem == null)
+			if (treeItem == null || treeItem.getValue().isAccount())
 				return;
 			EmailTableData tableData = folderMailTable.getSelectionModel().getSelectedItem(); 
 			if (tableData == null)
 				return;
-			TreeItem<MailTreeViewable> accountItem = treeItem;
-			while (!accountItem.getValue().isAccount())
-				accountItem = accountItem.getParent();
-			((MailAccount) accountItem.getValue()).deleteMessage((FolderItem) treeItem.getValue(), tableData);
+			((FolderItem) treeItem.getValue()).deleteMessage(tableData);
 			mailBody.clear();
 		});
 		btnDelete.setDisable(true);
@@ -364,11 +366,9 @@ public class FastGui extends Application {
 		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
 				(obs, oldVal, newVal) -> {
 					if (newVal != null) {
-//						MailContentLister mcl = new MailContentLister(newVal);
 						btnReply.setDisable(false);
 						btnReplyAll.setDisable(false);
 						btnDelete.setDisable(false);
-//						mailBody.setContent(mcl.getMessage());
 						mailBody.setContent(newVal.getMailData());
 					}
 				});

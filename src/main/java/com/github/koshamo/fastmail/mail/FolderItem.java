@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail.mail;
 
 import java.lang.ref.SoftReference;
 
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 
@@ -127,6 +128,34 @@ public class FolderItem implements MailTreeViewable {
 		}
 	}
 	
+	/**
+	 * Removes a message from the email folder locally as well as on the server.
+	 * 
+	 * @param folderItem	the folderItem, in which the mail resides
+	 * @param emailTableData the email message to remove
+	 * @return true, if the mail could be removed, otherwise false
+	 */
+	public boolean deleteMessage(EmailTableData emailTableData) {
+		// TODO: to much calls in a row, make clearer design
+		Folder f = emailTableData.getMailData().getMessage().getFolder();
+		boolean deleted = false;
+		try {
+			if (!f.isOpen())
+				f.open(Folder.READ_WRITE);
+			emailTableData.getMailData().getMessage().setFlag(Flags.Flag.DELETED, true);
+			deleted = true;
+			f.close(true);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (deleted) {
+			this.getFolderContent().removeAll(emailTableData);
+		}
+		return deleted;
+	}
+
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
 	 */
@@ -140,9 +169,6 @@ public class FolderItem implements MailTreeViewable {
 		if (!(obj instanceof FolderItem))
 			return false;
 		FolderItem other = (FolderItem) obj;
-		System.out.println(this.getName() + "--" + other.getName());
-//		return this.folder.getStore().equals(other.folder.getStore())
-//				&& this.getName().equals(other.getName());
 		return this.getName().equals(other.getName());
 	}
 
