@@ -99,7 +99,7 @@ public class MailComposer {
 		this.mail = mail;
 		this.curAccnt = curAccnt;
 		buildGui();
-		toAddress.setText(mail.getToAsLine());
+		toAddress.setText(mail.getFrom());
 		if (replyAll)
 			ccAddress.setText(mail.getCcAsLine());
 		subjectText.setText(MailTools.makeSubject(mail.getSubject()));
