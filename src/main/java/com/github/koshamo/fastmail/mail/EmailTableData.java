@@ -63,7 +63,6 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	private SimpleBooleanProperty attachment;
 	private SimpleBooleanProperty read;
 	private SimpleBooleanProperty marked;
-	private SimpleIntegerProperty id;
 	private MailData mailData;
 //	private Message msg;
 	
@@ -125,7 +124,6 @@ public class EmailTableData implements Comparable<EmailTableData>{
 					}
 				}
 			});
-			this.id = new SimpleIntegerProperty(msg.getMessageNumber());
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -225,40 +223,22 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		return attachment.get();
 	}
 
-	/**
-	 * the ID is the unique identifier of the email within the folder
-	 * 
-	 * @return the message's ID as int
-	 */
-	public int getId() {
-		return id.get();
-	}
-	
-	/**
-	 * the ID is the unique identifier of the email within the folder. 
-	 * This ID may change as soon as a mail is moved or deleted within the folder
-	 * of should change as the is message is moved to another folder 
-	 * @return
-	 */
-	// TODO: check, if the ID really changes
-	public void setId(int newId) {
-		this.id.set(newId);
-	}
-
 	public MailData getMailData() {
 		return mailData;
 	}
 
-	/* The natural order of Emails should be the ID in the mailbox
+	/* The natural order of Emails should be date based
 	 * 
 	 * (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
 	public int compareTo(EmailTableData other) {
-		if (this.getId() == other.getId())
-			return 0;
-		return this.getId() < other.getId() ? 1 : -1;
+		/* 
+		 * negate the Instant compareTo method, as we want to have the
+		 * latest mails on top of the list
+		 */
+		return -this.sentDate.compareTo(other.sentDate);
 	}
 	
 	@Override
@@ -285,8 +265,8 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	 */
 	@Override
 	public int hashCode() {
-		return getReceivedDate().hashCode() + getFrom().hashCode() 
-				+ getSubject().hashCode() + getId();
+		return getSentDate().hashCode() + getFrom().hashCode() 
+				+ getSubject().hashCode();
 	}
 
 }

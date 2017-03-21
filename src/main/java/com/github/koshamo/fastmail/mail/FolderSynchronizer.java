@@ -74,19 +74,13 @@ public class FolderSynchronizer extends ScheduledService<Void> {
 			Message[] messages = folder.getMessages();
 			List<EmailTableData> serverList = new ArrayList<EmailTableData>();
 			/* 
-			 * first step: compare IDs from server and local side and 
-			 * update them. Add mails, if there really are more mails
+			 * first step: add mails, if there really are more mails
 			 * on server than on the local end
 			 */
 			for (Message msg : messages) {
 				EmailTableData etd = new EmailTableData(msg);
-				if (mailList.contains(etd)) {
-					EmailTableData listItem = mailList.get(mailList.indexOf(etd)); 
-					if (etd.getId() != listItem.getId())
-						listItem.setId(etd.getId());
-				} else {
+				if (!mailList.contains(etd)) 
 					mailList.add(etd);
-				}
 				// prepare for step two
 				serverList.add(etd);
 			}

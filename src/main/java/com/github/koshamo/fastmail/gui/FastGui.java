@@ -355,13 +355,9 @@ public class FastGui extends Application {
 		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
 		markerCol.setEditable(true);
 		markerCol.setMaxWidth(30);
-		// idCol is only for mail selection
-		TableColumn<EmailTableData, Integer> idCol = new TableColumn<>("ID");
-		idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-		idCol.setVisible(false);
 		folderMailTable.getColumns().addAll(Arrays.asList(
 				subjectCol, fromCol, dateCol, readCol, attachmentCol, 
-				markerCol, idCol));
+				markerCol));
 		// local field representing the mails in a folder, that should be shown
 		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
 				(obs, oldVal, newVal) -> {
