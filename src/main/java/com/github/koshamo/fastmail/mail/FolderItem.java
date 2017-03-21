@@ -140,9 +140,9 @@ public class FolderItem implements MailTreeViewable {
 		if (!(obj instanceof FolderItem))
 			return false;
 		FolderItem other = (FolderItem) obj;
-		if (!this.isAccount() && !other.isAccount())
-			return this.folder.getStore().equals(other.folder.getStore())
-					&& this.getName().equals(other.getName());
+		System.out.println(this.getName() + "--" + other.getName());
+//		return this.folder.getStore().equals(other.folder.getStore())
+//				&& this.getName().equals(other.getName());
 		return this.getName().equals(other.getName());
 	}
 

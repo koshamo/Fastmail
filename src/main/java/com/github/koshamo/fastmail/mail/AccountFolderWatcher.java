@@ -41,19 +41,21 @@ import javafx.scene.control.TreeItem;
 public class AccountFolderWatcher extends ScheduledService<Void> {
 
 	MailAccount account;
-	TreeItem<MailTreeViewable> rootItem;
+	TreeItem<MailTreeViewable> accountTreeItem;
+	ObservableList<TreeItem<MailTreeViewable>> localList;
 	boolean stop = false;
 	
 	/**
 	 * Basic constructor
 	 * 
 	 * @param accounts this is the list containing all mail accounts
-	 * @param root root item of the account
+	 * @param accountTreeItem root item of the account
 	 */
 	AccountFolderWatcher(final MailAccount account, 
-			final TreeItem<MailTreeViewable> rootItem) {
+			final TreeItem<MailTreeViewable> accountTreeItem) {
 		this.account = account;
-		this.rootItem = rootItem;
+		this.accountTreeItem = accountTreeItem;
+		localList = accountTreeItem.getChildren();
 	}
 	
 	/**
@@ -71,8 +73,13 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 
 	/* 
 	 * This task iterates over all folders within a given account and
-	 * adds all folder to the tree view that aren't already there.
+	 * adds all folders to the tree view that aren't already there.
 	 * Excessive folders will be removed.
+	 * <p>
+	 * As we use an interface to produce the TreeItems, we would need
+	 * an equals method within the interface, which is not implementable.
+	 * Hence we need to manually check, if the items are there, the contains()
+	 * method of the collections framework will not work for this case.
 	 *   
 	 * @see javafx.concurrent.Service#createTask()
 	 */
@@ -90,27 +97,57 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 				
 				if (stop) return null;	// thread needs to be stopped
 
-				ObservableList<TreeItem<MailTreeViewable>> localList = rootItem.getChildren();
 				// add folders, if they aren't already in the tree view
-				for (Folder f : folders) {
-					FolderItem folderItem = new FolderItem(f);
-					TreeItem<MailTreeViewable> item = new TreeItem<MailTreeViewable>(folderItem);
-					if (!localList.contains(item)) 
-						localList.add(item);
+				Folder[] localFolders = new Folder[localList.size()];
+				for (int i = 0; i < localList.size(); i++) 
+					localFolders[i] = localList.get(i).getValue().getFolder();
+				for (Folder sf : folders) {
+					boolean contained = false;
+					for (Folder lf : localFolders) {
+						if (sf.getFullName().equals(lf.getFullName())) {
+							contained = true;
+							break;
+						}
+					}
+					if (!contained) {
+						FolderItem folderItem = new FolderItem(sf);
+						TreeItem<MailTreeViewable> treeItem = new TreeItem<MailTreeViewable>(folderItem);
+						localList.add(treeItem);
+					}
 				}
+				
 				
 				if (stop) return null;	// thread needs to be stopped
-
+				
 				// remove items from tree view, that aren't on the server anymore
 				// (e.g. because they are renamed)
-				List<Folder> serverList = new ArrayList<Folder>(folders.length);
-				for (Folder f : folders)
-					serverList.add(f);
-				for (int i = 0; i < localList.size(); i++) {
-					if (!serverList.contains(localList.get(i).getValue().getFolder()))
-						localList.remove(i);
+				List<Folder> toRemove = new ArrayList<Folder>();
+				for (Folder lf : localFolders) {
+					boolean contained = false;
+					for (Folder sf : folders) {
+						if (lf.getFullName().equals(sf.getFullName())) {
+							contained = true;
+							break; 
+						}
+					}
+					if (!contained) {
+						toRemove.add(lf);
+					}
 				}
-				
+				System.out.println("to remove size " + toRemove.size());
+				if (!toRemove.isEmpty()) {
+					for (Folder f : toRemove)
+						System.out.println("Folder to remove: " + f.getFullName());
+				}
+				if (!toRemove.isEmpty()) {
+					for (Folder tr : toRemove) {
+						for (TreeItem<MailTreeViewable> item : localList) {
+							if (item.getValue().getFolder().getFullName().equals(tr.getFullName()))
+								localList.remove(item);
+						}
+					}
+				}
+								
 				localList.sort((i1, i2) -> {
 					if ("INBOX".equals(i1.getValue().getName()))
 						return -1;

@@ -84,7 +84,7 @@ public class MailAccount implements MailTreeViewable{
 
 	private AccountFolderWatcher accountFolderWatcher;
 	
-	private TreeItem<MailTreeViewable> account;
+	private TreeItem<MailTreeViewable> accountTreeItem;
 	
 	/* InboxWatcher detects new Messages at startup and adds mails to inbox redundant.
 	 * This can be avoided, if InboxWatcher checks, if inbox has been initialized.
@@ -136,16 +136,16 @@ public class MailAccount implements MailTreeViewable{
 	}
 	
 	
-	public void addFolderWatcher(TreeItem<MailTreeViewable> account) {
-		this.account = account;
-		accountFolderWatcher = new AccountFolderWatcher(this, account);
+	public void addFolderWatcher(TreeItem<MailTreeViewable> accountTreeItem) {
+		this.accountTreeItem = accountTreeItem;
+		accountFolderWatcher = new AccountFolderWatcher(this, accountTreeItem);
 		accountFolderWatcher.setPeriod(Duration.seconds(60));
 		accountFolderWatcher.start();
 	}
 
 	public void remove() {
 		accountFolderWatcher.cancel();
-		account.getParent().getChildren().remove(account);
+		accountTreeItem.getParent().getChildren().remove(accountTreeItem);
 	}
 	
 	/**

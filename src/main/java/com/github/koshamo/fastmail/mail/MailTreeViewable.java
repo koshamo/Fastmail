@@ -37,5 +37,5 @@ public interface MailTreeViewable {
 	Folder getFolder();
 	
 	String getName();
-	
+
 }
