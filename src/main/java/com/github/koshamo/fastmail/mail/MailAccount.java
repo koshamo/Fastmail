@@ -54,16 +54,13 @@ import javafx.scene.control.TreeItem;
 import javafx.util.Duration;
 
 /**
- * MailAccount is the class that contains a mail accounts information.
+ * MailAccount is the class that contains a mail account information.
  * <p>
  * In the classes constructor we build up a connection to the mail provider
  * all other methods work with the existing connection.
  * <p>
- * The inbox is always kept in memory for fast access. All other folders will be
- * loader as requested and then kept in memory using a SoftReference. Thus they
- * may be removed from memory, if memory gets short. This way we can speed up the
- * program, but make sure the available memory won't be oversized.
- * 
+ * The MailAccount implements MailTreeViewable to be shown in the tree view
+ *  
  * @author jochen
  *
  */
@@ -94,14 +91,11 @@ public class MailAccount implements MailTreeViewable{
 
 	/**
 	 * In this constructor we initialize the account.
-	 * <p>
-	 * The constructor also loads the inbox's content and stores it locally for
-	 * faster access
-
+	 * 
 	 * @param data a MailAccountData object containing all relevant data for 
 	 * server connection
 	 */
-	public MailAccount(MailAccountData data) {
+	public MailAccount(final MailAccountData data) {
 		this.data = data;
 		buildConnection();
 	}
@@ -136,37 +130,41 @@ public class MailAccount implements MailTreeViewable{
 	}
 	
 	
-	public void addFolderWatcher(TreeItem<MailTreeViewable> accountTreeItem) {
+	/**
+	 * This method has to be called to add a folder watcher to this account. 
+	 * The folder watcher loads all folders stored on the server and adds them
+	 * to the tree view. If any folders change, the folder watcher will
+	 * detect this and add or delete the folders to / from the tree view.
+	 *  
+	 * @param accountTreeItem
+	 */
+	public void addFolderWatcher(final TreeItem<MailTreeViewable> accountTreeItem) {
 		this.accountTreeItem = accountTreeItem;
 		accountFolderWatcher = new AccountFolderWatcher(this, accountTreeItem);
 		accountFolderWatcher.setPeriod(Duration.seconds(60));
 		accountFolderWatcher.start();
 	}
 
+	/**
+	 * To delete this account from the tree view, use this method, as it also
+	 * stops the folder watcher.
+	 */
 	public void remove() {
 		accountFolderWatcher.cancel();
 		accountTreeItem.getParent().getChildren().remove(accountTreeItem);
 	}
 	
 	/**
-	 * This method is to check a new account configuration and returns a message 
+	 * This method is to test a new account configuration and returns a message 
 	 * with a failure description or a success message.
 	 * <p>
-	 * This Method does the same as the constructor, but does not return a Account 
-	 * object, but helps to setup a working configuration.
+	 * This Method does the same as the constructor, but does not return a 
+	 * Account object, but helps to setup a working configuration.
 	 * 
-	 * @param username		the username for this account as fullly qualified 
-	 * email address
-	 * @param password		the account's password
-	 * @param displayName	the display name for most email clients
-	 * @param inboxType		type of inbox, currently only IMAP is supported
-	 * @param inboxHost		host URL for retrieving (e.g. imap.gmail.com)
-	 * @param smtpHost		host URL for sending (e.g. smtp.gmail.com)
-	 * @param ssl			use SSL connection
-	 * @param tls			use TLS authentification
-	 * @return				a String with a success or failure description
+	 * @param data	a MailAccountData object containing the account settings
+	 * @return		a String with a success or failure description
 	 */
-	public static String testConnection(MailAccountData data) {
+	public static String testConnection(final MailAccountData data) {
 		Properties props = new Properties();
 		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
 			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
@@ -190,6 +188,7 @@ public class MailAccount implements MailTreeViewable{
 		return "Test successfull! Now push the Add Account button!";
 	}		
 		
+	
 	/**
 	 * supplies a unique String of the account
 	 * @return the username
@@ -198,25 +197,12 @@ public class MailAccount implements MailTreeViewable{
 		return data.getUsername();
 	}
 	
-	/**
-	 * Checks if the account already has connection to the server
-	 * 
-	 * @return true, if connected, otherwise false
-	 */
-	public boolean isConnected() {
-		return connected;
-	}
+	
 	
 	/**
-	 * Checks if the account is a IMAP account
-	 * 
-	 * @return true, if IMAP account
+	 * Get all folders of this mail account
+	 * @return	all folders as array
 	 */
-	public boolean isIMAP() {
-		return imap;
-	}
-	
-	
 	public Folder[] getFolders() {
 		try {
 			parentFolder = store.getDefaultFolder();
@@ -225,80 +211,6 @@ public class MailAccount implements MailTreeViewable{
 		} catch(MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	
-	/**
-	 * method reads the folders of the mail account and stores it in a field.
-	 * folders are INBOX, Trash,... and all user generated folders to archive 
-	 * and sort emails.
-	 * <p>
-	 * current limitations: we expect all folders to be in the default folder. 
-	 * Right now I haven't ever seen a mailbox with several base folders / namespaces.
-	 * Another limitation is, that we don't support hierarchical folder structures.
-	 * This is at least used in googlemail account, where the default folder
-	 * conatins a folder [googlemail], where additional folders exist. This most 
-	 * probably will be supported soon, as there is my gmails spam box, that sometimes
-	 * filters useful mails 
-	 * 
-	 * @return all folders within the mail account as a String array
-	 */
-	public String[] getFoldersAsString() {
-		try {
-			Folder rf = store.getDefaultFolder();
-			folders = rf.list();
-		} catch(MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		ArrayList<String> foldersAsString = new ArrayList<String>(folders.length);
-		// TODO: convert this to lambda
-		for (int i = 0; i < folders.length; ++i)
-			foldersAsString.add(folders[i].getFullName());
-		// resort Arraylist
-		foldersAsString.sort(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				if ("INBOX".equals(o1))
-					return -1;
-				if ("INBOX".equals(o2))
-					return 1;
-				if ("Drafts".equals(o1))
-					return -1;
-				if ("Drafts".equals(o2))
-					return 1;
-				if ("Sent".equals(o1))
-					return -1;
-				if ("Sent".equals(o2))
-					return 1;
-				if ("Trash".equals(o1))
-					return -1;
-				if ("Trash".equals(o2))
-					return 1;
-				
-				return o1.compareTo(o2);
-			}
-		});
-		String[] ret = new String[folders.length];
-		ret = foldersAsString.toArray(ret); 
-		return ret;
-	}
-	
-	/**
-	 * this method providers the Folder class of a given String representation
-	 * of this folder
-	 * 
-	 * @param folderName the String representation of the folder
-	 * @return the appropriate Folder or null, if not found
-	 */
-	public Folder getFolder(String folderName) {
-		if (folders == null)
-			getFoldersAsString();
-		for (Folder f : folders) {
-			if (f.getFullName().equals(folderName))
-				return f;
 		}
 		return null;
 	}
@@ -345,8 +257,9 @@ public class MailAccount implements MailTreeViewable{
 	 * @param text		the email text
 	 * @param message	the message object to reply to
 	 */
-	public void sendMail(String to, String cc, String subject, String text, 
-			List<File> attachments, Message message) {
+	public void sendMail(final String to, final String cc, 
+			final String subject, final String text, 
+			final List<File> attachments, final Message message) {
 		MimeMessage msg;
 		Message m;
 		try {
@@ -393,7 +306,7 @@ public class MailAccount implements MailTreeViewable{
 	}
 
 	/**
-	 * Get the settings data of this mail account as a sumarized object
+	 * Get the settings data of this mail account as a summarized object
 	 * @return the settings data object for this account
 	 */
 	public MailAccountData getMailAccountData() {
@@ -405,7 +318,7 @@ public class MailAccount implements MailTreeViewable{
 	 * 
 	 * @param data a MailAccountData object
 	 */
-	public void setMailAccountData(MailAccountData data) {
+	public void setMailAccountData(final MailAccountData data) {
 		this.data = data;
 	}
 
@@ -417,6 +330,9 @@ public class MailAccount implements MailTreeViewable{
 		return true;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return data.getUsername();

@@ -135,7 +135,7 @@ public class SerializeManager {
 	 * 
 	 * @param data the MailAccountData object belonging to the mail account
 	 */
-	public void addMailAccount(MailAccountData data) {
+	public void addMailAccount(final MailAccountData data) {
 		mailAccounts.add(data);
 	}
 	
@@ -143,7 +143,7 @@ public class SerializeManager {
 	 * Remove a mail account from serialization
 	 * @param data the MailAccountData object belonging to the mail account
 	 */
-	public void removeMailAccount(MailAccountData data) {
+	public void removeMailAccount(final MailAccountData data) {
 		mailAccounts.remove(data);
 	}
 	
@@ -185,7 +185,7 @@ public class SerializeManager {
 	 * @param mode	Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
 	 * @return		the Cipher for the stream
 	 */
-	private Cipher getCipher(int mode) {
+	private Cipher getCipher(final int mode) {
 		SecretKey key64 = new SecretKeySpec(
 				new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}, 
 				"Blowfish");

@@ -42,6 +42,8 @@ public final class MailData {
 
 	
 	/**
+	 * Build a new MailData object
+	 * 
 	 * @param from	the from address of the mail
 	 * @param to	the to addresses of the mail as array
 	 * @param cc	the cc addresses of the mail as array

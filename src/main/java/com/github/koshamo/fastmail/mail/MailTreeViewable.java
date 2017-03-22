@@ -23,19 +23,58 @@ import javax.mail.Folder;
 import javafx.collections.ObservableList;
 
 /**
+ * This interface is intended to be used for the TreeView.
+ * <p>
+ * This interface keeps the necessary methods for operations on the tree
+ * view that allow processing of folders as well as accounts.
+ * 
  * @author jochen
  *
  */
 public interface MailTreeViewable {
 
+	/**
+	 * If this MailTreeViewable represents a MailAccount, this method should
+	 * return true, in all other cases false
+	 * 
+	 * @return true if it is a account, false otherwise
+	 */
 	boolean isAccount();
 	
+	/**
+	 * As every folder should be aware of its content, this method is convenient 
+	 * to get the folder's content
+	 * 
+	 * @return the ObservableList of EmailTableData or null for accounts, root,
+	 * and possibly folders containing only folders
+	 */
 	ObservableList<EmailTableData> getFolderContent();
 	
+	/**
+	 * Returns the parent folder for the mail folders. In accounts this is
+	 * the default folder or the namespace folders, if supported. For mail
+	 * folders it is the parent folder, which again is the default folder.
+	 * 
+	 * @return the parent of the mail folders
+	 */
 	Folder getParentFolder();
 	
+	/**
+	 * Get the current working folder. This is simple for email folders.
+	 * Accounts should return getParentFolder()
+	 * 
+	 * @return the current working folder
+	 */
 	Folder getFolder();
 	
+	/**
+	 * The name of item represented by this MailTreeViewable.
+	 * This method is intended to be used to edit folder names and the like,
+	 * while the toString() method of the implementing objects can return 
+	 * different Strings, as e.g. message counters for email folders
+	 * 
+	 * @return the name of the implementing objects data
+	 */
 	String getName();
 
 }

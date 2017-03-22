@@ -53,9 +53,9 @@ import javafx.scene.layout.GridPane;
 public class MailAccountDialog {
 
 	/**
-	 * The constructor to build the dialog. This constructor is used to
-	 * add a new account, which means that to this point no account data
-	 * is available
+	 * The constructor to build the dialog. The default constructor is 
+	 * used to add a new account, which means that to this point no account 
+	 * data is available
 	 */
 	public MailAccountDialog() {
 		accountData = new MailAccountData();
@@ -80,7 +80,7 @@ public class MailAccountDialog {
 	 * @throws NullPointerException	if the MailAccountData object given
 	 * as parameter is null, this constructor throws a NullPointerException
 	 */
-	public MailAccountDialog(MailAccountData accountData) {
+	public MailAccountDialog(final MailAccountData accountData) {
 		if (accountData == null)
 			throw new NullPointerException(
 					"You need to provide actual MailAccountData, if you use this constructor");
@@ -100,7 +100,8 @@ public class MailAccountDialog {
 	 * This methods shows the dialog and waits for it to return. 
 	 * Thus it is modal.
 	 * 
-	 * @return a MailAccountData object or null
+	 * @return a new or modified MailAccountData object or null, if
+	 * Button.CANCEL has been hit 
 	 */
 	public MailAccountData showAndWait() {
 		Optional<MailAccountData> opt = dialog.showAndWait();
@@ -149,52 +150,61 @@ public class MailAccountDialog {
 		grid = new GridPane();
 		grid.setHgap(30);
 		grid.setVgap(15);
+		// USERNAME
 		Label usernameLabel = new Label("Username: ");
 		usernameLabel.setTooltip(new Tooltip("add a full qualified email address, e.g. jochen@com.github.koshamo.fastmail.org"));
 		grid.add(usernameLabel, 0, 0);
 		usernameField = new TextField();
 		usernameField.setTooltip(new Tooltip("add a full qualified email address, e.g. jochen@com.github.koshamo.fastmail.org"));
 		grid.add(usernameField, 1, 0);
+		// DISPLAYED NAME
 		Label displaynameLabel = new Label("Displayed name: ");
 		displaynameLabel.setTooltip(new Tooltip("this name is shown in most email clients"));
 		grid.add(displaynameLabel, 0, 1);
 		displaynameField = new TextField();
 		displaynameField.setTooltip(new Tooltip("this name is shown in most email clients"));
 		grid.add(displaynameField, 1, 1);
+		// PASSWORD
 		Label passwordLabel = new Label("Password: ");
 		grid.add(passwordLabel, 0, 2);
 		passwordField = new PasswordField();
 		grid.add(passwordField, 1, 2);
+		// SERVER TYPE
 		Label serverTypeLabel = new Label("Server Type: ");
 		grid.add(serverTypeLabel, 0, 3);
 		serverTypeBox = new ChoiceBox<String>(FXCollections.observableArrayList("IMAP"));
 		serverTypeBox.setTooltip(new Tooltip("currently only IMAP is supported"));
 		serverTypeBox.setValue("IMAP");
 		grid.add(serverTypeBox, 1, 3);
+		// SERVER ADDRESS
 		Label imapLabel = new Label("IMAP / POP3 server address: ");
 		imapLabel.setTooltip(new Tooltip("e.g. imap.gmail.com"));
 		grid.add(imapLabel, 0, 4);
 		imapField = new TextField();
 		imapField.setTooltip(new Tooltip("e.g. imap.gmail.com"));
 		grid.add(imapField, 1, 4);
+		// SSL CONNECTION
 		Label sslLabel = new Label("Secure SSL Connection: ");
 		grid.add(sslLabel, 0, 5);
 		sslBox = new CheckBox("SSL enable");
 		sslBox.setTooltip(new Tooltip("if unsure, leave checked"));
 		sslBox.setSelected(true);		
 		grid.add(sslBox, 1, 5);
+		// SMTP ADDRESS
 		Label smtpLabel = new Label("SMTP server address: ");
 		smtpLabel.setTooltip(new Tooltip("e.g. smtp.gmail.com"));
 		grid.add(smtpLabel, 0, 6);
 		smtpField = new TextField();
 		smtpField.setTooltip(new Tooltip("e.g. smtp.gmail.com"));
 		grid.add(smtpField, 1, 6);
+		// TLS CONNECTION
 		Label tlsLabel = new Label("Secure TLS Connection: ");
 		grid.add(tlsLabel, 0, 7);
 		tlsBox = new CheckBox("TLS enable");
 		tlsBox.setTooltip(new Tooltip("if unsure, leave checked"));
 		tlsBox.setSelected(true);
 		grid.add(tlsBox, 1, 7);
+		// TEST CONFIGURATION
 		testButton = new Button("test configuration");
 		testButton.setOnAction(ev -> {
 			fillAccountData(true);

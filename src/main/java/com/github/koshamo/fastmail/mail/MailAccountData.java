@@ -55,9 +55,10 @@ public class MailAccountData implements Serializable{
 	 * @param ssl			use SSL connection
 	 * @param tls			use TLS authentification
 	 */
-	public MailAccountData(String username, String password, String displayName,
-			String inboxType, String inboxHost, String smtpHost,
-			boolean ssl, boolean tls) {
+	public MailAccountData(final String username, final String password, 
+			final String displayName, final String inboxType, 
+			final String inboxHost, final String smtpHost,
+			final boolean ssl, final boolean tls) {
 		this.username = username;
 		this.password = password;
 		this.displayName = displayName;
@@ -68,11 +69,15 @@ public class MailAccountData implements Serializable{
 		this.tls = tls;
 	}
 
+	/**
+	 * The default constructor is needed to deserialize this object
+	 */
 	public MailAccountData() {
 		
 	}
 	
 	/**
+	 * Get the username 
 	 * @return the username
 	 */
 	public String getUsername() {
@@ -80,13 +85,15 @@ public class MailAccountData implements Serializable{
 	}
 
 	/**
+	 * Set the username 
 	 * @param username the username to set
 	 */
-	public void setUsername(String username) {
+	public void setUsername(final String username) {
 		this.username = username;
 	}
 
 	/**
+	 * Get the password
 	 * @return the password
 	 */
 	public String getPassword() {
@@ -94,13 +101,15 @@ public class MailAccountData implements Serializable{
 	}
 
 	/**
+	 * Set the password
 	 * @param password the password to set
 	 */
-	public void setPassword(String password) {
+	public void setPassword(final String password) {
 		this.password = password;
 	}
 
 	/**
+	 * Get the DisplayName
 	 * @return the displayName
 	 */
 	public String getDisplayName() {
@@ -108,27 +117,31 @@ public class MailAccountData implements Serializable{
 	}
 
 	/**
+	 * Set the DisplayName
 	 * @param displayName the displayName to set
 	 */
-	public void setDisplayName(String displayName) {
+	public void setDisplayName(final String displayName) {
 		this.displayName = displayName;
 	}
 
 	/**
+	 * Get the InboxType
 	 * @return the inboxType
 	 */
 	public String getInboxType() {
 		return inboxType;
 	}
 
-	/**
+	/** 
+	 * Set the InboxType
 	 * @param inboxType the inboxType to set
 	 */
-	public void setInboxType(String inboxType) {
+	public void setInboxType(final String inboxType) {
 		this.inboxType = inboxType;
 	}
 
 	/**
+	 * Get the InboxHost
 	 * @return the inboxHost
 	 */
 	public String getInboxHost() {
@@ -136,13 +149,15 @@ public class MailAccountData implements Serializable{
 	}
 
 	/**
+	 * Set the InboxHost
 	 * @param inboxHost the inboxHost to set
 	 */
-	public void setInboxHost(String inboxHost) {
+	public void setInboxHost(final String inboxHost) {
 		this.inboxHost = inboxHost;
 	}
 
 	/**
+	 * Get the SMTPHost
 	 * @return the smtpHost
 	 */
 	public String getSmtpHost() {
@@ -150,13 +165,15 @@ public class MailAccountData implements Serializable{
 	}
 
 	/**
+	 * Set the SMTPHost
 	 * @param smtpHost the smtpHost to set
 	 */
-	public void setSmtpHost(String smtpHost) {
+	public void setSmtpHost(final String smtpHost) {
 		this.smtpHost = smtpHost;
 	}
 
 	/**
+	 * Get SSL
 	 * @return the ssl
 	 */
 	public boolean isSsl() {
@@ -164,13 +181,15 @@ public class MailAccountData implements Serializable{
 	}
 
 	/**
+	 * Set SSL
 	 * @param ssl the ssl to set
 	 */
-	public void setSsl(boolean ssl) {
+	public void setSsl(final boolean ssl) {
 		this.ssl = ssl;
 	}
 
 	/**
+	 * Get TLS
 	 * @return the tls
 	 */
 	public boolean isTls() {
@@ -178,9 +197,10 @@ public class MailAccountData implements Serializable{
 	}
 
 	/**
+	 * Set TLS
 	 * @param tls the tls to set
 	 */
-	public void setTls(boolean tls) {
+	public void setTls(final boolean tls) {
 		this.tls = tls;
 	}
 }

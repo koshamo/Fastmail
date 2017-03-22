@@ -48,6 +48,15 @@ import javafx.scene.control.TreeItem;
 public class MailTools {
 
 	/**
+	 * The default constructor is private to prevent users to
+	 * instantiate this class
+	 */
+	private MailTools() {
+		// prevent instantiating
+	}
+	
+	
+	/**
 	 * checks if a semicolon separated String of email addresses holds
 	 * possibly valid addresses.
 	 * <p>
@@ -59,7 +68,7 @@ public class MailTools {
 	 * @param addressLine a string with (semicolon separated) email addresses
 	 * @return	true if valid, false otherwise
 	 */
-	public static boolean isValid(String addressLine) {
+	public static boolean isValid(final String addressLine) {
 		String[] addresses = addressLine.split(";"); //$NON-NLS-1$
 		for (String adr : addresses){
 			int at = adr.indexOf("@"); //$NON-NLS-1$
@@ -78,7 +87,7 @@ public class MailTools {
 	 * @param addressLine a semicolon separated list of email addresses as string
 	 * @return an array of internet email Addresses
 	 */
-	public static InternetAddress[] parseAddresses(String addressLine) {
+	public static InternetAddress[] parseAddresses(final String addressLine) {
 		String[] adr = addressLine.split(";"); //$NON-NLS-1$
 		InternetAddress[] inetAdr = new InternetAddress[adr.length];
 		for (int i = 0; i < adr.length; i++) {
@@ -99,7 +108,7 @@ public class MailTools {
 	 * @param subject the current subject line
 	 * @return the subject line starting with Re: 
 	 */
-	public static String makeSubject(String subject) {
+	public static String makeSubject(final String subject) {
 		if (subject.startsWith("Re:") || subject.startsWith("RE:")) //$NON-NLS-1$ //$NON-NLS-2$
 			return subject;
 		return new StringBuilder("Re: ").append(subject).toString();  //$NON-NLS-1$
@@ -111,7 +120,7 @@ public class MailTools {
 	 * @param text the email text, that will be replied
 	 * @return the decorated email text
 	 */
-	public static String decorateMailText(String text) {
+	public static String decorateMailText(final String text) {
 		String[] lines = text.split("\n"); //$NON-NLS-1$
 		StringBuilder reply = new StringBuilder();
 		for (String line : lines)
@@ -119,7 +128,13 @@ public class MailTools {
 		return reply.toString();
 	}
 	
-	public static boolean isServerValid(String addressLine) {
+	/**
+	 * checks if the server string holds a potentially valid address
+	 * 
+	 * @param 	addressLine the server address to check
+	 * @return 	true, if potentially valid, false otherwise
+	 */
+	public static boolean isServerValid(final String addressLine) {
 		if (addressLine.contains("@")) //$NON-NLS-1$
 			return false;
 		String[] str = addressLine.split("\\."); //$NON-NLS-1$
@@ -128,7 +143,13 @@ public class MailTools {
 		return true;
 	}
 	
-	public static void sortFolders(ObservableList<TreeItem<MailTreeViewable>> list) {
+	/**
+	 * The natural sort order of email folders is INBOX, Drafts, Sent, Trash,
+	 * then followed by the user folders in their natural sort order (which 
+	 * is alphabetically)
+	 * @param list the observable list containing the email folders
+	 */
+	public static void sortFolders(final ObservableList<TreeItem<MailTreeViewable>> list) {
 		list.sort((i1, i2) -> {
 			if ("INBOX".equals(i1.getValue().getName()))
 				return -1;
@@ -160,7 +181,7 @@ public class MailTools {
 	 * @param messageID the message number within the folder
 	 * @return the mail content Data object
 	 */
-	public static MailData getMessage(Message message) {
+	public static MailData getMessage(final Message message) {
 
 		MailData md = null;
 		
@@ -267,7 +288,7 @@ public class MailTools {
 	 * @param mp the Multipart message of the mail, which is the body part
 	 * @return the mails content as plain text
 	 */
-	private static String getTextBodyContent(Multipart mp) {
+	private static String getTextBodyContent(final Multipart mp) {
 		String result = ""; //$NON-NLS-1$
 		// seems that most Multipart messages have 2 Body parts
 		// first body part: plain text
@@ -303,7 +324,7 @@ public class MailTools {
 	 * @return the AttachmentData object with the proper input stream
 	 */
 	// TODO: test this with a proper mail.... if not testable, remove!
-	private static AttachmentData getAttachmentBodyContent(BodyPart bp) {
+	private static AttachmentData getAttachmentBodyContent(final BodyPart bp) {
 		String fileName = null;
 		int size = 0;
 		InputStream is = null;

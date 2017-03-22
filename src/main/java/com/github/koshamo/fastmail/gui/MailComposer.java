@@ -53,9 +53,9 @@ import javafx.stage.Stage;
  * constructors to reply to a existing email. For those constructors additional
  * information is needed to fill the mail header.
  * <p>
- * Use this class in the main application to compose a mail by calling one of the 
- * constructors. No more action is needed, as this class calls the sendMail() 
- * method from Account and closes itself.
+ * Use this class in the main application to compose a mail by calling one of 
+ * the constructors. No more action is needed, as this class calls the 
+ * sendMail() method from MailAccount and closes itself.
  * <p> 
  * @author jochen
  *
@@ -82,7 +82,7 @@ public class MailComposer {
 	 * 
 	 * @param accounts the array that holds the mail accounts
 	 */
-	public MailComposer(MailAccount[] accounts) {
+	public MailComposer(final MailAccount[] accounts) {
 		this.accounts = accounts;
 		buildGui();
 	}
@@ -94,7 +94,8 @@ public class MailComposer {
 	 * @param mail		the MailData object to reply to
 	 * @param replyAll	set this to true, if the message is reply to all
 	 */
-	public MailComposer(MailAccount[] accounts, int curAccnt, MailData mail, boolean replyAll) {
+	public MailComposer(final MailAccount[] accounts, final int curAccnt, 
+			final MailData mail, final boolean replyAll) {
 		this.accounts = accounts;
 		this.mail = mail;
 		this.curAccnt = curAccnt;
@@ -135,7 +136,7 @@ public class MailComposer {
 	 * 
 	 * @param pane the VBox layout container
 	 */
-	private void buildButtonBar(VBox pane) {
+	private void buildButtonBar(final VBox pane) {
 		HBox hbox = new HBox();
 		Button btnSend = new Button("send");
 		btnSend.setPrefSize(90, 50);
@@ -187,7 +188,7 @@ public class MailComposer {
 				if (attachmentLine.getText().isEmpty())
 					attachmentLine.setText(selFile.getName());
 				else
-					attachmentLine.setText(attachmentLine.getText() + ";" + selFile.getName());
+					attachmentLine.setText(attachmentLine.getText() + ";" + selFile.getName()); //$NON-NLS-1$
 				if (attachmentList == null)
 					attachmentList = new ArrayList<File>();
 				attachmentList.add(selFile);
@@ -204,7 +205,7 @@ public class MailComposer {
 	 * 
 	 * @param pane the VBox layout container
 	 */
-	private void buildTop(VBox pane) {
+	private void buildTop(final VBox pane) {
 		GridPane grid = new GridPane();
 		grid.setHgap(20);
 		grid.setPadding(new Insets(5, 20, 5, 20));
@@ -251,8 +252,8 @@ public class MailComposer {
 	/**
 	 * this is a helper method to fill the items for the Choice Box.
 	 * <p>
-	 * this method parses all local mail accounts and populates the the from choice
-	 * box with account representation strings
+	 * this method parses all local mail accounts and populates the the 
+	 * from choice box with account representation strings
 	 * 
 	 * @return the account list for the choice box
 	 */
@@ -264,12 +265,12 @@ public class MailComposer {
 	}
 	
 	/**
-	 * this method constructs the body part of the window, which is the text area 
-	 * to compose the mail
+	 * this method constructs the body part of the window, which is the 
+	 * text area to compose the mail
 	 * 
 	 * @param pane the VBox layout container
 	 */
-	private void buildBottom(VBox pane) {
+	private void buildBottom(final VBox pane) {
 		area = new TextArea();
 		area.setWrapText(true);
 		VBox.setVgrow(area, Priority.ALWAYS);

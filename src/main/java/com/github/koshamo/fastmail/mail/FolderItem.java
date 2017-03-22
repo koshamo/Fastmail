@@ -29,6 +29,14 @@ import javafx.collections.ObservableList;
 import javafx.util.Duration;
 
 /**
+ * FolderItem class populates the tree view containing accounts and folders.
+ * <p>
+ * The folder item holds references to its content, which can be a strong
+ * reference to the INBOX folder or a soft reference to any other folder,
+ * depending on its representing data.
+ * <p>
+ * This class adds adapter methods to delete messages, rename the folder, etc.
+ * 
  * @author jochen
  *
  */
@@ -41,7 +49,7 @@ public class FolderItem implements MailTreeViewable {
 	private final boolean isInbox;
 	private SoftReference<ObservableList<EmailTableData>> folderContent = null;
 
-	public FolderItem(Folder folder) {
+	public FolderItem(final Folder folder) {
 		this.folder = folder;
 		
 		if ("INBOX".equals(folder.getFullName())) {
@@ -118,7 +126,17 @@ public class FolderItem implements MailTreeViewable {
 		return folder.getFullName();
 	}
 	
-	public boolean renameTo(Folder f) {
+	/**
+	 * to rename the current folder this method needs a new locally 
+	 * constructed folder object containing the new name. The new folder
+	 * should not exist on the server.
+	 * <p>
+	 * This method is an adapter to the Folder class of Javamail.
+	 * 
+	 * @param f	the folder containing the new name
+	 * @return	true, if renaming was successful, false otherwise
+	 */
+	public boolean renameTo(final Folder f) {
 		try {
 			if (folder.isOpen())
 				folder.close(true);
@@ -135,18 +153,16 @@ public class FolderItem implements MailTreeViewable {
 	/**
 	 * Removes a message from the email folder locally as well as on the server.
 	 * 
-	 * @param folderItem	the folderItem, in which the mail resides
 	 * @param emailTableData the email message to remove
 	 * @return true, if the mail could be removed, otherwise false
 	 */
-	public boolean deleteMessage(EmailTableData emailTableData) {
-		// TODO: to much calls in a row, make clearer design
-		Folder f = emailTableData.getMailData().getMessage().getFolder();
+	public boolean deleteMessage(final EmailTableData emailTableData) {
+		Folder f = emailTableData.getFolder();
 		boolean deleted = false;
 		try {
 			if (!f.isOpen())
 				f.open(Folder.READ_WRITE);
-			emailTableData.getMailData().getMessage().setFlag(Flags.Flag.DELETED, true);
+			emailTableData.setFlag(Flags.Flag.DELETED, true);
 			deleted = true;
 			f.close(true);
 		} catch (MessagingException e) {
@@ -168,6 +184,9 @@ public class FolderItem implements MailTreeViewable {
 		return folder;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof FolderItem))

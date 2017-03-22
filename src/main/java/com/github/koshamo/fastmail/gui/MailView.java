@@ -214,7 +214,7 @@ public class MailView extends StackPane {
 	 * Call this method to fill the widgets content
 	 * @param data	the data object containing all relevant mail data
 	 */
-	public void setContent(MailData data) {
+	public void setContent(final MailData data) {
 		clear();
 		this.data = data;
 		if (data.getFromName() != null)
@@ -262,13 +262,6 @@ public class MailView extends StackPane {
 		mailBody.setText(data.getContent());
 	}
 	
-	/**
-	 * Get the actual mail text
-	 * @return	the mail text as String
-	 */
-	public MailData getMailContent() {
-		return data;
-	}
 	
 	/*
 	 * ****************************************************

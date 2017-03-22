@@ -29,8 +29,8 @@ import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 
 /**
- * The InboxWatcher is used to check, if new mail has arrived to the mail box
- * and also notify us, when an email has been deleted from elsewhere
+ * The InboxWatcher is used to check, if new mails have arrived to the mail box
+ * and also notifies us, when an email has been deleted from elsewhere
  * 
  * @author jochen
  *
@@ -41,16 +41,15 @@ public class InboxWatcher extends ScheduledService<Void> {
 	/*package private*/ ObservableList<EmailTableData> mailList;
 	
 	/**
-	 * the constructor of InboxWatcher adds Action Listeners to the INBOX folder
+	 * The constructor is aimed to can watch any folder, although most
+	 * probably it will only be used for the inbox. 
 	 * <p>
-	 * As POP3 accounts don't support action listeners at all and they did not
-	 * work on my IMAP folders, we chose an implementation totally without
-	 * folder action listeners
 	 * 
 	 * @param folder	the folder to watch
 	 * @param mailList	the observable list to connect the server folder to the GUI
 	 */
-	public InboxWatcher(Folder folder, ObservableList<EmailTableData> mailList) {
+	public InboxWatcher(final Folder folder, 
+			final ObservableList<EmailTableData> mailList) {
 		this.folder = folder;
 		this.mailList = mailList;
 	}

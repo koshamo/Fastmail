@@ -44,13 +44,14 @@ import javafx.scene.input.KeyEvent;
 public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 
 	private TextField textField;
-	private final ContextMenu contextMenu = new ContextMenu();
+	private final ContextMenu contextMenu;
 	private MailTreeViewable editItem;
 	
 	/**
 	 * The class constructor builds the context menu
 	 */
 	public TreeCellFactory() {
+		contextMenu = new ContextMenu();
 		if (getTreeItem() == null)	// prevent root item to get a menu
 			return;
 		if (getTreeItem().getValue().isAccount()) {
@@ -63,7 +64,9 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 		else {
 			MenuItem addSubFolderMenu = new MenuItem("Add Sub Folder");
 			// TODO: add action listener
-			contextMenu.getItems().add(addSubFolderMenu);
+			MenuItem deleteFolderMenu = new MenuItem("Delete Folder");
+			// TODO: add action listener
+			contextMenu.getItems().addAll(addSubFolderMenu, deleteFolderMenu);
 		}
 		MenuItem addFolderMenu = new MenuItem("Add Folder");
 		contextMenu.getItems().add(addFolderMenu);
@@ -134,7 +137,7 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 * @see javafx.scene.control.Cell#updateItem(java.lang.Object, boolean)
 	 */
 	@Override
-	public void updateItem(MailTreeViewable item, boolean empty) {
+	public void updateItem(final MailTreeViewable item, final boolean empty) {
 		super.updateItem(item, empty);
 		if (item == null) {	// here again: root item
 			setText(null);
@@ -165,14 +168,8 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 * (non-Javadoc)
 	 * @see javafx.scene.control.TreeCell#commitEdit(java.lang.Object)
 	 */
-	// TODO: test and fix this method
-	/*
-	 * This method currently doesn't work as wished. But this may be
-	 * because of overriding from account folder watcher.
-	 * Need further investigation of this topic
-	 */
 	@Override 
-	public void commitEdit(MailTreeViewable newValue) {
+	public void commitEdit(final MailTreeViewable newValue) {
 		FolderItem folderItem = (FolderItem) editItem;
 		folderItem.renameTo(((FolderItem)newValue).getFolder());
 		super.commitEdit(newValue);

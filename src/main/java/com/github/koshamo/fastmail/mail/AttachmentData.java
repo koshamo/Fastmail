@@ -20,8 +20,6 @@ package com.github.koshamo.fastmail.mail;
 
 import java.io.InputStream;
 
-import javax.mail.internet.MimeBodyPart;
-
 /**
  * This class is a pure data class that stores attachment data
  * 
@@ -39,7 +37,8 @@ public final class AttachmentData {
 	 * @param size		the size in byte of the containing attachment
 	 * @param inputStream	the attachment's input stream
 	 */
-	public AttachmentData(String fileName, int size, InputStream inputStream) {
+	public AttachmentData(final String fileName, final int size, 
+			final InputStream inputStream) {
 		super();
 		this.fileName = fileName;
 		this.size = size;
@@ -54,7 +53,7 @@ public final class AttachmentData {
 	}
 	
 	/**
-	 * Get the size in byte of the containing attachemnt
+	 * Get the size in byte of the containing attachment
 	 * @return the file size
 	 */
 	public int getSize() {
@@ -64,11 +63,11 @@ public final class AttachmentData {
 	/**
 	 * Get the input stream of the attachment, which can be used to
 	 * pipe a file output stream
+	 * 
 	 * @return	the input stream
 	 */
 	public InputStream getInputStream() {
 		return inputStream;
 	}
-	
 	
 }

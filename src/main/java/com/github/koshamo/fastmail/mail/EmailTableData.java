@@ -23,6 +23,7 @@ import java.time.Instant;
 
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
+import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -41,9 +42,9 @@ import javafx.beans.value.ObservableValue;
  * <p>
  * The class EmailTableData populates the observable list, holding all mails
  * within a folder and is shown in the table view. Some fields are read-only,
- * as they may never be changed, others are read-write, because they may be modified.
- * Example: the From field may not be changed, but the status of read(seen) may be
- * changed.
+ * as they may never be changed, others are read-write, because they may be 
+ * modified. Example: the From field may not be changed, but the status 
+ * of read(seen) may be changed.
  * 
  * @author jochen
  *
@@ -66,12 +67,12 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	
 
 	/**
-	 * The constructor takes a javamail Message an constructs a EmailTableData object,
-	 * which can be handled in the observable list
+	 * The constructor takes a Javamail Message and constructs a EmailTableData 
+	 * object, which can be handled in the observable list
 	 * 
 	 * @param msg a message read from the mail account
 	 */
-	public EmailTableData (Message msg) {
+	public EmailTableData (final Message msg) {
 		String adr;
 		try {
 			adr = ((InternetAddress[]) msg.getFrom())[0].getPersonal();
@@ -123,6 +124,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		// TODO: populate the properties using this data object (no code duplication needed)
 		mailData = MailTools.getMessage(msg);
 	}
 	
@@ -212,10 +214,43 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		return attachment.get();
 	}
 
+	
+	/**
+	 * this method returns the MailData object contained in the table data 
+	 * object
+	 * @return the MailData object representing the mail details
+	 */
 	public MailData getMailData() {
 		return mailData;
 	}
 
+	/**
+	 * this method returns the folder, in which this message resides
+	 * @return	the folder of this message
+	 */
+	public Folder getFolder() {
+		return mailData.getMessage().getFolder();
+	}
+	
+	
+	/**
+	 * this message provides the functionality to set a flag on the message. 
+	 * This may be the SEEN or MARKED flag, amongst others.
+	 * 
+	 * @see javax.mail.Flags.Flag
+	 * @param flag
+	 * @param set
+	 */
+	public void setFlag(final Flags.Flag flag, final boolean set) {
+		try {
+			mailData.getMessage().setFlag(flag, set);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	/* The natural order of Emails should be date based
 	 * 
 	 * (non-Javadoc)
@@ -241,9 +276,6 @@ public class EmailTableData implements Comparable<EmailTableData>{
 				!this.getReceivedDate().equals(extern.getReceivedDate()) ||
 				!this.getFrom().equals(extern.getFrom()) ||
 				!this.getSubject().equals(extern.getSubject()))
-				// TODO: test, if ID can be removed, as the ID changes, as 
-				// a mail with a lower ID gets deleted
-//				!(this.getId() == extern.getId()))
 			return false;
 		return true;
 	}

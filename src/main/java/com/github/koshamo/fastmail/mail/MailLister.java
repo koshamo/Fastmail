@@ -35,7 +35,7 @@ import javafx.concurrent.Task;
  * fields to configure runtime are final.
  * <p>
  * Usage: 
- * new Thread(new Maillister(accountList, observableList, account, foler)).start();
+ * new Thread(new Maillister(folder, oberservableEmailDataList)).start();
  *  
  * @author jochen
  *
@@ -47,13 +47,12 @@ public final class MailLister extends Task<Boolean>{
 	private volatile boolean stop = false;
 	
 	/**
-	 * Constructor needs the accounts 
+	 * builds the MailLister for a given folder 
 	 * 
-	 * @param accounts2 the mail accounts to process
-	 * @param emailList the observable list, that holds the table items 
-	 * to be filled dynamically
+	 * @param folder	the folder to be listed
+	 * @param mailList 	the observable list to be filled
 	 */
-	public MailLister(Folder folder, ObservableList<EmailTableData> mailList) {
+	public MailLister(final Folder folder, final ObservableList<EmailTableData> mailList) {
 		this.folder = folder;
 		this.mailList = mailList;
 	}
@@ -61,11 +60,6 @@ public final class MailLister extends Task<Boolean>{
 	/**
 	 * stops the execution of the thread
 	 * <p>
-	 * if a new folder is selected, but the current thread still is reading data 
-	 * from the mail server to populate the table view, the thread needs to be 
-	 * stopped, as we currently use only one observable list to display the folders
-	 * content. This is due to the current design of holding only data, which is
-	 * actually needed 
 	 */
 	public void stop() {
 		stop = true;

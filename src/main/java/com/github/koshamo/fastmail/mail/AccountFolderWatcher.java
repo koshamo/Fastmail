@@ -32,10 +32,11 @@ import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 
 /**
- * The class AccountFolderWatcher does its work in seperate threads.
+ * The class AccountFolderWatcher does its work in a separate thread.
  * It builds the tree item view at startup and checks dynamically the
  * mail account, if any folder has been added or removed. Server side renamed
- * folders will be added as new folders and the old (named) folder will be deleted.
+ * folders will be added as new folders and the old (named) folder will be 
+ * deleted.
  * 
  * @author jochen
  *
@@ -50,7 +51,7 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	/**
 	 * Basic constructor
 	 * 
-	 * @param accounts this is the list containing all mail accounts
+	 * @param account the current account to check for new folders
 	 * @param accountTreeItem root item of the account
 	 */
 	AccountFolderWatcher(final MailAccount account, 
@@ -74,13 +75,13 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	}
 
 	/* 
-	 * This task iterates over all folders within a given account and
+	 * This task iterates over all folders within this account and
 	 * adds all folders to the tree view that aren't already there.
 	 * Excessive folders will be removed.
 	 * <p>
 	 * As we use an interface to produce the TreeItems, we would need
 	 * an equals method within the interface, which is not implementable.
-	 * Hence we need to manually check, if the items are there, the contains()
+	 * Hence we need to manually check, if the items are there. The contains()
 	 * method of the collections framework will not work for this case.
 	 *   
 	 * @see javafx.concurrent.Service#createTask()
@@ -113,7 +114,8 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 					}
 					if (!contained) {
 						FolderItem folderItem = new FolderItem(sf);
-						TreeItem<MailTreeViewable> treeItem = new TreeItem<MailTreeViewable>(folderItem);
+						TreeItem<MailTreeViewable> treeItem = 
+								new TreeItem<MailTreeViewable>(folderItem);
 						localList.add(treeItem);
 					}
 				}
@@ -145,6 +147,7 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 					}
 				}
 								
+				// sort the folder to represent items in a natural way
 				MailTools.sortFolders(localList);
 				return null;
 			}

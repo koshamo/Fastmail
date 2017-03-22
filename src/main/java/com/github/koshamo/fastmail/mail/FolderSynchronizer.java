@@ -33,11 +33,8 @@ import javafx.concurrent.Task;
 /**
  * This class is intended to synchronize the mails of a given folder.
  * <p>
- * As the ID changes as soon as a mail with a lower ID is deleted, it is
- * necessary to synch the local mails with the server side to get the new
- * IDs. Further more it is necessary to synch, as we currently don't detect
- * deletion of a mail done in another mail frontend.
- *  
+ * This class is not yet included in the production code
+ *   
  * @author jochen
  *
  */
@@ -55,7 +52,8 @@ public class FolderSynchronizer extends ScheduledService<Void> {
 	 * @param folder 	the folder on the server to be synched
 	 * @param mailList	the ObservableList on the local side
 	 */
-	public FolderSynchronizer(Folder folder, ObservableList<EmailTableData> mailList) {
+	public FolderSynchronizer(final Folder folder, 
+			final ObservableList<EmailTableData> mailList) {
 		super();
 		this.folder = folder;
 		this.mailList = mailList;

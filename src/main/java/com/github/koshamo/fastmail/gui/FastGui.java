@@ -25,6 +25,7 @@ import java.util.Optional;
 import javax.mail.Folder;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
+import com.github.koshamo.fastmail.mail.AccountRootItem;
 import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccount;
@@ -39,12 +40,12 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -55,7 +56,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.control.TreeView.EditEvent;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -71,12 +71,12 @@ import javafx.stage.Stage;
  */
 public class FastGui extends Application {
 
-	/* start is the starting point of a JafaFX application
+	/* start is the starting point of a JavaFX application
 	 * all we do here is to call methods to build the GUI
 	 * @see javafx.application.Application#start(javafx.stage.Stage)
 	 */
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(final Stage primaryStage) {
 		primaryStage.setTitle(FastMailGenerals.getApplicationName() + " " 
 				+ FastMailGenerals.getVersion());
 		buildGUI(primaryStage);
@@ -85,9 +85,9 @@ public class FastGui extends Application {
 
 	// fields to build the GUI
 	private MenuBar menuBar;
-	private Button btnReply;
-	private Button btnReplyAll;
-	private Button btnDelete;
+	Button btnReply;
+	Button btnReplyAll;
+	Button btnDelete;
 	
 	// fields for handling accounts and mails
 	private TreeItem<MailTreeViewable> rootItem;
@@ -96,8 +96,6 @@ public class FastGui extends Application {
 	TreeView<MailTreeViewable> accountTree;
 
 	
-	// global fields for account & folder to get access in the table view
-//	MailAccountList accounts;
 
 	/**
 	 * buildGUI is the main method to set up general GUI, 
@@ -105,7 +103,7 @@ public class FastGui extends Application {
 	 * 
 	 * @param primaryStage the Stage item that contains the main windows stage 
 	 */
-	private void buildGUI(Stage primaryStage) {
+	private void buildGUI(final Stage primaryStage) {
 		VBox overallPane = new VBox();
 
 		buildMenu(overallPane);
@@ -113,9 +111,14 @@ public class FastGui extends Application {
 		buildBody(overallPane);
 		buildStatusLine(overallPane);
 		
+		/*
+		 * if mail accounts had been added in a previous session,
+		 * load them from disk and initialize the tree view
+		 */
 		List<MailAccountData> mad = SerializeManager.getInstance().getMailAccounts();
 		for (MailAccountData d : mad) {
-			TreeItem<MailTreeViewable> account = new TreeItem<MailTreeViewable>(new MailAccount(d));
+			TreeItem<MailTreeViewable> account = 
+					new TreeItem<MailTreeViewable>(new MailAccount(d));
 			((MailAccount) account.getValue()).addFolderWatcher(account);
 			account.setExpanded(true);
 			rootItem.getChildren().add(account);
@@ -130,7 +133,7 @@ public class FastGui extends Application {
 	 * 
 	 * @param overallPane this is the main windows layout container
 	 */
-	private void buildMenu(VBox overallPane) {
+	private void buildMenu(final VBox overallPane) {
 		menuBar = new MenuBar();
 		// Account Menu
 		Menu accountMenu = new Menu("Account");
@@ -140,7 +143,8 @@ public class FastGui extends Application {
 			MailAccountData accountData = dialog.showAndWait();
 			if (accountData == null)
 				return;
-			TreeItem<MailTreeViewable> account = new TreeItem<MailTreeViewable>(new MailAccount(accountData));
+			TreeItem<MailTreeViewable> account = 
+					new TreeItem<MailTreeViewable>(new MailAccount(accountData));
 			((MailAccount) account.getValue()).addFolderWatcher(account);
 			rootItem.getChildren().add(account);
 			account.setExpanded(true);
@@ -150,7 +154,8 @@ public class FastGui extends Application {
 		editAccountItem.setOnAction(ev -> {
 			if (accountTree.getSelectionModel().getSelectedItem() == null)
 				return;
-			TreeItem<MailTreeViewable> curItem = accountTree.getSelectionModel().getSelectedItem(); 
+			TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem(); 
 			while (!curItem.getValue().isAccount())
 				curItem.getParent();
 			MailAccountDialog dialog = new MailAccountDialog(
@@ -161,7 +166,8 @@ public class FastGui extends Application {
 		removeAccountItem.setOnAction(ev -> {
 			if (accountTree.getSelectionModel().getSelectedItem() == null)
 				return;
-			TreeItem<MailTreeViewable> curItem = accountTree.getSelectionModel().getSelectedItem(); 
+			TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem(); 
 			while (!curItem.getValue().isAccount())
 				curItem.getParent();
 			Alert alert = new Alert(Alert.AlertType.WARNING,
@@ -184,7 +190,7 @@ public class FastGui extends Application {
 		});
 		accountMenu.getItems().addAll(addAccountItem, editAccountItem, removeAccountItem);
 		
-		// Help Menu
+		// Help Menu: this is called like the application!
 		Menu helpMenu = new Menu("Fastmail");
 		MenuItem aboutHelpItem = new MenuItem("About");
 		aboutHelpItem.setOnAction(ev -> {
@@ -212,8 +218,9 @@ public class FastGui extends Application {
 	 * 
 	 * @param overallPane this is the main windows layout container
 	 */
-	private void buildButtonPane(VBox overallPane) {
+	private void buildButtonPane(final VBox overallPane) {
 		HBox hbox = new HBox();
+		// NEW button
 		Button btnNew = new Button("New");
 		btnNew.setPrefSize(90, 50);
 		btnNew.setMinSize(90, 50);
@@ -225,6 +232,7 @@ public class FastGui extends Application {
 				ma[i] = (MailAccount)accountList.get(i).getValue();
 			new MailComposer(ma);
 		});
+		// REPLY button
 		btnReply = new Button("Reply");
 		btnReply.setPrefSize(90, 50);
 		btnReply.setMinSize(90, 50);
@@ -248,14 +256,17 @@ public class FastGui extends Application {
 			new MailComposer(ma, index, tableData.getMailData(), false);
 		});
 		btnReply.setDisable(true);
+		// REPLY ALL button
 		btnReplyAll = new Button("Reply All");
 		btnReplyAll.setPrefSize(90, 50);
 		btnReplyAll.setMinSize(90, 50);
 		btnReplyAll.setOnAction(ev -> {
-			TreeItem<MailTreeViewable> treeItem = accountTree.getSelectionModel().getSelectedItem(); 
+			TreeItem<MailTreeViewable> treeItem = 
+					accountTree.getSelectionModel().getSelectedItem(); 
 			if (treeItem == null)
 				return;
-			EmailTableData tableData = folderMailTable.getSelectionModel().getSelectedItem(); 
+			EmailTableData tableData = 
+					folderMailTable.getSelectionModel().getSelectedItem(); 
 			if (tableData == null)
 				return;
 			while (!treeItem.getValue().isAccount())
@@ -269,6 +280,7 @@ public class FastGui extends Application {
 			new MailComposer(ma, index, tableData.getMailData(), true);
 		});
 		btnReplyAll.setDisable(true);
+		// DELETE button
 		btnDelete = new Button("Delete");
 		btnDelete.setPrefSize(90, 50);
 		btnDelete.setMinSize(90, 50);
@@ -291,19 +303,18 @@ public class FastGui extends Application {
 		});
 		btnDelete.setDisable(true);
 		
-		
 		hbox.getChildren().addAll(btnNew, btnReply, btnReplyAll, btnDelete);
 		overallPane.getChildren().add(hbox);
 	}
 
 	/**
 	 * buildBody builds the main working window area
-	 * in a email program this is the account tree view, the message folders content,
-	 * an the actual email text area
+	 * in a email program this is the account tree view, the message folders 
+	 * content, and the actual email text area
 	 * 
 	 * @param overallPane this is the main windows layout container
 	 */
-	private void buildBody(VBox overallPane) {
+	private void buildBody(final VBox overallPane) {
 		// the body must be build upside down, as we use Splitter
 
 		// upper right side:
@@ -338,35 +349,41 @@ public class FastGui extends Application {
 		folderMailTable = new TableView<EmailTableData>();
 		folderMailTable.setEditable(true);	
 		folderMailTable.setPlaceholder(new Label("choose Folder on the left side to show Emails"));
+		// SUBJECT column
 		TableColumn<EmailTableData, String> subjectCol = new TableColumn<>("Subject");
 		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject"));
 		subjectCol.setMinWidth(400);
+		// FROM column
 		TableColumn<EmailTableData, String> fromCol = new TableColumn<>("From");
 		fromCol.setCellValueFactory(new PropertyValueFactory<>("from"));
 		fromCol.setMinWidth(250);
+		// DATE column
 		TableColumn<EmailTableData, String> dateCol = new TableColumn<>("Date");
 		dateCol.setMinWidth(150);
 		dateCol.setCellValueFactory(new PropertyValueFactory<>("receivedDate"));
 		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
 		dateCol.setComparator(new DateCellComparator());
+		// MESSAGE READ column
 		TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>("R");
 		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read"));
 		readCol.setCellFactory(CheckBoxTableCell.forTableColumn(readCol));
 		readCol.setEditable(true);
 		readCol.setMaxWidth(30);
+		// ATTACHMENT column
 		TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>("A");
 		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment"));
 		attachmentCol.setCellFactory(CheckBoxTableCell.forTableColumn(attachmentCol));
 		attachmentCol.setEditable(false);
 		attachmentCol.setMaxWidth(30);
+		// MESSAGE MARKED column
 		TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>("M");
 		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked"));
 		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
 		markerCol.setEditable(true);
 		markerCol.setMaxWidth(30);
-		folderMailTable.getColumns().addAll(Arrays.asList(
-				subjectCol, fromCol, dateCol, readCol, attachmentCol, 
-				markerCol));
+		folderMailTable.getColumns().addAll(
+				Arrays.asList(subjectCol, fromCol, dateCol, readCol, 
+						attachmentCol, markerCol));
 		// local field representing the mails in a folder, that should be shown
 		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
 				(obs, oldVal, newVal) -> {
@@ -386,8 +403,8 @@ public class FastGui extends Application {
 	}
 	
 	
-	/** Builds the TreeView representing the mail accounts and returns it
-	 * within a ScrollPane
+	/** Builds the TreeView representing the mail accounts with its folders
+	 * and returns it within a ScrollPane
 	 * @return	the ScrollPane representing the TableView 
 	 */
 	private ScrollPane buildTreeView() {
@@ -397,28 +414,7 @@ public class FastGui extends Application {
 		 * do not need the root for any other function. So the root item
 		 * is hidden and provided with an empty interface implementation.
 		 */
-		rootItem = new TreeItem<MailTreeViewable>(new MailTreeViewable() {
-			@Override
-			public boolean isAccount() {
-				return false;
-			}
-			@Override
-			public ObservableList<EmailTableData> getFolderContent() {
-				return null;
-			}
-			@Override
-			public Folder getParentFolder() {
-				return null;
-			}
-			@Override
-			public String getName() {
-				return null;
-			}
-			@Override
-			public Folder getFolder() {
-				return null;
-			}
-		});
+		rootItem = new TreeItem<MailTreeViewable>(new AccountRootItem());
 		rootItem.setExpanded(true);
 
 		accountTree = new TreeView<MailTreeViewable>(rootItem);
@@ -460,7 +456,7 @@ public class FastGui extends Application {
 	 * 
 	 * @param overallPane this is the main windows layout container
 	 */
-	private void buildStatusLine(VBox overallPane) {
+	private void buildStatusLine(final VBox overallPane) {
 		HBox hbox = new HBox(8);
 		Label lbl = new Label("Status");
 		hbox.getChildren().addAll(lbl);

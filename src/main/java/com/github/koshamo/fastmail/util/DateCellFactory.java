@@ -26,7 +26,6 @@ import java.time.format.DateTimeFormatter;
 import com.github.koshamo.fastmail.mail.EmailTableData;
 
 import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
 
 /** The DateCellFactory is a table cell formatter class to work with Java's 
  * new Time and Date API
@@ -47,7 +46,7 @@ import javafx.scene.control.TableColumn;
 public class DateCellFactory extends TableCell<EmailTableData, String> {
 
 	@Override
-	protected void updateItem(String item, boolean empty) {
+	protected void updateItem(final String item, final boolean empty) {
 		super.updateItem(item, empty);
 		if (empty || item == null) {
 			setText(null);
@@ -64,7 +63,7 @@ public class DateCellFactory extends TableCell<EmailTableData, String> {
 	 * @param date the String representing the date 
 	 * @return the formatted String using above rules
 	 */
-	private String formatString(String date) {
+	private static String formatString(final String date) {
 		Instant mailDate = Instant.parse(date);
 		ZonedDateTime zonedDate = mailDate.atZone(ZoneId.systemDefault());
 		ZonedDateTime today = ZonedDateTime.now();
