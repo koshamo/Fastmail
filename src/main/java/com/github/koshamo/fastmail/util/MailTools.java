@@ -33,6 +33,10 @@ import javax.mail.internet.MimeMultipart;
 
 import com.github.koshamo.fastmail.mail.AttachmentData;
 import com.github.koshamo.fastmail.mail.MailData;
+import com.github.koshamo.fastmail.mail.MailTreeViewable;
+
+import javafx.collections.ObservableList;
+import javafx.scene.control.TreeItem;
 
 /**
  * MailTools is a helper class that holds some static methods which are useful
@@ -124,6 +128,27 @@ public class MailTools {
 		return true;
 	}
 	
+	public static void sortFolders(ObservableList<TreeItem<MailTreeViewable>> list) {
+		list.sort((i1, i2) -> {
+			if ("INBOX".equals(i1.getValue().getName()))
+				return -1;
+			if ("INBOX".equals(i2.getValue().getName()))
+				return 1;
+			if ("Drafts".equals(i1.getValue().getName()))
+				return -1;
+			if ("Drafts".equals(i2.getValue().getName()))
+				return 1;
+			if ("Sent".equals(i1.getValue().getName()))
+				return -1;
+			if ("Sent".equals(i2.getValue().getName()))
+				return 1;
+			if ("Trash".equals(i1.getValue().getName()))
+				return -1;
+			if ("Trash".equals(i2.getValue().getName()))
+				return 1;
+			return i1.getValue().getName().compareTo(i2.getValue().getName());
+		});		
+	}
 	/**
 	 * The method getMessage returns the mail's content in plain text format
 	 * <p>
@@ -148,7 +173,12 @@ public class MailTools {
 		String subject = ""; //$NON-NLS-1$
 		String content = ""; //$NON-NLS-1$
 		AttachmentData[] attachments = null;
-		
+		/*
+		 * javamail sets Flag.SEEN to true as soon as it reads the content 
+		 * from the server. So we need to backup the flag prior to read
+		 * the mail and reset the flag after message processing to give
+		 * the user the controll over the flag
+		 */
 		boolean seen = false;
 		try {
 			seen = message.getFlags().contains(Flag.SEEN);

@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.mail.Folder;
 
+import com.github.koshamo.fastmail.util.MailTools;
+
 import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
@@ -143,25 +145,7 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 					}
 				}
 								
-				localList.sort((i1, i2) -> {
-					if ("INBOX".equals(i1.getValue().getName()))
-						return -1;
-					if ("INBOX".equals(i2.getValue().getName()))
-						return 1;
-					if ("Drafts".equals(i1.getValue().getName()))
-						return -1;
-					if ("Drafts".equals(i2.getValue().getName()))
-						return 1;
-					if ("Sent".equals(i1.getValue().getName()))
-						return -1;
-					if ("Sent".equals(i2.getValue().getName()))
-						return 1;
-					if ("Trash".equals(i1.getValue().getName()))
-						return -1;
-					if ("Trash".equals(i2.getValue().getName()))
-						return 1;
-					return i1.getValue().getName().compareTo(i2.getValue().getName());
-				});
+				MailTools.sortFolders(localList);
 				return null;
 			}
 		};

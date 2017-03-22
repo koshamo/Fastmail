@@ -94,6 +94,14 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 */
 	@Override
 	public void startEdit() {
+		// Account and special folders are not renameable!
+		if (getItem().isAccount() || 
+				"INBOX".equals(getItem().getName()) ||
+				"Drafts".equals(getItem().getName()) || 
+				"Sent".equals(getItem().getName()) ||
+				"Trash".equals(getItem().getName())) {
+			return;
+		}
 		super.startEdit();
 		
 		if (textField == null) {
@@ -133,15 +141,6 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 			setGraphic(null);
 			return;
 		}
-		// Account and special folders are not renameable!
-		if (item.isAccount() || 
-				"INBOX".equals(item.getName()) ||
-				"Drafts".equals(item.getName()) || 
-				"Sent".equals(item.getName()) ||
-				"Trash".equals(item.getName())) {
-			cancelEdit();
-			return;
-		}
 		editItem = item;
 		
 		if (empty) {
@@ -174,9 +173,14 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 */
 	@Override 
 	public void commitEdit(MailTreeViewable newValue) {
-		super.commitEdit(newValue);
 		FolderItem folderItem = (FolderItem) editItem;
 		folderItem.renameTo(((FolderItem)newValue).getFolder());
+		super.commitEdit(newValue);
+		// resort tree view after renaming
+		TreeItem<MailTreeViewable> treeItem = getTreeItem();
+		while (!treeItem.getValue().isAccount())
+			treeItem = treeItem.getParent();
+		MailTools.sortFolders(treeItem.getChildren());
 	}
 	
 	/**
@@ -185,7 +189,7 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 * @return the String the user entered in the text field
 	 */
 	private String getString() {
-		return getItem().getName() == null ? "" : getItem().getName();
+		return getItem().getName() == null ? "" : getItem().getName(); //$NON-NLS-1$
 	}
 
 	/**
@@ -194,8 +198,17 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	private void createTextField() {
 		textField = new TextField(getString());
 		textField.setOnKeyReleased((KeyEvent t) -> {
-			if (t.getCode() == KeyCode.ESCAPE) {
+			if (t.getCode() == KeyCode.ESCAPE) 
 				cancelEdit();
+			if (t.getCode() == KeyCode.ENTER) {
+				try {
+					Folder newFolder = editItem.getFolder().getParent().getFolder(textField.getText());
+					FolderItem newFolderItem = new FolderItem(newFolder);
+					commitEdit(newFolderItem);
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 	}

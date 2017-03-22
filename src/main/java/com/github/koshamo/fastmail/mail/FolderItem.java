@@ -120,6 +120,10 @@ public class FolderItem implements MailTreeViewable {
 	
 	public boolean renameTo(Folder f) {
 		try {
+			if (folder.isOpen())
+				folder.close(true);
+			if (f.isOpen())
+				f.close(true);
 			return folder.renameTo(f);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
