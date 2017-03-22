@@ -32,7 +32,6 @@ import com.github.koshamo.fastmail.util.MailTools;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -64,7 +63,6 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	private SimpleBooleanProperty read;
 	private SimpleBooleanProperty marked;
 	private MailData mailData;
-//	private Message msg;
 	
 
 	/**
@@ -74,7 +72,6 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	 * @param msg a message read from the mail account
 	 */
 	public EmailTableData (Message msg) {
-//		this.msg = msg;
 		String adr;
 		try {
 			adr = ((InternetAddress[]) msg.getFrom())[0].getPersonal();
@@ -98,11 +95,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 				@Override
 				public void changed(ObservableValue<? extends Boolean> obs, Boolean oldVal, Boolean newVal) {
 					try {
-//						Folder folder = msg.getFolder();
-//						if (!folder.isOpen()) 
-//							folder.open(Folder.READ_WRITE);
-						msg.getFolder().setFlags(new Message[] {msg}, 
-								new Flags(Flags.Flag.SEEN), newVal.booleanValue());
+						msg.setFlag(Flag.SEEN, newVal.booleanValue());
 					} catch (MessagingException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -116,8 +109,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 				public void changed(ObservableValue<? extends Boolean> obs, 
 						Boolean oldVal, Boolean newVal) {
 					try {
-						msg.getFolder().setFlags(new Message[] {msg}, 
-								new Flags(Flags.Flag.FLAGGED), newVal.booleanValue());
+						msg.setFlag(Flag.FLAGGED, newVal.booleanValue());
 					} catch (MessagingException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -131,9 +123,6 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// TODO: maybe this method is more convenient to fill the properties
-		// than the code above.
-		// at least check, which code is duplicated
 		mailData = MailTools.getMessage(msg);
 	}
 	

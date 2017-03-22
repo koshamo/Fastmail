@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.mail.BodyPart;
+import javax.mail.Flags.Flag;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -147,7 +148,10 @@ public class MailTools {
 		String subject = ""; //$NON-NLS-1$
 		String content = ""; //$NON-NLS-1$
 		AttachmentData[] attachments = null;
+		
+		boolean seen = false;
 		try {
+			seen = message.getFlags().contains(Flag.SEEN);
 			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
 				content = (String) message.getContent();
 			} else if (message.isMimeType("multipart/*")) { //$NON-NLS-1$
@@ -206,6 +210,7 @@ public class MailTools {
 				}
 			}
 			subject = message.getSubject();
+			message.setFlag(Flag.SEEN, seen);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

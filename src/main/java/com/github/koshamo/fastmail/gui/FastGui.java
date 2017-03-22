@@ -280,6 +280,7 @@ public class FastGui extends Application {
 			((FolderItem) treeItem.getValue()).deleteMessage(tableData);
 			// after mail has been deleted, clear selection and mail view
 			// and disable buttons, as nothing is selected
+			// TODO: test and decide explicit selection of new item with the same (updated) index
 			folderMailTable.getSelectionModel().clearSelection();
 			btnReply.setDisable(false);
 			btnReplyAll.setDisable(false);
