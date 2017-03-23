@@ -31,9 +31,12 @@ import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 
 /**
- * This class is intended to synchronize the mails of a given folder.
+ * This class is intended to synchronize the mails of a given folder on a 
+ * regular basis.
  * <p>
- * This class is not yet included in the production code
+ * The functionality is divided in FolderSynchronizerTask, which is the Task
+ * doing the actual work and can be used standalone, and FolderSynchronizer,
+ * which is a ScheduledService, that can be called once and polls the task.
  *   
  * @author jochen
  *
@@ -66,53 +69,7 @@ public class FolderSynchronizer extends ScheduledService<Void> {
 	 */
 	@Override
 	protected Task<Void> createTask() {
-		return new Task<Void>() {
-
-			@Override
-			protected Void call() throws Exception {
-				try {
-					if (!folder.isOpen())
-						folder.open(Folder.READ_WRITE);
-					Message[] messages = folder.getMessages();
-					List<EmailTableData> serverList = new ArrayList<EmailTableData>();
-					/* 
-					 * first step: add mails, if there really are more mails
-					 * on server than on the local end
-					 */
-					for (Message msg : messages) {
-						// check, if message has been deleted meanwhile
-						if (msg.isExpunged())
-							continue;
-						EmailTableData etd = new EmailTableData(msg);
-						if (!mailList.contains(etd)) 
-							mailList.add(etd);
-						// prepare for step two
-						serverList.add(etd);
-					}
-					/*
-					 * second step: if there are more mails on the local end,
-					 * which should be true, whenever mails are added in the first
-					 * step or mails have been deleted from another source,
-					 * delete all excessive mails
-					 */
-					if (mailList.size() != serverList.size()) {
-						// prevent ConcurrentModificationException
-						Collection<EmailTableData> toBeRemoved = new ArrayList<EmailTableData>();
-						for (EmailTableData etd : mailList) {
-							if (!serverList.contains(etd))
-								toBeRemoved.add(etd);
-						}
-						mailList.removeAll(toBeRemoved);
-					}
-				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				return null;
-			}
-		};
-
+		return new FolderSynchronizerTask(folder, mailList);
 	}
 
 }

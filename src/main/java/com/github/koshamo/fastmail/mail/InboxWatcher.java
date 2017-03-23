@@ -30,7 +30,19 @@ import javafx.concurrent.Task;
 
 /**
  * The InboxWatcher is used to check, if new mails have arrived to the mail box
- * and also notifies us, when an email has been deleted from elsewhere
+ * and also notifies us, when an email has been deleted from elsewhere.
+ * <p>
+ * InboxWatcher and FolderSynchronizer are very similar, but currently have
+ * different purposes and thus specializations:
+ * <p>
+ * InboxWatcher only checks for new mails and adds them to the local 
+ * mail list and notifies the user of newly arrived mails, whereas 
+ * FolderSynchronizer checks the folder and the local mail list, if any
+ * differences exists and updates the local list.
+ * <p>
+ * Currently we use both tasks, as we can define different periods for both 
+ * tasks to check the server folder. Maybe it would be a great idea to 
+ * integrate InboxWatcher into FolderSynchronizer and leave this class. 
  * 
  * @author jochen
  *
