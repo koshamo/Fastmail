@@ -48,6 +48,7 @@ public class FolderItem implements MailTreeViewable {
 	private InboxWatcher inboxWatcher;
 	private final boolean isInbox;
 	private SoftReference<ObservableList<EmailTableData>> folderContent = null;
+	private FolderSynchronizer folderSynchronizer;
 
 	public FolderItem(final Folder folder) {
 		this.folder = folder;
@@ -66,10 +67,16 @@ public class FolderItem implements MailTreeViewable {
 			inboxWatcher.setDelay(Duration.seconds(30));
 			inboxWatcher.start();
 			inbox.sort(null);
+			// synchronize folder on a regular basis
+			folderSynchronizer = new FolderSynchronizer(this.folder, inbox);
+			folderSynchronizer.setPeriod(Duration.seconds(60));
+			folderSynchronizer.setDelay(Duration.seconds(120));
+			folderSynchronizer.start();
 		}
 		else {
 			isInbox = false;
 		}
+		
 
 	}
 	

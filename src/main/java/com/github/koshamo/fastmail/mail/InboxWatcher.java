@@ -85,7 +85,6 @@ public class InboxWatcher extends ScheduledService<Void> {
 							}
 						}
 						mailList.sort(null);
-						folder.close(true);
 					}
 				}
 				return null;

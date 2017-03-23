@@ -40,8 +40,8 @@ import javafx.concurrent.Task;
  */
 public class FolderSynchronizer extends ScheduledService<Void> {
 
-	private Folder folder;
-	private ObservableList<EmailTableData> mailList;
+	private final Folder folder;
+	private final ObservableList<EmailTableData> mailList;
 	
 
 	
@@ -66,50 +66,53 @@ public class FolderSynchronizer extends ScheduledService<Void> {
 	 */
 	@Override
 	protected Task<Void> createTask() {
-		try {
-			if (!folder.isOpen())
-				folder.open(Folder.READ_WRITE);
-			Message[] messages = folder.getMessages();
-			List<EmailTableData> serverList = new ArrayList<EmailTableData>();
-			/* 
-			 * first step: add mails, if there really are more mails
-			 * on server than on the local end
-			 */
-			for (Message msg : messages) {
-				EmailTableData etd = new EmailTableData(msg);
-				if (!mailList.contains(etd)) 
-					mailList.add(etd);
-				// prepare for step two
-				serverList.add(etd);
-			}
-			/*
-			 * second step: if there are more mails on the local end,
-			 * which should be true, whenever mails are added in the first
-			 * step or mails have been deleted from another source,
-			 * delete all excessive mails
-			 */
-			if (mailList.size() != serverList.size()) {
-				// prevent ConcurrentModificationException
-				Collection<EmailTableData> toBeRemoved = new ArrayList<EmailTableData>();
-				for (EmailTableData etd : mailList) {
-					if (!serverList.contains(etd))
-						toBeRemoved.add(etd);
-				}
-				mailList.removeAll(toBeRemoved);
-			}
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (folder.isOpen())
-			try {
-				folder.close(true);
-			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		return new Task<Void>() {
 
-		return null;
+			@Override
+			protected Void call() throws Exception {
+				try {
+					if (!folder.isOpen())
+						folder.open(Folder.READ_WRITE);
+					Message[] messages = folder.getMessages();
+					List<EmailTableData> serverList = new ArrayList<EmailTableData>();
+					/* 
+					 * first step: add mails, if there really are more mails
+					 * on server than on the local end
+					 */
+					for (Message msg : messages) {
+						// check, if message has been deleted meanwhile
+						if (msg.isExpunged())
+							continue;
+						EmailTableData etd = new EmailTableData(msg);
+						if (!mailList.contains(etd)) 
+							mailList.add(etd);
+						// prepare for step two
+						serverList.add(etd);
+					}
+					/*
+					 * second step: if there are more mails on the local end,
+					 * which should be true, whenever mails are added in the first
+					 * step or mails have been deleted from another source,
+					 * delete all excessive mails
+					 */
+					if (mailList.size() != serverList.size()) {
+						// prevent ConcurrentModificationException
+						Collection<EmailTableData> toBeRemoved = new ArrayList<EmailTableData>();
+						for (EmailTableData etd : mailList) {
+							if (!serverList.contains(etd))
+								toBeRemoved.add(etd);
+						}
+						mailList.removeAll(toBeRemoved);
+					}
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				return null;
+			}
+		};
+
 	}
 
 }
