@@ -73,6 +73,8 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	 * @param msg a message read from the mail account
 	 */
 	public EmailTableData (final Message msg) {
+		// TODO: message can be expunged while running this method
+		// this causes an exception.... but do we need to care for that message?
 		String adr;
 		try {
 			adr = ((InternetAddress[]) msg.getFrom())[0].getPersonal();

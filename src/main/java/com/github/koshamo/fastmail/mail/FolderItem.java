@@ -94,13 +94,16 @@ public class FolderItem implements MailTreeViewable {
 		if (isInbox)
 			return inbox;
 		if (folderContent == null) {
-			ObservableList<EmailTableData> mails = FXCollections.observableArrayList();
-			FolderSynchronizerTask fst = new FolderSynchronizerTask(this.folder, mails);
-			Thread mlt = new Thread(fst);
-			mlt.setDaemon(true);
-			mlt.start();
-			folderContent = new SoftReference<ObservableList<EmailTableData>>(mails);
+			ObservableList<EmailTableData> mails = 
+					FXCollections.observableArrayList();
+			folderContent = 
+					new SoftReference<ObservableList<EmailTableData>>(mails);
 		}
+		FolderSynchronizerTask fst = 
+				new FolderSynchronizerTask(this.folder, folderContent.get());
+		Thread mlt = new Thread(fst);
+		mlt.setDaemon(true);
+		mlt.start();
 		return folderContent.get();
 	}
 	
