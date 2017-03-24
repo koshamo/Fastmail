@@ -49,6 +49,8 @@ public class FolderSynchronizerTask extends Task<Void> {
 	private final Folder folder;
 	private final ObservableList<EmailTableData> mailList;
 
+	private boolean stop = false;
+	
 	/**
 	 * The constructor builds the context of this task, which is the folder 
 	 * on the server to check and the local list of mails to update.
@@ -62,13 +64,22 @@ public class FolderSynchronizerTask extends Task<Void> {
 		this.mailList = mailList;
 	}
 	
-	
+	/**
+	 * stops the execution of the thread
+	 * <p>
+	 */
+	public void stop() {
+		stop = true;
+	}
+
 	/* (non-Javadoc)
 	 * @see javafx.concurrent.Task#call()
 	 */
 	@Override
 	protected Void call() throws Exception {
 		try {
+			// get mail count in local end
+			int count = mailList.size();
 			if (!folder.isOpen())
 				folder.open(Folder.READ_WRITE);
 			Message[] messages = folder.getMessages();
@@ -77,31 +88,44 @@ public class FolderSynchronizerTask extends Task<Void> {
 			 * first step: add mails, if there really are more mails
 			 * on server than on the local end
 			 */
-			for (Message msg : messages) {
-				// check, if message has been deleted meanwhile
-				if (msg.isExpunged())
-					continue;
-				EmailTableData etd = new EmailTableData(msg);
-				if (!mailList.contains(etd)) 
-					mailList.add(etd);
-				// prepare for step two
-				serverList.add(etd);
+			if (messages != null) {
+				for (Message msg : messages) {
+					if (stop) return null; // check if thread needs to be stopped
+					// check, if message has been deleted meanwhile
+					if (msg.isExpunged())
+						continue;
+					EmailTableData etd = new EmailTableData(msg);
+					if (!mailList.contains(etd)) 
+						mailList.add(etd);
+					// prepare for step two
+					if (count > 0)
+						serverList.add(etd);
+				}
 			}
 			/*
-			 * second step: if there are more mails on the local end,
-			 * which should be true, whenever mails are added in the first
-			 * step or mails have been deleted from another source,
-			 * delete all excessive mails
+			 * if local end had no mails, we do not need to check, if any
+			 * mails need to be deleted.
+			 * This is always true, if we read a folder for the first time
 			 */
-			if (mailList.size() != serverList.size()) {
-				// prevent ConcurrentModificationException
-				Collection<EmailTableData> toBeRemoved = new ArrayList<EmailTableData>();
-				for (EmailTableData etd : mailList) {
-					if (!serverList.contains(etd))
-						toBeRemoved.add(etd);
+			if (count > 0) {
+				/*
+				 * second step: if there are more mails on the local end,
+				 * which should be true, whenever mails are added in the first
+				 * step or mails have been deleted from another source,
+				 * delete all excessive mails
+				 */
+				if (mailList.size() != serverList.size()) {
+					// prevent ConcurrentModificationException
+					Collection<EmailTableData> toBeRemoved = new ArrayList<EmailTableData>();
+					for (EmailTableData etd : mailList) {
+						if (!serverList.contains(etd))
+							toBeRemoved.add(etd);
+					}
+					mailList.removeAll(toBeRemoved);
 				}
-				mailList.removeAll(toBeRemoved);
 			}
+			// sort the list in the natural order
+			mailList.sort(null);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

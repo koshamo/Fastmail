@@ -45,10 +45,8 @@ public class FolderItem implements MailTreeViewable {
 	private Folder folder;
 
 	private ObservableList<EmailTableData> inbox = null;
-	private InboxWatcher inboxWatcher;
 	private final boolean isInbox;
 	private SoftReference<ObservableList<EmailTableData>> folderContent = null;
-	private FolderSynchronizer folderSynchronizer;
 
 	public FolderItem(final Folder folder) {
 		this.folder = folder;
@@ -57,21 +55,16 @@ public class FolderItem implements MailTreeViewable {
 			isInbox = true;
 			// get all the content of this accounts inbox and store it in the list
 			inbox = FXCollections.observableArrayList();
-			MailLister ml = new MailLister(this.folder, inbox);
-			Thread mlt = new Thread(ml);
-			mlt.setDaemon(true);
-			mlt.start();
+			// synchronize folder on a regular basis
+			FolderSynchronizer folderSynchronizer = new FolderSynchronizer(this.folder, inbox);
+			folderSynchronizer.setPeriod(Duration.seconds(20));
+			folderSynchronizer.start();
 			// add a listener to the inbox
-			inboxWatcher = new InboxWatcher(this.folder, inbox);
+			InboxWatcher inboxWatcher = new InboxWatcher(this.folder, inbox);
 			inboxWatcher.setPeriod(Duration.seconds(20));
 			inboxWatcher.setDelay(Duration.seconds(30));
 			inboxWatcher.start();
 			inbox.sort(null);
-			// synchronize folder on a regular basis
-			folderSynchronizer = new FolderSynchronizer(this.folder, inbox);
-			folderSynchronizer.setPeriod(Duration.seconds(60));
-			folderSynchronizer.setDelay(Duration.seconds(120));
-			folderSynchronizer.start();
 		}
 		else {
 			isInbox = false;
@@ -102,8 +95,8 @@ public class FolderItem implements MailTreeViewable {
 			return inbox;
 		if (folderContent == null) {
 			ObservableList<EmailTableData> mails = FXCollections.observableArrayList();
-			MailLister ml = new MailLister(this.folder, mails);
-			Thread mlt = new Thread(ml);
+			FolderSynchronizerTask fst = new FolderSynchronizerTask(this.folder, mails);
+			Thread mlt = new Thread(fst);
 			mlt.setDaemon(true);
 			mlt.start();
 			folderContent = new SoftReference<ObservableList<EmailTableData>>(mails);
