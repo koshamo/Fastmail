@@ -50,6 +50,7 @@ import com.github.koshamo.fastmail.util.MailTools;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 import javafx.util.Duration;
 
@@ -294,8 +295,15 @@ public class MailAccount implements MailTreeViewable{
 				}
 				msg.setContent(mmp);
 			}
-			// send
-			Transport.send(msg, data.getUsername(), data.getPassword());
+			// send with inline Thread
+			Thread t = new Thread(new Task<Void>(){
+				@Override
+				protected Void call() throws Exception {
+					Transport.send(msg, data.getUsername(), data.getPassword());
+					return null;
+				}
+			});
+			t.start();
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
