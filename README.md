@@ -17,6 +17,10 @@ So please provide me with feedback for other platforms and compilers.
 Version 0.0.3 (HEAD)
 * redesigned Mail and Folder integration to get a more flexible and straightforward design
 * Fastmail now can rename email folders
+* INBOX synchronizes on a regular basis
+* every time you choose a folder, it is synchronized
+* mails will be send in an own thread, so GUI is available immediately 
+* attachments will be saved in an own thread, so GUI is available immediately
 
 Version 0.0.2
 * added functionality to remove mail account

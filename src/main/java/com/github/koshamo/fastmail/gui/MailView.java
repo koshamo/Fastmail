@@ -34,6 +34,7 @@ import com.github.koshamo.fastmail.mail.MailData;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
@@ -99,6 +100,7 @@ public class MailView extends StackPane {
 		attachments = FXCollections.observableArrayList();
 		attachmentBox = new ChoiceBox<String>(attachments);
 		HBox btnBox = new HBox();
+		// SAVE AS button
 		saveAsBtn = new Button("save as");
 		saveAsBtn.setDisable(true);
 		saveAsBtn.setOnAction(ev -> {
@@ -111,28 +113,36 @@ public class MailView extends StackPane {
 			File outputFile = fileChooser.showSaveDialog(getScene().getWindow());
 			if (outputFile == null)
 				return;
-			try (InputStream is = (data.getAttachments())[item].getInputStream()) {
-				if (!data.getMessage().getFolder().isOpen())
-					data.getMessage().getFolder().open(Folder.READ_WRITE);
-				if (is == null)
-					return;
-				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile));
-				byte[] pipe = new byte[1000];
-				while (is.read(pipe) > 0)
-					bos.write(pipe);
-				bos.close();
-				data.getMessage().getFolder().close(true);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Thread t = new Thread(new Task<Void>() {
+				@Override
+				protected Void call() throws Exception {
+					try (InputStream is = (data.getAttachments())[item].getInputStream()) {
+						if (!data.getMessage().getFolder().isOpen())
+							data.getMessage().getFolder().open(Folder.READ_WRITE);
+						if (is == null)
+							return null;
+						BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile));
+						byte[] pipe = new byte[1000];
+						while (is.read(pipe) > 0)
+							bos.write(pipe);
+						bos.close();
+						data.getMessage().getFolder().close(true);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (MessagingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return null;
+				}
+			});
+			t.start();
 		});
+		// SAVE ALL button
 		saveAllBtn = new Button("save all");
 		saveAllBtn.setDisable(true);
 		saveAllBtn.setOnAction(ev -> {
@@ -143,26 +153,35 @@ public class MailView extends StackPane {
 			File outputDir = directoryChooser.showDialog(getScene().getWindow());
 			if (outputDir == null)
 				return;
-			for (int i = 0; i < data.getAttachments().length; i++) {
-				try (InputStream is = (data.getAttachments())[i].getInputStream()) {
-					if (is == null)
-						return;
-					BufferedOutputStream bos = new BufferedOutputStream(
-							new FileOutputStream(
-									new File(outputDir.toString() + File.separator + 
-											data.getAttachments()[i].getFileName())));
-					byte[] pipe = new byte[1000];
-					while (is.read(pipe) > 0)
-						bos.write(pipe);
-					bos.close();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-			}
-			}
+			Thread t = new Thread(new Task<Void>() {
+				@Override
+				protected Void call() throws Exception {
+					for (int i = 0; i < data.getAttachments().length; i++) {
+						try (InputStream is = (data.getAttachments())[i].getInputStream()) {
+							if (!data.getMessage().getFolder().isOpen())
+								data.getMessage().getFolder().open(Folder.READ_WRITE);
+							if (is == null)
+								return null;
+							BufferedOutputStream bos = new BufferedOutputStream(
+									new FileOutputStream(
+											new File(outputDir.toString() + File.separator + 
+													data.getAttachments()[i].getFileName())));
+							byte[] pipe = new byte[1000];
+							while (is.read(pipe) > 0)
+								bos.write(pipe);
+							bos.close();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					return null;
+				};
+			});
+			t.start();
 		});
 		btnBox.getChildren().addAll(saveAsBtn, saveAllBtn);
 		attachmentPane.getChildren().addAll(attachmentLbl, attachmentBox, btnBox);
