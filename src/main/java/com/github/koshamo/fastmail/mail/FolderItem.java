@@ -192,7 +192,11 @@ public class FolderItem implements MailTreeViewable {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof FolderItem))
+		if (obj == null)
+			return false;
+		if (this == obj)
+			return true;
+		if (this.getClass() != obj.getClass())
 			return false;
 		FolderItem other = (FolderItem) obj;
 		return this.getName().equals(other.getName());

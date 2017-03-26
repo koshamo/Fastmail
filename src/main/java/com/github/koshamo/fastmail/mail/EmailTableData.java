@@ -268,16 +268,19 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	}
 	
 	@Override
-	public boolean equals(Object other) {
-		EmailTableData extern;
-		if (other instanceof EmailTableData) 
-			extern = (EmailTableData) other;
-		else return false;
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (this == obj)
+			return true;
+		if (this.getClass() != obj.getClass()) 
+			return false;
+		EmailTableData other = (EmailTableData) obj;
 		// use negative test with shortcut
-		if (!this.getSentDate().equals(extern.getSentDate()) ||
-				!this.getReceivedDate().equals(extern.getReceivedDate()) ||
-				!this.getFrom().equals(extern.getFrom()) ||
-				!this.getSubject().equals(extern.getSubject()))
+		if (!this.getSentDate().equals(other.getSentDate()) ||
+				!this.getReceivedDate().equals(other.getReceivedDate()) ||
+				!this.getFrom().equals(other.getFrom()) ||
+				!this.getSubject().equals(other.getSubject()))
 			return false;
 		return true;
 	}
