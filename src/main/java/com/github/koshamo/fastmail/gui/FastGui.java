@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javax.mail.Folder;
-
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.mail.AccountRootItem;
 import com.github.koshamo.fastmail.mail.EmailTableData;
@@ -51,6 +49,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -88,6 +87,7 @@ public class FastGui extends Application {
 	Button btnReply;
 	Button btnReplyAll;
 	Button btnDelete;
+	ContextMenu contextMenu;
 	
 	// fields for handling accounts and mails
 	private TreeItem<MailTreeViewable> rootItem;
@@ -419,6 +419,8 @@ public class FastGui extends Application {
 
 		accountTree = new TreeView<MailTreeViewable>(rootItem);
 		accountTree.setEditable(true);
+		contextMenu = new ContextMenu();
+		accountTree.setContextMenu(contextMenu);
 		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory());
 		accountTree.getSelectionModel().selectedItemProperty().addListener(
 				new ChangeListener<TreeItem<MailTreeViewable>>() {
@@ -431,6 +433,14 @@ public class FastGui extends Application {
 						if (newVal == null) {
 							return;	
 						}
+						// context Menu
+						contextMenu.getItems().clear();
+						contextMenu.getItems().add(addAddFolderItem());
+						if (newVal.getValue().isAccount()) {
+							contextMenu.getItems().add(new SeparatorMenuItem());
+							contextMenu.getItems().add(addEditAccountItem());
+						}
+						// buttons and table view
 						mailBody.clear();
 						btnReply.setDisable(true);
 						btnReplyAll.setDisable(true);
@@ -448,6 +458,30 @@ public class FastGui extends Application {
 		mailboxScroller.setFitToWidth(true);
 
 		return mailboxScroller;
+	}
+	
+	private MenuItem addAddFolderItem() {
+		MenuItem add = new MenuItem("add folder");
+		add.setOnAction(p -> {
+			TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem();
+			while (!curItem.getValue().isAccount())
+				curItem = curItem.getParent();
+			((MailAccount)curItem.getValue()).addFolder();
+		});
+		return add;
+	}
+
+	private MenuItem addEditAccountItem() {
+		MenuItem edit = new MenuItem("edit account");
+		edit.setOnAction(p -> {
+			TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem();
+			MailAccountDialog dialog = new MailAccountDialog(
+					((MailAccount) curItem.getValue()).getMailAccountData());
+			dialog.showAndWait();
+		});
+		return edit;
 	}
 	
 	/**

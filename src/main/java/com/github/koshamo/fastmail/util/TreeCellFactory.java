@@ -44,50 +44,12 @@ import javafx.scene.input.KeyEvent;
 public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 
 	private TextField textField;
-	private final ContextMenu contextMenu;
 	private MailTreeViewable editItem;
 	
 	/**
 	 * The class constructor builds the context menu
 	 */
 	public TreeCellFactory() {
-		contextMenu = new ContextMenu();
-		if (getTreeItem() == null)	// prevent root item to get a menu
-			return;
-		if (getTreeItem().getValue().isAccount()) {
-			MenuItem editAccountMenu = new MenuItem("Edit Account");
-			// TODO: add action listener
-			MenuItem deleteAccountMenu = new MenuItem("Delete Account");
-			// TODO: add action listener
-			contextMenu.getItems().addAll(editAccountMenu, deleteAccountMenu);
-		}
-		else {
-			MenuItem addSubFolderMenu = new MenuItem("Add Sub Folder");
-			// TODO: add action listener
-			MenuItem deleteFolderMenu = new MenuItem("Delete Folder");
-			// TODO: add action listener
-			contextMenu.getItems().addAll(addSubFolderMenu, deleteFolderMenu);
-		}
-		MenuItem addFolderMenu = new MenuItem("Add Folder");
-		contextMenu.getItems().add(addFolderMenu);
-		addFolderMenu.setOnAction((ActionEvent t) -> {
-			// TODO: the Folder class should not be used here. 
-			// TODO: Add interface for folder creation in the FolderItem class
-			Folder parent = getTreeItem().getValue().getParentFolder();
-			Folder newFolder = null;
-			try {
-				newFolder = parent.getFolder("new Folder");
-				if (!newFolder.exists())
-					newFolder.create(Folder.HOLDS_MESSAGES);
-			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return;
-			}
-			FolderItem newFolderItem = new FolderItem(newFolder);
-			if (!getTreeItem().getChildren().contains(newFolderItem))
-				getTreeItem().getChildren().add(new TreeItem<MailTreeViewable>(newFolderItem));
-		});
 	}
 	
 	/* 
@@ -159,7 +121,6 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 			} else {
 				setText(getString());
 				setGraphic(getTreeItem().getGraphic());
-				setContextMenu(contextMenu);
 			}
 		}
 	}

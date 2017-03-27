@@ -216,6 +216,19 @@ public class MailAccount implements MailTreeViewable{
 		return null;
 	}
 	
+	public void addFolder() {
+		try {
+			Folder folder = parentFolder.getFolder("new Folder");
+			if (!folder.exists())
+				folder.create(Folder.HOLDS_MESSAGES);
+			if (!accountFolderWatcher.isRunning())
+				accountFolderWatcher.reset();
+			// TODO: check if it needs to be started after resetting
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 		
 	/* (non-Javadoc)
 	 * closes the connection to the server
