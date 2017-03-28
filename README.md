@@ -19,8 +19,10 @@ Version 0.0.3 (HEAD)
 * Fastmail now can rename email folders
 * INBOX synchronizes on a regular basis
 * every time you choose a folder, it is synchronized
-* mails will be send in an own thread, so GUI is available immediately 
+* mails will be sent in an own thread, so GUI is available immediately 
 * attachments will be saved in an own thread, so GUI is available immediately
+* folders can be added and deleted using tree view context menu
+
 
 Version 0.0.2
 * added functionality to remove mail account
