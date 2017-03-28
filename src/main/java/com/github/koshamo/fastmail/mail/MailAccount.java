@@ -216,6 +216,9 @@ public class MailAccount implements MailTreeViewable{
 		return null;
 	}
 	
+	/**
+	 * A new Folder will be added to this account with a default folder name.
+	 */
 	public void addFolder() {
 		try {
 			Folder folder = parentFolder.getFolder("new Folder");
@@ -229,7 +232,7 @@ public class MailAccount implements MailTreeViewable{
 			e.printStackTrace();
 		}
 	}
-		
+	
 	/* (non-Javadoc)
 	 * closes the connection to the server
 	 * 

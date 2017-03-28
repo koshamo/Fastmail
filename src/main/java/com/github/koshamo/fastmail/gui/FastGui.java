@@ -172,7 +172,7 @@ public class FastGui extends Application {
 				curItem.getParent();
 			Alert alert = new Alert(Alert.AlertType.WARNING,
 					"Are you sure you want to remove the account\n" +
-							((MailAccount) curItem.getValue()).getAccountName(), 
+							curItem.getValue().getName(), 
 					ButtonType.YES, ButtonType.CANCEL);
 			alert.setTitle("Remove current account");
 			alert.setHeaderText("You are about to remove an account from Fastmail");
@@ -436,6 +436,12 @@ public class FastGui extends Application {
 						// context Menu
 						contextMenu.getItems().clear();
 						contextMenu.getItems().add(addAddFolderItem());
+						if (!newVal.getValue().isAccount() && 
+								!newVal.getValue().getName().equals("INBOX") &&
+								!newVal.getValue().getName().equals("Drafts") &&
+								!newVal.getValue().getName().equals("Sent") &&
+								!newVal.getValue().getName().equals("Trash"))
+							contextMenu.getItems().add(addDeleteFolderItem());
 						if (newVal.getValue().isAccount()) {
 							contextMenu.getItems().add(new SeparatorMenuItem());
 							contextMenu.getItems().add(addEditAccountItem());
@@ -460,6 +466,11 @@ public class FastGui extends Application {
 		return mailboxScroller;
 	}
 	
+	/**
+	 * Creates a MenuItem with functionality to add a folder to this account.
+	 * 
+	 * @return a full featured MenuItem to add a folder to this account
+	 */
 	private MenuItem addAddFolderItem() {
 		MenuItem add = new MenuItem("add folder");
 		add.setOnAction(p -> {
@@ -472,6 +483,12 @@ public class FastGui extends Application {
 		return add;
 	}
 
+	/**
+	 * Creates a MenuItem with functionality to open the edit dialog for this
+	 * account
+	 * 
+	 * @return a full featured MenuItem to edit this account
+	 */
 	private MenuItem addEditAccountItem() {
 		MenuItem edit = new MenuItem("edit account");
 		edit.setOnAction(p -> {
@@ -483,6 +500,34 @@ public class FastGui extends Application {
 		});
 		return edit;
 	}
+	
+	/**
+	 * Creates a MenuItem with functionality to delete this folder with any 
+	 * content recursively. A warning dialog will be shown prior to deleting
+	 * the folder
+	 * 
+	 * @return a full featured MenuItem to delete this folder
+	 */
+	private MenuItem addDeleteFolderItem() {
+		MenuItem delete = new MenuItem("delete folder");
+		delete.setOnAction(p -> {
+			TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem();
+			Alert alert = new Alert(Alert.AlertType.WARNING,
+					"Are you sure you want to remove the folder\n" +
+							curItem.getValue().getName(), 
+					ButtonType.YES, ButtonType.CANCEL);
+			alert.setTitle("Remove current folder");
+			alert.setHeaderText("You are about to remove a folder. Any mails and subfolders contained will be removed!");
+			Optional<ButtonType> opt = alert.showAndWait();
+			if (opt.get().equals(ButtonType.CANCEL))
+				return;
+			if (opt.get().equals(ButtonType.YES))
+				((FolderItem)curItem.getValue()).removeFolder();
+		});
+		return delete;
+	}
+	
 	
 	/**
 	 * buildStatusLine is a simple status line, where we can provide some

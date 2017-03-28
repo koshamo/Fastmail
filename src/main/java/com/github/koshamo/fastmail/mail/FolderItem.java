@@ -47,6 +47,7 @@ public class FolderItem implements MailTreeViewable {
 	private ObservableList<EmailTableData> inbox = null;
 	private final boolean isInbox;
 	private SoftReference<ObservableList<EmailTableData>> folderContent = null;
+	private FolderSynchronizerTask fst;
 
 	public FolderItem(final Folder folder) {
 		this.folder = folder;
@@ -99,8 +100,7 @@ public class FolderItem implements MailTreeViewable {
 			folderContent = 
 					new SoftReference<ObservableList<EmailTableData>>(mails);
 		}
-		FolderSynchronizerTask fst = 
-				new FolderSynchronizerTask(this.folder, folderContent.get());
+		fst = new FolderSynchronizerTask(this.folder, folderContent.get());
 		Thread mlt = new Thread(fst);
 		mlt.setDaemon(true);
 		mlt.start();
@@ -178,6 +178,24 @@ public class FolderItem implements MailTreeViewable {
 		}
 		return deleted;
 	}
+
+	/**
+	 * Removes this Folder from the server. Any mails or subfolders 
+	 * in this folder will be deleted recursively.
+	 */
+	public void removeFolder() {
+		try {
+			if (folder.isOpen())
+				folder.close(true);
+			folder.delete(true);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		folderContent = null;
+		fst.stop();
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
