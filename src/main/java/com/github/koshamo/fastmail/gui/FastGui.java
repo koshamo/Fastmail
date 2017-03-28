@@ -522,8 +522,13 @@ public class FastGui extends Application {
 			Optional<ButtonType> opt = alert.showAndWait();
 			if (opt.get().equals(ButtonType.CANCEL))
 				return;
-			if (opt.get().equals(ButtonType.YES))
+			if (opt.get().equals(ButtonType.YES)) {
 				((FolderItem)curItem.getValue()).removeFolder();
+				// force update of tree view after folder deletion
+				while (!curItem.getValue().isAccount())
+					curItem = curItem.getParent();
+				((MailAccount)curItem.getValue()).forceFolderUpdate();;
+			}
 		});
 		return delete;
 	}

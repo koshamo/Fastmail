@@ -78,6 +78,7 @@ public class FolderSynchronizerTask extends Task<Void> {
 	@Override
 	protected Void call() throws Exception {
 		try {
+			if (stop) return null; // check if thread needs to be stopped
 			// get mail count in local end
 			int count = mailList.size();
 			if (!folder.isOpen())

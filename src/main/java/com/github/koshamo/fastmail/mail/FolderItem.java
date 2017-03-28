@@ -192,8 +192,9 @@ public class FolderItem implements MailTreeViewable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		folderContent = null;
+		// TODO: FolderSynchronizer still throws exception after folder deletion
 		fst.stop();
+		folderContent = null;
 	}
 	
 

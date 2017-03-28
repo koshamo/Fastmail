@@ -224,14 +224,22 @@ public class MailAccount implements MailTreeViewable{
 			Folder folder = parentFolder.getFolder("new Folder");
 			if (!folder.exists())
 				folder.create(Folder.HOLDS_MESSAGES);
-			if (!accountFolderWatcher.isRunning())
-				accountFolderWatcher.reset();
-			// TODO: check if it needs to be started after resetting
+			// trigger the addition of the new folder to the tree view
+			forceFolderUpdate();
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Triggers the execution of a new AccountFolderWatcher task to force the
+	 * update of the tree view after changing folder items
+	 */
+	public void forceFolderUpdate() {
+		new Thread(accountFolderWatcher.createTask()).start();
+	}
+	
 	
 	/* (non-Javadoc)
 	 * closes the connection to the server
