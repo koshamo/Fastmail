@@ -26,7 +26,7 @@ package com.github.koshamo.fastmail;
  */
 public class FastMailGenerals {
 	private static final String applicationName = "Fastmail";
-	private static final String version = "0.0.2";
+	private static final String version = "0.0.3";
 	private static final String author = "Dr.-Ing. Jochen Raßler";
 	private static final String license = "GNU GPL 2.0 with Classpath Exception";
 	
