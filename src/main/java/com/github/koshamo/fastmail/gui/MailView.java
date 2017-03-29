@@ -237,14 +237,15 @@ public class MailView extends StackPane {
 		clear();
 		this.data = data;
 		if (data.getFromName() != null)
-			from.setText(data.getFromName());
+			from.setText(data.getFromName() + " <" + data.getFrom() + ">");
 		else
 			from.setText(data.getFrom());
 		subject.setText(data.getSubject());
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < data.getTo().length; i++ ) {
 			if (data.getToName()[i] != null)
-				sb.append(data.getToName()[i]);
+				sb.append(data.getToName()[i]).append(" <")
+				.append(data.getTo()[i]).append(">");
 			else
 				sb.append(data.getTo()[i]);
 			sb.append("; "); //$NON-NLS-1$
@@ -254,7 +255,8 @@ public class MailView extends StackPane {
 		if (data.getCc() != null) {
 			for (int i = 0; i < data.getCc().length; i++) {
 				if (data.getCcName()[i] != null)
-					sb.append(data.getCcName()[i]);
+					sb.append(data.getCcName()[i]).append(" <")
+					.append(data.getCc()[i]).append(">");
 				else
 					sb.append(data.getCc()[i]);
 				sb.append("; "); //$NON-NLS-1$
