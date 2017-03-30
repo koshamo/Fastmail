@@ -19,6 +19,7 @@
 package com.github.koshamo.fastmail.mail;
 
 import java.lang.ref.SoftReference;
+import java.util.Vector;
 
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -55,7 +56,7 @@ public class FolderItem implements MailTreeViewable {
 		if ("INBOX".equals(folder.getFullName())) {
 			isInbox = true;
 			// get all the content of this accounts inbox and store it in the list
-			inbox = FXCollections.observableArrayList();
+			inbox = FXCollections.observableList(new Vector<EmailTableData>());
 			// synchronize folder on a regular basis
 			FolderSynchronizer folderSynchronizer = new FolderSynchronizer(this.folder, inbox);
 			folderSynchronizer.setPeriod(Duration.seconds(20));
@@ -96,7 +97,7 @@ public class FolderItem implements MailTreeViewable {
 			return inbox;
 		if (folderContent == null) {
 			ObservableList<EmailTableData> mails = 
-					FXCollections.observableArrayList();
+					FXCollections.observableList(new Vector<EmailTableData>());
 			folderContent = 
 					new SoftReference<ObservableList<EmailTableData>>(mails);
 		}
@@ -197,6 +198,14 @@ public class FolderItem implements MailTreeViewable {
 		folderContent = null;
 	}
 	
+	
+	/**
+	 * Gets the String representation of the account, this folder is in
+	 * @return	the username of this folder's account
+	 */
+	public String getAccountName() {
+		return folder.getStore().getURLName().getUsername();
+	}
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
