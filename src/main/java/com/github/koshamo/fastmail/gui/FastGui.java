@@ -87,7 +87,7 @@ public class FastGui extends Application {
 	Button btnReply;
 	Button btnReplyAll;
 	Button btnDelete;
-	ContextMenu contextMenu;
+	ContextMenu treeContextMenu;
 	
 	// fields for handling accounts and mails
 	private TreeItem<MailTreeViewable> rootItem;
@@ -419,8 +419,8 @@ public class FastGui extends Application {
 
 		accountTree = new TreeView<MailTreeViewable>(rootItem);
 		accountTree.setEditable(true);
-		contextMenu = new ContextMenu();
-		accountTree.setContextMenu(contextMenu);
+		treeContextMenu = new ContextMenu();
+		accountTree.setContextMenu(treeContextMenu);
 		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory());
 		accountTree.getSelectionModel().selectedItemProperty().addListener(
 				new ChangeListener<TreeItem<MailTreeViewable>>() {
@@ -434,17 +434,17 @@ public class FastGui extends Application {
 							return;	
 						}
 						// context Menu
-						contextMenu.getItems().clear();
-						contextMenu.getItems().add(addAddFolderItem());
+						treeContextMenu.getItems().clear();
+						treeContextMenu.getItems().add(addAddFolderItem());
 						if (!newVal.getValue().isAccount() && 
 								!newVal.getValue().getName().equals("INBOX") &&
 								!newVal.getValue().getName().equals("Drafts") &&
 								!newVal.getValue().getName().equals("Sent") &&
 								!newVal.getValue().getName().equals("Trash"))
-							contextMenu.getItems().add(addDeleteFolderItem());
+							treeContextMenu.getItems().add(addDeleteFolderItem());
 						if (newVal.getValue().isAccount()) {
-							contextMenu.getItems().add(new SeparatorMenuItem());
-							contextMenu.getItems().add(addEditAccountItem());
+							treeContextMenu.getItems().add(new SeparatorMenuItem());
+							treeContextMenu.getItems().add(addEditAccountItem());
 						}
 						// buttons and table view
 						mailBody.clear();
