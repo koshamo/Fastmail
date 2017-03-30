@@ -230,7 +230,7 @@ public class MailTools {
 //				MimeMultipart mm = (MimeMultipart) message.getContent();
 //				md = getMessage();
 			} else {
-				System.out.println("this is an unknown message type");
+				System.out.println("this is an unknown message type, " + message.getContentType());
 			}
 		
 		} catch (IOException e) {
@@ -330,7 +330,7 @@ public class MailTools {
 		InputStream is = null;
 		try {
 				Object obj = bp.getContent();
-				System.out.println("Object " + obj.toString());
+				System.out.println("Object: " + obj.getClass());
 				if (obj instanceof String) {
 					System.out.println("String....");
 				} 
