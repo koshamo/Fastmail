@@ -88,6 +88,7 @@ public class FastGui extends Application {
 	Button btnReplyAll;
 	Button btnDelete;
 	ContextMenu treeContextMenu;
+	ContextMenu tableContextMenu;
 	
 	// fields for handling accounts and mails
 	private TreeItem<MailTreeViewable> rootItem;
@@ -237,23 +238,7 @@ public class FastGui extends Application {
 		btnReply.setPrefSize(90, 50);
 		btnReply.setMinSize(90, 50);
 		btnReply.setOnAction(ev -> {
-			TreeItem<MailTreeViewable> treeItem = 
-					accountTree.getSelectionModel().getSelectedItem(); 
-			if (treeItem == null)
-				return;
-			EmailTableData tableData = 
-					folderMailTable.getSelectionModel().getSelectedItem(); 
-			if (tableData == null)
-				return;
-			while (!treeItem.getValue().isAccount())
-				treeItem = treeItem.getParent();
-			ObservableList<TreeItem<MailTreeViewable>> accountList = 
-					rootItem.getChildren();
-			MailAccount[] ma = new MailAccount[accountList.size()];
-			for (int i = 0; i < ma.length; i++)
-				ma[i] = (MailAccount)accountList.get(i).getValue();
-			int index = rootItem.getChildren().indexOf(treeItem);
-			new MailComposer(ma, index, tableData.getMailData(), false);
+			replyMail();
 		});
 		btnReply.setDisable(true);
 		// REPLY ALL button
@@ -261,23 +246,7 @@ public class FastGui extends Application {
 		btnReplyAll.setPrefSize(90, 50);
 		btnReplyAll.setMinSize(90, 50);
 		btnReplyAll.setOnAction(ev -> {
-			TreeItem<MailTreeViewable> treeItem = 
-					accountTree.getSelectionModel().getSelectedItem(); 
-			if (treeItem == null)
-				return;
-			EmailTableData tableData = 
-					folderMailTable.getSelectionModel().getSelectedItem(); 
-			if (tableData == null)
-				return;
-			while (!treeItem.getValue().isAccount())
-				treeItem = treeItem.getParent();
-			ObservableList<TreeItem<MailTreeViewable>> accountList = 
-					rootItem.getChildren();
-			MailAccount[] ma = new MailAccount[accountList.size()];
-			for (int i = 0; i < ma.length; i++)
-				ma[i] = (MailAccount)accountList.get(i).getValue();
-			int index = rootItem.getChildren().indexOf(treeItem);
-			new MailComposer(ma, index, tableData.getMailData(), true);
+			replyAllMail();
 		});
 		btnReplyAll.setDisable(true);
 		// DELETE button
@@ -285,21 +254,7 @@ public class FastGui extends Application {
 		btnDelete.setPrefSize(90, 50);
 		btnDelete.setMinSize(90, 50);
 		btnDelete.setOnAction(ev -> {
-			TreeItem<MailTreeViewable> treeItem = accountTree.getSelectionModel().getSelectedItem(); 
-			if (treeItem == null || treeItem.getValue().isAccount())
-				return;
-			EmailTableData tableData = folderMailTable.getSelectionModel().getSelectedItem();
-			if (tableData == null)
-				return;
-			((FolderItem) treeItem.getValue()).deleteMessage(tableData);
-			// after mail has been deleted, clear selection and mail view
-			// and disable buttons, as nothing is selected
-			// TODO: test and decide explicit selection of new item with the same (updated) index
-			folderMailTable.getSelectionModel().clearSelection();
-			btnReply.setDisable(false);
-			btnReplyAll.setDisable(false);
-			btnDelete.setDisable(false);
-			mailBody.clear();
+			deleteMail();
 		});
 		btnDelete.setDisable(true);
 		
@@ -307,6 +262,7 @@ public class FastGui extends Application {
 		overallPane.getChildren().add(hbox);
 	}
 
+	
 	/**
 	 * buildBody builds the main working window area
 	 * in a email program this is the account tree view, the message folders 
@@ -349,6 +305,9 @@ public class FastGui extends Application {
 		folderMailTable = new TableView<EmailTableData>();
 		folderMailTable.setEditable(true);	
 		folderMailTable.setPlaceholder(new Label("choose Folder on the left side to show Emails"));
+		tableContextMenu = new ContextMenu();
+		tableContextMenu.getItems().addAll(addReplyItem(), addReplyAllItem(), addDeleteItem());
+		folderMailTable.setContextMenu(tableContextMenu);
 		// SUBJECT column
 		TableColumn<EmailTableData, String> subjectCol = new TableColumn<>("Subject");
 		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject"));
@@ -388,6 +347,9 @@ public class FastGui extends Application {
 		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
 				(obs, oldVal, newVal) -> {
 					if (newVal != null) {
+						// context Menu
+						
+						// disable buttons and show mail
 						btnReply.setDisable(false);
 						btnReplyAll.setDisable(false);
 						btnDelete.setDisable(false);
@@ -466,6 +428,30 @@ public class FastGui extends Application {
 		return mailboxScroller;
 	}
 	
+	private MenuItem addReplyItem() {
+		MenuItem reply = new MenuItem("reply");
+		reply.setOnAction(ev -> {
+			replyMail();
+		});
+		return reply;
+	}
+	
+	private MenuItem addReplyAllItem() {
+		MenuItem replyAll = new MenuItem("reply all");
+		replyAll.setOnAction(ev -> {
+			replyAllMail();
+		});
+		return replyAll;
+	}
+	
+	private MenuItem addDeleteItem() {
+		MenuItem delete = new MenuItem("delete");
+		delete.setOnAction(ev -> {
+			deleteMail();
+		});
+		return delete;
+	}
+	
 	/**
 	 * Creates a MenuItem with functionality to add a folder to this account.
 	 * 
@@ -531,6 +517,74 @@ public class FastGui extends Application {
 			}
 		});
 		return delete;
+	}
+	
+	/**
+	 * Reply Mail functionality, used for button and context menu
+	 */
+	private void replyMail() {
+		TreeItem<MailTreeViewable> treeItem = 
+				accountTree.getSelectionModel().getSelectedItem(); 
+		if (treeItem == null)
+			return;
+		EmailTableData tableData = 
+				folderMailTable.getSelectionModel().getSelectedItem(); 
+		if (tableData == null)
+			return;
+		while (!treeItem.getValue().isAccount())
+			treeItem = treeItem.getParent();
+		ObservableList<TreeItem<MailTreeViewable>> accountList = 
+				rootItem.getChildren();
+		MailAccount[] ma = new MailAccount[accountList.size()];
+		for (int i = 0; i < ma.length; i++)
+			ma[i] = (MailAccount)accountList.get(i).getValue();
+		int index = rootItem.getChildren().indexOf(treeItem);
+		new MailComposer(ma, index, tableData.getMailData(), false);
+	}
+
+
+	/**
+	 * Reply All functionality, used by button and context menu
+	 */
+	private void replyAllMail() {
+		TreeItem<MailTreeViewable> treeItem = 
+				accountTree.getSelectionModel().getSelectedItem(); 
+		if (treeItem == null)
+			return;
+		EmailTableData tableData = 
+				folderMailTable.getSelectionModel().getSelectedItem(); 
+		if (tableData == null)
+			return;
+		while (!treeItem.getValue().isAccount())
+			treeItem = treeItem.getParent();
+		ObservableList<TreeItem<MailTreeViewable>> accountList = 
+				rootItem.getChildren();
+		MailAccount[] ma = new MailAccount[accountList.size()];
+		for (int i = 0; i < ma.length; i++)
+			ma[i] = (MailAccount)accountList.get(i).getValue();
+		int index = rootItem.getChildren().indexOf(treeItem);
+		new MailComposer(ma, index, tableData.getMailData(), true);
+	}
+	
+	/**
+	 * Delete Mail functionality, used by button and context menu
+	 */
+	private void deleteMail() {
+		TreeItem<MailTreeViewable> treeItem = accountTree.getSelectionModel().getSelectedItem(); 
+		if (treeItem == null || treeItem.getValue().isAccount())
+			return;
+		EmailTableData tableData = folderMailTable.getSelectionModel().getSelectedItem();
+		if (tableData == null)
+			return;
+		((FolderItem) treeItem.getValue()).deleteMessage(tableData);
+		// after mail has been deleted, clear selection and mail view
+		// and disable buttons, as nothing is selected
+		// TODO: test and decide explicit selection of new item with the same (updated) index
+		folderMailTable.getSelectionModel().clearSelection();
+		btnReply.setDisable(false);
+		btnReplyAll.setDisable(false);
+		btnDelete.setDisable(false);
+		mailBody.clear();
 	}
 	
 	

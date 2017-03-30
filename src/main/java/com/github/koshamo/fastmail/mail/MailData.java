@@ -132,9 +132,11 @@ public final class MailData {
 	 * @return	the cc recipients as string
 	 */
 	public String getCcAsLine() {
+		if (cc == null)
+			return ""; //$NON-NLS-1$
 		StringBuilder sb = new StringBuilder();
 		for (String str : cc)
-			sb.append(str).append(";");
+			sb.append(str).append(";"); //$NON-NLS-1$
 		return sb.toString();
 	}
 
