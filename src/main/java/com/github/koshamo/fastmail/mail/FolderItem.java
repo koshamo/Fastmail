@@ -198,15 +198,6 @@ public class FolderItem implements MailTreeViewable {
 		folderContent = null;
 	}
 	
-	
-	/**
-	 * Gets the String representation of the account, this folder is in
-	 * @return	the username of this folder's account
-	 */
-	public String getAccountName() {
-		return folder.getStore().getURLName().getUsername();
-	}
-
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
 	 */
