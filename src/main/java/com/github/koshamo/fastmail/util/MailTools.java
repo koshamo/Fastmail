@@ -205,6 +205,8 @@ public class MailTools {
 			seen = message.getFlags().contains(Flag.SEEN);
 			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
 				content = (String) message.getContent();
+			} else if (message.isMimeType("text/html")) { //$NON-NLS-1$
+				content = (String) message.getContent();
 			} else if (message.isMimeType("multipart/*")) { //$NON-NLS-1$
 				Multipart mp = (Multipart)message.getContent();
 				content = getTextBodyContent(mp);
@@ -330,9 +332,8 @@ public class MailTools {
 		InputStream is = null;
 		try {
 				Object obj = bp.getContent();
-				System.out.println("Object: " + obj.getClass());
 				if (obj instanceof String) {
-					System.out.println("String....");
+					;	// do nothing with String attachment
 				} 
 				else if (obj instanceof MimeMultipart) {
 					System.out.println("Multipart");
@@ -345,7 +346,8 @@ public class MailTools {
 				else if (obj instanceof InputStream) {
 					System.out.println("InputStream " + obj);
 					is = (InputStream) obj;
-				}
+				} else
+					System.out.println("Object: " + obj.getClass());
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
