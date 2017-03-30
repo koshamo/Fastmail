@@ -360,7 +360,7 @@ public class FastGui extends Application {
 		// DATE column
 		TableColumn<EmailTableData, String> dateCol = new TableColumn<>("Date");
 		dateCol.setMinWidth(150);
-		dateCol.setCellValueFactory(new PropertyValueFactory<>("receivedDate"));
+		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate"));
 		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
 		dateCol.setComparator(new DateCellComparator());
 		// MESSAGE READ column
