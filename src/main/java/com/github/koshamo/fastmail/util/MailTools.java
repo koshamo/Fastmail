@@ -194,15 +194,8 @@ public class MailTools {
 		String subject = ""; //$NON-NLS-1$
 		String content = ""; //$NON-NLS-1$
 		AttachmentData[] attachments = null;
-		/*
-		 * javamail sets Flag.SEEN to true as soon as it reads the content 
-		 * from the server. So we need to backup the flag prior to read
-		 * the mail and reset the flag after message processing to give
-		 * the user the controll over the flag
-		 */
-		boolean seen = false;
+
 		try {
-			seen = message.getFlags().contains(Flag.SEEN);
 			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
 				content = (String) message.getContent();
 			} else if (message.isMimeType("text/html")) { //$NON-NLS-1$
@@ -263,7 +256,6 @@ public class MailTools {
 				}
 			}
 			subject = message.getSubject();
-			message.setFlag(Flag.SEEN, seen);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

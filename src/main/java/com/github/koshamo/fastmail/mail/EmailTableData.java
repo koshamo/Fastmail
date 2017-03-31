@@ -30,6 +30,7 @@ import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
 
 import com.github.koshamo.fastmail.util.MailTools;
+import com.sun.mail.imap.IMAPMessage;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -75,7 +76,17 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	public EmailTableData (final Message msg) {
 		// TODO: message can be expunged while running this method
 		// this causes an exception.... but do we need to care for that message?
+		
+		// messages normally are marked as read, as soon as we get them from 
+		// server. peek property should prevent this behavior, as long as we
+		// have IMAP Messages, which should be true right now, as we only
+		// work with IMAP accounts
+		if (msg instanceof IMAPMessage) {
+			IMAPMessage imapMsg = (IMAPMessage)msg;
+			imapMsg.setPeek(true);
+		}
 		String adr;
+		System.out.println(msg.getClass());
 		try {
 			adr = ((InternetAddress[]) msg.getFrom())[0].getPersonal();
 			fromAddress = new SimpleStringProperty(((InternetAddress[]) msg.getFrom())[0].getAddress());
