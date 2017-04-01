@@ -22,7 +22,9 @@ import java.lang.ref.SoftReference;
 import java.util.Vector;
 
 import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
+import javax.mail.Message;
 import javax.mail.MessagingException;
 
 import javafx.collections.FXCollections;
@@ -59,7 +61,7 @@ public class FolderItem implements MailTreeViewable {
 			inbox = FXCollections.observableList(new Vector<EmailTableData>());
 			// synchronize folder on a regular basis
 			FolderSynchronizer folderSynchronizer = new FolderSynchronizer(this.folder, inbox);
-			folderSynchronizer.setPeriod(Duration.seconds(20));
+			folderSynchronizer.setPeriod(Duration.seconds(10));
 			folderSynchronizer.start();
 			// add a listener to the inbox
 			InboxWatcher inboxWatcher = new InboxWatcher(this.folder, inbox);
@@ -197,6 +199,20 @@ public class FolderItem implements MailTreeViewable {
 		fst.stop();
 		folderContent = null;
 	}
+	
+	
+	public void moveMessage(EmailTableData mail) {
+		try {
+			// copy message to new folder
+			mail.getFolder().copyMessages(new Message[] {mail.getMessage()}, folder);
+			// delete message in original folder
+			mail.setFlag(Flag.DELETED, true);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()

@@ -306,7 +306,10 @@ public class FastGui extends Application {
 		folderMailTable.setEditable(true);	
 		folderMailTable.setPlaceholder(new Label("choose Folder on the left side to show Emails"));
 		tableContextMenu = new ContextMenu();
-		tableContextMenu.getItems().addAll(addReplyItem(), addReplyAllItem(), addDeleteItem());
+		Menu moveTo = new Menu("move to");
+		tableContextMenu.getItems().addAll(
+				addReplyItem(), addReplyAllItem(), addDeleteItem(),
+				new SeparatorMenuItem(), moveTo);
 		folderMailTable.setContextMenu(tableContextMenu);
 		// SUBJECT column
 		TableColumn<EmailTableData, String> subjectCol = new TableColumn<>("Subject");
@@ -348,7 +351,17 @@ public class FastGui extends Application {
 				(obs, oldVal, newVal) -> {
 					if (newVal != null) {
 						// context Menu
-						
+						moveTo.getItems().clear();
+						TreeItem<MailTreeViewable> treeItem = 
+								accountTree.getSelectionModel().getSelectedItem();
+						TreeItem<MailTreeViewable> accountItem = treeItem;
+						while (!accountItem.getValue().isAccount())
+							accountItem = accountItem.getParent();
+						ObservableList<TreeItem<MailTreeViewable>> folders = 
+								accountItem.getChildren();
+						folders	.stream()
+								.filter(p -> p != treeItem)
+								.forEach(p -> moveTo.getItems().add(addMoveToItem(newVal, (FolderItem)p.getValue())));
 						// disable buttons and show mail
 						btnReply.setDisable(false);
 						btnReplyAll.setDisable(false);
@@ -450,6 +463,14 @@ public class FastGui extends Application {
 			deleteMail();
 		});
 		return delete;
+	}
+	
+	private MenuItem addMoveToItem(EmailTableData mail, FolderItem target) {
+		MenuItem move = new MenuItem(target.getName());
+		move.setOnAction(ev -> {
+			target.moveMessage(mail);
+		});
+		return move;
 	}
 	
 	/**

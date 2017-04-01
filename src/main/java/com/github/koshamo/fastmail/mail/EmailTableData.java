@@ -86,7 +86,6 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			imapMsg.setPeek(true);
 		}
 		String adr;
-		System.out.println(msg.getClass());
 		try {
 			adr = ((InternetAddress[]) msg.getFrom())[0].getPersonal();
 			fromAddress = new SimpleStringProperty(((InternetAddress[]) msg.getFrom())[0].getAddress());
@@ -245,6 +244,14 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		return mailData.getMessage().getFolder();
 	}
 	
+	/**
+	 * This method returns the message object, that contains the reference
+	 * to the server side message
+	 * @return	the message object of this mail
+	 */
+	public Message getMessage() {
+		return mailData.getMessage();
+	}
 	
 	/**
 	 * this message provides the functionality to set a flag on the message. 
