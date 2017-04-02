@@ -18,9 +18,11 @@
 
 package com.github.koshamo.fastmail.gui;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.mail.AccountRootItem;
@@ -76,12 +78,18 @@ public class FastGui extends Application {
 	 */
 	@Override
 	public void start(final Stage primaryStage) {
-		primaryStage.setTitle(FastMailGenerals.getApplicationName() + " " 
+		i18n = SerializeManager.getLocaleMessages();
+		primaryStage.setTitle(FastMailGenerals.getApplicationName() + " "  //$NON-NLS-1$
 				+ FastMailGenerals.getVersion());
 		buildGUI(primaryStage);
 		primaryStage.show();
+		SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessages();
 	}
 
+	// the resource bundle containing the internationalized strings
+	ResourceBundle i18n;
+	
 	// fields to build the GUI
 	private MenuBar menuBar;
 	Button btnReply;
@@ -137,8 +145,8 @@ public class FastGui extends Application {
 	private void buildMenu(final VBox overallPane) {
 		menuBar = new MenuBar();
 		// Account Menu
-		Menu accountMenu = new Menu("Account");
-		MenuItem addAccountItem = new MenuItem("Add Account");
+		Menu accountMenu = new Menu(i18n.getString("entry.account")); //$NON-NLS-1$
+		MenuItem addAccountItem = new MenuItem(i18n.getString("action.addaccount")); //$NON-NLS-1$
 		addAccountItem.setOnAction(ev -> {
 			MailAccountDialog dialog = new MailAccountDialog();
 			MailAccountData accountData = dialog.showAndWait();
@@ -151,7 +159,7 @@ public class FastGui extends Application {
 			account.setExpanded(true);
 			SerializeManager.getInstance().addMailAccount(accountData);
 		});
-		MenuItem editAccountItem = new MenuItem("Edit Account");
+		MenuItem editAccountItem = new MenuItem(i18n.getString("action.editaccount")); //$NON-NLS-1$
 		editAccountItem.setOnAction(ev -> {
 			if (accountTree.getSelectionModel().getSelectedItem() == null)
 				return;
@@ -163,7 +171,7 @@ public class FastGui extends Application {
 					((MailAccount) curItem.getValue()).getMailAccountData());
 			dialog.showAndWait();
 		});
-		MenuItem removeAccountItem = new MenuItem("Remove Account");
+		MenuItem removeAccountItem = new MenuItem(i18n.getString("action.removeaccount")); //$NON-NLS-1$
 		removeAccountItem.setOnAction(ev -> {
 			if (accountTree.getSelectionModel().getSelectedItem() == null)
 				return;
@@ -172,11 +180,11 @@ public class FastGui extends Application {
 			while (!curItem.getValue().isAccount())
 				curItem.getParent();
 			Alert alert = new Alert(Alert.AlertType.WARNING,
-					"Are you sure you want to remove the account\n" +
-							curItem.getValue().getName(), 
+					MessageFormat.format(i18n.getString("alert.message.removeaccount"),  //$NON-NLS-1$
+							curItem.getValue().getName()), 
 					ButtonType.YES, ButtonType.CANCEL);
-			alert.setTitle("Remove current account");
-			alert.setHeaderText("You are about to remove an account from Fastmail");
+			alert.setTitle(i18n.getString("alert.title.removeaccount")); //$NON-NLS-1$
+			alert.setHeaderText(i18n.getString("alert.header.removeaccount")); //$NON-NLS-1$
 			Optional<ButtonType> opt = alert.showAndWait();
 			if (opt.get().equals(ButtonType.CANCEL))
 				return;
@@ -192,16 +200,17 @@ public class FastGui extends Application {
 		accountMenu.getItems().addAll(addAccountItem, editAccountItem, removeAccountItem);
 		
 		// Help Menu: this is called like the application!
-		Menu helpMenu = new Menu("Fastmail");
-		MenuItem aboutHelpItem = new MenuItem("About");
+		Menu helpMenu = new Menu(FastMailGenerals.getApplicationName());
+		MenuItem aboutHelpItem = new MenuItem(i18n.getString("entry.about")); //$NON-NLS-1$
 		aboutHelpItem.setOnAction(ev -> {
 			Alert alert = new Alert(Alert.AlertType.INFORMATION,
-					"Written by " + FastMailGenerals.getAuthor() + "\n\n" + 
-							"Licensed under the " + FastMailGenerals.getLicense() + "\n\n" + 
-							"Version: " + FastMailGenerals.getVersion(),
+					MessageFormat.format(i18n.getString("entry.message.about"), //$NON-NLS-1$
+							FastMailGenerals.getAuthor(), 
+							FastMailGenerals.getLicense(),
+							FastMailGenerals.getVersion()),
 							ButtonType.OK
 					);
-			alert.setTitle("About");
+			alert.setTitle(i18n.getString("entry.about")); //$NON-NLS-1$
 			alert.setHeaderText(FastMailGenerals.getNameVersion());
 
 			alert.showAndWait();
@@ -222,7 +231,7 @@ public class FastGui extends Application {
 	private void buildButtonPane(final VBox overallPane) {
 		HBox hbox = new HBox();
 		// NEW button
-		Button btnNew = new Button("New");
+		Button btnNew = new Button(i18n.getString("action.new")); //$NON-NLS-1$
 		btnNew.setPrefSize(90, 50);
 		btnNew.setMinSize(90, 50);
 		btnNew.setOnAction(ev -> {
@@ -234,7 +243,7 @@ public class FastGui extends Application {
 			new MailComposer(ma);
 		});
 		// REPLY button
-		btnReply = new Button("Reply");
+		btnReply = new Button(i18n.getString("action.reply")); //$NON-NLS-1$
 		btnReply.setPrefSize(90, 50);
 		btnReply.setMinSize(90, 50);
 		btnReply.setOnAction(ev -> {
@@ -242,7 +251,7 @@ public class FastGui extends Application {
 		});
 		btnReply.setDisable(true);
 		// REPLY ALL button
-		btnReplyAll = new Button("Reply All");
+		btnReplyAll = new Button(i18n.getString("action.replyall")); //$NON-NLS-1$
 		btnReplyAll.setPrefSize(90, 50);
 		btnReplyAll.setMinSize(90, 50);
 		btnReplyAll.setOnAction(ev -> {
@@ -250,7 +259,7 @@ public class FastGui extends Application {
 		});
 		btnReplyAll.setDisable(true);
 		// DELETE button
-		btnDelete = new Button("Delete");
+		btnDelete = new Button(i18n.getString("action.delete")); //$NON-NLS-1$
 		btnDelete.setPrefSize(90, 50);
 		btnDelete.setMinSize(90, 50);
 		btnDelete.setOnAction(ev -> {
@@ -304,42 +313,42 @@ public class FastGui extends Application {
 		// upper right side: folder
 		folderMailTable = new TableView<EmailTableData>();
 		folderMailTable.setEditable(true);	
-		folderMailTable.setPlaceholder(new Label("choose Folder on the left side to show Emails"));
+		folderMailTable.setPlaceholder(new Label(i18n.getString("entry.default.mailtable"))); //$NON-NLS-1$
 		tableContextMenu = new ContextMenu();
-		Menu moveTo = new Menu("move to");
+		Menu moveTo = new Menu(i18n.getString("action.moveto")); //$NON-NLS-1$
 		tableContextMenu.getItems().addAll(
 				addReplyItem(), addReplyAllItem(), addDeleteItem(),
 				new SeparatorMenuItem(), moveTo);
 		folderMailTable.setContextMenu(tableContextMenu);
 		// SUBJECT column
-		TableColumn<EmailTableData, String> subjectCol = new TableColumn<>("Subject");
-		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject"));
+		TableColumn<EmailTableData, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
+		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject")); //$NON-NLS-1$
 		subjectCol.setMinWidth(400);
 		// FROM column
-		TableColumn<EmailTableData, String> fromCol = new TableColumn<>("From");
-		fromCol.setCellValueFactory(new PropertyValueFactory<>("from"));
+		TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
+		fromCol.setCellValueFactory(new PropertyValueFactory<>("from")); //$NON-NLS-1$
 		fromCol.setMinWidth(250);
 		// DATE column
-		TableColumn<EmailTableData, String> dateCol = new TableColumn<>("Date");
+		TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
 		dateCol.setMinWidth(150);
-		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate"));
+		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate")); //$NON-NLS-1$
 		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
 		dateCol.setComparator(new DateCellComparator());
 		// MESSAGE READ column
-		TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>("R");
-		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read"));
+		TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
+		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
 		readCol.setCellFactory(CheckBoxTableCell.forTableColumn(readCol));
 		readCol.setEditable(true);
 		readCol.setMaxWidth(30);
 		// ATTACHMENT column
-		TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>("A");
-		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment"));
+		TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
+		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment")); //$NON-NLS-1$
 		attachmentCol.setCellFactory(CheckBoxTableCell.forTableColumn(attachmentCol));
 		attachmentCol.setEditable(false);
 		attachmentCol.setMaxWidth(30);
 		// MESSAGE MARKED column
-		TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>("M");
-		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked"));
+		TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
+		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked")); //$NON-NLS-1$
 		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
 		markerCol.setEditable(true);
 		markerCol.setMaxWidth(30);
@@ -412,10 +421,10 @@ public class FastGui extends Application {
 						treeContextMenu.getItems().clear();
 						treeContextMenu.getItems().add(addAddFolderItem());
 						if (!newVal.getValue().isAccount() && 
-								!newVal.getValue().getName().equals("INBOX") &&
-								!newVal.getValue().getName().equals("Drafts") &&
-								!newVal.getValue().getName().equals("Sent") &&
-								!newVal.getValue().getName().equals("Trash"))
+								!newVal.getValue().getName().equals("INBOX") && //$NON-NLS-1$
+								!newVal.getValue().getName().equals("Drafts") && //$NON-NLS-1$
+								!newVal.getValue().getName().equals("Sent") && //$NON-NLS-1$
+								!newVal.getValue().getName().equals("Trash")) //$NON-NLS-1$
 							treeContextMenu.getItems().add(addDeleteFolderItem());
 						if (newVal.getValue().isAccount()) {
 							treeContextMenu.getItems().add(new SeparatorMenuItem());
@@ -442,7 +451,7 @@ public class FastGui extends Application {
 	}
 	
 	private MenuItem addReplyItem() {
-		MenuItem reply = new MenuItem("reply");
+		MenuItem reply = new MenuItem(i18n.getString("action.reply")); //$NON-NLS-1$
 		reply.setOnAction(ev -> {
 			replyMail();
 		});
@@ -450,7 +459,7 @@ public class FastGui extends Application {
 	}
 	
 	private MenuItem addReplyAllItem() {
-		MenuItem replyAll = new MenuItem("reply all");
+		MenuItem replyAll = new MenuItem(i18n.getString("action.replyall")); //$NON-NLS-1$
 		replyAll.setOnAction(ev -> {
 			replyAllMail();
 		});
@@ -458,7 +467,7 @@ public class FastGui extends Application {
 	}
 	
 	private MenuItem addDeleteItem() {
-		MenuItem delete = new MenuItem("delete");
+		MenuItem delete = new MenuItem(i18n.getString("action.delete")); //$NON-NLS-1$
 		delete.setOnAction(ev -> {
 			deleteMail();
 		});
@@ -478,8 +487,8 @@ public class FastGui extends Application {
 	 * 
 	 * @return a full featured MenuItem to add a folder to this account
 	 */
-	private MenuItem addAddFolderItem() {
-		MenuItem add = new MenuItem("add folder");
+	MenuItem addAddFolderItem() {
+		MenuItem add = new MenuItem(i18n.getString("action.addfolder")); //$NON-NLS-1$
 		add.setOnAction(p -> {
 			TreeItem<MailTreeViewable> curItem = 
 					accountTree.getSelectionModel().getSelectedItem();
@@ -496,8 +505,8 @@ public class FastGui extends Application {
 	 * 
 	 * @return a full featured MenuItem to edit this account
 	 */
-	private MenuItem addEditAccountItem() {
-		MenuItem edit = new MenuItem("edit account");
+	MenuItem addEditAccountItem() {
+		MenuItem edit = new MenuItem(i18n.getString("action.editaccount")); //$NON-NLS-1$
 		edit.setOnAction(p -> {
 			TreeItem<MailTreeViewable> curItem = 
 					accountTree.getSelectionModel().getSelectedItem();
@@ -515,17 +524,17 @@ public class FastGui extends Application {
 	 * 
 	 * @return a full featured MenuItem to delete this folder
 	 */
-	private MenuItem addDeleteFolderItem() {
-		MenuItem delete = new MenuItem("delete folder");
+	MenuItem addDeleteFolderItem() {
+		MenuItem delete = new MenuItem(i18n.getString("action.deletefolder")); //$NON-NLS-1$
 		delete.setOnAction(p -> {
 			TreeItem<MailTreeViewable> curItem = 
 					accountTree.getSelectionModel().getSelectedItem();
 			Alert alert = new Alert(Alert.AlertType.WARNING,
-					"Are you sure you want to remove the folder\n" +
-							curItem.getValue().getName(), 
+					MessageFormat.format(i18n.getString("alert.message.removefolder"), //$NON-NLS-1$
+							curItem.getValue().getName()), 
 					ButtonType.YES, ButtonType.CANCEL);
-			alert.setTitle("Remove current folder");
-			alert.setHeaderText("You are about to remove a folder. Any mails and subfolders contained will be removed!");
+			alert.setTitle(i18n.getString("alert.title.removefolder")); //$NON-NLS-1$
+			alert.setHeaderText(i18n.getString("alert.header.removefolder")); //$NON-NLS-1$
 			Optional<ButtonType> opt = alert.showAndWait();
 			if (opt.get().equals(ButtonType.CANCEL))
 				return;
@@ -534,7 +543,7 @@ public class FastGui extends Application {
 				// force update of tree view after folder deletion
 				while (!curItem.getValue().isAccount())
 					curItem = curItem.getParent();
-				((MailAccount)curItem.getValue()).forceFolderUpdate();;
+				((MailAccount)curItem.getValue()).forceFolderUpdate();
 			}
 		});
 		return delete;
@@ -617,7 +626,7 @@ public class FastGui extends Application {
 	 */
 	private void buildStatusLine(final VBox overallPane) {
 		HBox hbox = new HBox(8);
-		Label lbl = new Label("Status");
+		Label lbl = new Label(i18n.getString("entry.status")); //$NON-NLS-1$
 		hbox.getChildren().addAll(lbl);
 		overallPane.getChildren().add(hbox);
 	}

@@ -21,10 +21,12 @@ package com.github.koshamo.fastmail.gui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.mail.MailAccount;
 import com.github.koshamo.fastmail.mail.MailData;
 import com.github.koshamo.fastmail.util.MailTools;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -75,6 +77,8 @@ public class MailComposer {
 	private MailData mail;
 	private int curAccnt;
 	
+	private ResourceBundle i18n;
+	
 	/**
 	 * Basic constructor to compose a new mail. 
 	 * <p> 
@@ -112,6 +116,7 @@ public class MailComposer {
 	 * main method to construct the GUI
 	 */
 	private void buildGui() {
+		i18n = SerializeManager.getLocaleMessages();
 		stage = new Stage();
 		VBox overallPane = new VBox();
 		
@@ -138,28 +143,28 @@ public class MailComposer {
 	 */
 	private void buildButtonBar(final VBox pane) {
 		HBox hbox = new HBox();
-		Button btnSend = new Button("send");
+		Button btnSend = new Button(i18n.getString("action.send")); //$NON-NLS-1$
 		btnSend.setPrefSize(90, 50);
 		btnSend.setOnAction(ev -> {
 			// check for valid entries in the user fields		
 			if (fromBox.getSelectionModel().getSelectedItem() == null) {
-				status.setText("Select Email Account!"); 
+				status.setText(i18n.getString("alert.selectemail"));  //$NON-NLS-1$
 				return;
 			}
 			if (toAddress.getText().isEmpty()) {
-				status.setText("Add Email Address");
+				status.setText(i18n.getString("alert.addemail")); //$NON-NLS-1$
 				return;
 			}
 			if (!MailTools.isValid(toAddress.getText())) {
-				status.setText("Enter valid Email Address in TO field");
+				status.setText(i18n.getString("alert.to.addmail")); //$NON-NLS-1$
 				return;
 			}
 			if (!ccAddress.getText().isEmpty() && !MailTools.isValid(ccAddress.getText())) {
-				status.setText("Enter valid Email Address in CC field");
+				status.setText(i18n.getString("alert.cc.addmail")); //$NON-NLS-1$
 				return;
 			}
 			if (subjectText.getText().isEmpty()) {
-				status.setText("Enter Subject");
+				status.setText(i18n.getString("alert.subject")); //$NON-NLS-1$
 				return;
 			}
 			// get the values an send the mail
@@ -177,12 +182,12 @@ public class MailComposer {
 			stage.close();
 		});
 
-		Button btnAttach = new Button("attach File");
+		Button btnAttach = new Button(i18n.getString("action.attachfile")); //$NON-NLS-1$
 		btnAttach.setPrefSize(90, 50);
 		btnAttach.setOnAction(ev -> {
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Attach file");
-			fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+			fileChooser.setTitle(i18n.getString("dialog.title.attachfile")); //$NON-NLS-1$
+			fileChooser.setInitialDirectory(new File(System.getProperty("user.home"))); //$NON-NLS-1$
 			File selFile = fileChooser.showOpenDialog(stage.getOwner());
 			if (selFile != null) {
 				if (attachmentLine.getText().isEmpty())
@@ -216,21 +221,21 @@ public class MailComposer {
 		colField.setHgrow(Priority.ALWAYS);
 		grid.getColumnConstraints().addAll(colLabel, colField);
 		
-		Label from = new Label("from :");
+		Label from = new Label(i18n.getString("entry.from")); //$NON-NLS-1$
 		grid.add(from, 0, 0);
 		fromBox = new ChoiceBox<String>(fillList());
 		fromBox.setMaxWidth(Double.MAX_VALUE);
 		fromBox.setValue(accounts[curAccnt].getAccountName());
 		grid.add(fromBox, 1, 0);
-		Label to = new Label("to :");
+		Label to = new Label(i18n.getString("entry.to")); //$NON-NLS-1$
 		grid.add(to, 0, 1);
 		toAddress = new TextField();
 		grid.add(toAddress, 1, 1);
-		Label cc = new Label("cc :");
+		Label cc = new Label(i18n.getString("entry.cc")); //$NON-NLS-1$
 		grid.add(cc, 0, 2);
 		ccAddress = new TextField();
 		grid.add(ccAddress, 1, 2);
-		Label subject = new Label("subject :");
+		Label subject = new Label(i18n.getString("entry.subject")); //$NON-NLS-1$
 		grid.add(subject, 0, 3);
 		subjectText = new TextField();
 		grid.add(subjectText, 1, 3);
@@ -238,7 +243,7 @@ public class MailComposer {
 		stage.titleProperty().bindBidirectional(subjectText.textProperty());
 		Separator sep = new Separator();
 		grid.add(sep, 0, 4, 2, 1);
-		Label attachmentLbl = new Label("attached :");
+		Label attachmentLbl = new Label(i18n.getString("entry.attachment")); //$NON-NLS-1$
 		grid.add(attachmentLbl, 0, 5);
 		attachmentLine = new TextField();
 		attachmentLine.setEditable(false);

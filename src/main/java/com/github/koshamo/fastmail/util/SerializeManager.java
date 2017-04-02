@@ -30,6 +30,7 @@ import java.io.ObjectOutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -116,7 +117,7 @@ public class SerializeManager {
 			mailAccounts = (Vector<MailAccountData>) ois.readObject();
 		} catch (FileNotFoundException e) {
 			// should be default case for newly installed programs
-			System.out.println("No settings file found. Guess you are new to Fastmail.");
+			System.out.println(getLocaleMessages().getString("info.newcomer")); //$NON-NLS-1$
 			return false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -147,10 +148,27 @@ public class SerializeManager {
 		mailAccounts.remove(data);
 	}
 	
+	/**
+	 * Get the mail accounts currently registered to serialize
+	 * @return get the registered mail accounts
+	 */
 	public List<MailAccountData> getMailAccounts() {
 		return mailAccounts;
 	}
 
+	/**
+	 * Get the internationalized texts bundle.
+	 * The bundle exists only once. So if it is not yet loaded, it will be 
+	 * loaded, otherwise the reference to the data object will be returned 
+	 * @return	the resource bundle containing the internationalized texts
+	 */
+	public static ResourceBundle getLocaleMessages() {
+		if (i18nTexts == null)
+			i18nTexts = ResourceBundle.getBundle("messages"); //$NON-NLS-1$
+		return i18nTexts;
+	}
+	
+	
 	/*
 	 * *****************************************************************
 	 * 						PRIVATE
@@ -161,6 +179,8 @@ public class SerializeManager {
 	 */
 	private static SerializeManager manager = null;
 	
+	private static ResourceBundle i18nTexts = null;
+	
 	private final String settingsPath = "/.FDE/fastmail/";	//$NON-NLS-1$
 	private final String settingsFile = "fastmail.fms";	//$NON-NLS-1$
 	private String homeDir;
@@ -170,7 +190,7 @@ public class SerializeManager {
 	 * The constructor is private to prevent others to instantiate this class 
 	 */
 	private SerializeManager() {
-		homeDir = System.getProperty("user.home");
+		homeDir = System.getProperty("user.home"); //$NON-NLS-1$
 		mailAccounts = new Vector<MailAccountData>();
 		
 	}
@@ -179,19 +199,19 @@ public class SerializeManager {
 	 * Initialize the Cipher for en-/decrypted settings stream
 	 * <p>
 	 * The encryption currently is only needed to hide account passwords on
-	 * disk. The serialization allows anyone to read the password in plaintext
+	 * disk. The serialization allows anyone to read the password in plain text
 	 * in the settings file, if one uses an editor capable of UTF-8 strings.
 	 * 
 	 * @param mode	Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
 	 * @return		the Cipher for the stream
 	 */
-	private Cipher getCipher(final int mode) {
+	private static Cipher getCipher(final int mode) {
 		SecretKey key64 = new SecretKeySpec(
 				new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}, 
-				"Blowfish");
+				"Blowfish"); //$NON-NLS-1$
 		Cipher cipher = null; 
 		try {
-			cipher = Cipher.getInstance("Blowfish");
+			cipher = Cipher.getInstance("Blowfish"); //$NON-NLS-1$
 			cipher.init(mode, key64);
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block

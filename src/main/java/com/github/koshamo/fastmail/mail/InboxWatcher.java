@@ -20,9 +20,6 @@ package com.github.koshamo.fastmail.mail;
 
 import javax.mail.Folder;
 import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.event.MessageCountAdapter;
-import javax.mail.event.MessageCountEvent;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;

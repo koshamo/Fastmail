@@ -19,7 +19,6 @@
 package com.github.koshamo.fastmail.mail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.mail.Folder;

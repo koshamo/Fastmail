@@ -25,12 +25,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ResourceBundle;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.mail.AttachmentData;
 import com.github.koshamo.fastmail.mail.MailData;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -70,6 +72,7 @@ public class MailView extends StackPane {
 	 * The constructor that builds the GUI component
 	 */
 	public MailView() {
+		i18n = SerializeManager.getLocaleMessages();
 		VBox vbox = new VBox();
 		
 		mailHeader = new GridPane();
@@ -81,13 +84,13 @@ public class MailView extends StackPane {
 		colField.setHgrow(Priority.ALWAYS);
 		mailHeader.getColumnConstraints().addAll(colLabel, colField);
 
-		Label fromLbl = new Label("From: ");
+		Label fromLbl = new Label(i18n.getString("entry.from")); //$NON-NLS-1$
 		from = new Label();
-		Label subjectLbl = new Label("Subject: ");
+		Label subjectLbl = new Label(i18n.getString("entry.subject")); //$NON-NLS-1$
 		subject = new Label();
-		Label toLbl = new Label("To: ");
+		Label toLbl = new Label(i18n.getString("entry.to")); //$NON-NLS-1$
 		to = new Label();
-		ccLbl = new Label("CC: ");
+		ccLbl = new Label(i18n.getString("entry.cc")); //$NON-NLS-1$
 		cc = new Label();
 		mailHeader.add(fromLbl, 0, 0);
 		mailHeader.add(from, 1, 0);
@@ -101,14 +104,14 @@ public class MailView extends StackPane {
 		attachmentBox = new ChoiceBox<String>(attachments);
 		HBox btnBox = new HBox();
 		// SAVE AS button
-		saveAsBtn = new Button("save as");
+		saveAsBtn = new Button(i18n.getString("action.saveas")); //$NON-NLS-1$
 		saveAsBtn.setDisable(true);
 		saveAsBtn.setOnAction(ev -> {
 			int item = attachmentBox.getSelectionModel().getSelectedIndex();
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Save attachment as ...");
+			fileChooser.setTitle(i18n.getString("dialog.title.saveas")); //$NON-NLS-1$
 			fileChooser.setInitialDirectory(
-					new File(System.getProperty("user.home")));
+					new File(System.getProperty("user.home"))); //$NON-NLS-1$
 			fileChooser.setInitialFileName(data.getAttachments()[item].getFileName());
 			File outputFile = fileChooser.showSaveDialog(getScene().getWindow());
 			if (outputFile == null)
@@ -143,13 +146,13 @@ public class MailView extends StackPane {
 			t.start();
 		});
 		// SAVE ALL button
-		saveAllBtn = new Button("save all");
+		saveAllBtn = new Button(i18n.getString("action.saveall")); //$NON-NLS-1$
 		saveAllBtn.setDisable(true);
 		saveAllBtn.setOnAction(ev -> {
 			DirectoryChooser directoryChooser = new DirectoryChooser();
-			directoryChooser.setTitle("Save all attachments ...");
+			directoryChooser.setTitle(i18n.getString("dialog.title.saveall")); //$NON-NLS-1$
 			directoryChooser.setInitialDirectory(
-					new File(System.getProperty("user.home")));
+					new File(System.getProperty("user.home"))); //$NON-NLS-1$
 			File outputDir = directoryChooser.showDialog(getScene().getWindow());
 			if (outputDir == null)
 				return;
@@ -179,7 +182,7 @@ public class MailView extends StackPane {
 						}
 					}
 					return null;
-				};
+				}
 			});
 			t.start();
 		});
@@ -187,12 +190,12 @@ public class MailView extends StackPane {
 		attachmentPane.getChildren().addAll(attachmentLbl, attachmentBox, btnBox);
 		
 		AnchorPane anchorPane = new AnchorPane();
-		AnchorPane.setTopAnchor(mailHeader, 1.0);
-		AnchorPane.setLeftAnchor(mailHeader, 1.0);
-		AnchorPane.setBottomAnchor(mailHeader, 1.0);
-		AnchorPane.setTopAnchor(attachmentPane, 1.0);
-		AnchorPane.setRightAnchor(attachmentPane, 1.0);
-		AnchorPane.setBottomAnchor(attachmentPane, 1.0);
+		AnchorPane.setTopAnchor(mailHeader, Double.valueOf(1.0));
+		AnchorPane.setLeftAnchor(mailHeader, Double.valueOf(1.0));
+		AnchorPane.setBottomAnchor(mailHeader, Double.valueOf(1.0));
+		AnchorPane.setTopAnchor(attachmentPane, Double.valueOf(1.0));
+		AnchorPane.setRightAnchor(attachmentPane, Double.valueOf(1.0));
+		AnchorPane.setBottomAnchor(attachmentPane, Double.valueOf(1.0));
 		anchorPane.getChildren().addAll(mailHeader, attachmentPane);
 
 		ScrollPane infoScroller = new ScrollPane(anchorPane);
@@ -237,15 +240,15 @@ public class MailView extends StackPane {
 		clear();
 		this.data = data;
 		if (data.getFromName() != null)
-			from.setText(data.getFromName() + " <" + data.getFrom() + ">");
+			from.setText(data.getFromName() + " <" + data.getFrom() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
 		else
 			from.setText(data.getFrom());
 		subject.setText(data.getSubject());
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < data.getTo().length; i++ ) {
 			if (data.getToName()[i] != null)
-				sb.append(data.getToName()[i]).append(" <")
-				.append(data.getTo()[i]).append(">");
+				sb.append(data.getToName()[i]).append(" <") //$NON-NLS-1$
+				.append(data.getTo()[i]).append(">"); //$NON-NLS-1$
 			else
 				sb.append(data.getTo()[i]);
 			sb.append("; "); //$NON-NLS-1$
@@ -255,8 +258,8 @@ public class MailView extends StackPane {
 		if (data.getCc() != null) {
 			for (int i = 0; i < data.getCc().length; i++) {
 				if (data.getCcName()[i] != null)
-					sb.append(data.getCcName()[i]).append(" <")
-					.append(data.getCc()[i]).append(">");
+					sb.append(data.getCcName()[i]).append(" <") //$NON-NLS-1$
+					.append(data.getCc()[i]).append(">"); //$NON-NLS-1$
 				else
 					sb.append(data.getCc()[i]);
 				sb.append("; "); //$NON-NLS-1$
@@ -269,7 +272,7 @@ public class MailView extends StackPane {
 		if (data.getAttachments() != null) {
 			attachCnt = data.getAttachments().length;
 			if (attachCnt > 0) {
-				attachmentLbl.setText(attachCnt + " attachments");
+				attachmentLbl.setText(attachCnt + " attachments"); //$NON-NLS-1$
 				for (AttachmentData ad : data.getAttachments())
 					attachments.add(ad.getFileName() + " (" + (ad.getSize() / 1024) + "kb)"); //$NON-NLS-1$ //$NON-NLS-2$
 				attachmentBox.setValue(attachments.get(0));
@@ -278,7 +281,7 @@ public class MailView extends StackPane {
 					saveAllBtn.setDisable(false);
 			}
 		} else {
-			attachmentLbl.setText("No attachments");
+			attachmentLbl.setText("No attachments"); //$NON-NLS-1$
 		}
 		mailBody.setText(data.getContent());
 	}
@@ -303,6 +306,8 @@ public class MailView extends StackPane {
 	private GridPane mailHeader;
 	private VBox attachmentPane;
 	private ObservableList<String> attachments;
-	private MailData data;
+	MailData data;
+	
+	private ResourceBundle i18n;
 	
 }

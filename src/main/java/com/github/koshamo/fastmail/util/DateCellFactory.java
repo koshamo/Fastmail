@@ -73,13 +73,13 @@ public class DateCellFactory extends TableCell<EmailTableData, String> {
 		if (today.getYear() == zonedDate.getYear() 
 				&& today.getMonthValue() == zonedDate.getMonthValue()
 				&& today.getDayOfMonth() == zonedDate.getDayOfMonth())
-			formatter = DateTimeFormatter.ofPattern("HH:mm");
+			formatter = DateTimeFormatter.ofPattern("HH:mm"); //$NON-NLS-1$
 		// last week
 		else if (zonedDate.isAfter(lastWeek))
-			formatter = DateTimeFormatter.ofPattern("EEE HH:mm");
+			formatter = DateTimeFormatter.ofPattern("EEE HH:mm"); //$NON-NLS-1$
 		// older dates
 		else
-			formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm");
+			formatter = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm"); //$NON-NLS-1$
 		return zonedDate.format(formatter);
 	
 	}

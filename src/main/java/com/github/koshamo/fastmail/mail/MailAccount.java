@@ -20,18 +20,13 @@ package com.github.koshamo.fastmail.mail;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.SoftReference;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import javax.mail.AuthenticationFailedException;
-import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -47,6 +42,7 @@ import javax.mail.internet.MimeMultipart;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.util.MailTools;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -67,12 +63,10 @@ import javafx.util.Duration;
  */
 public class MailAccount implements MailTreeViewable{
 	// some fields needed to create connection
-	private MailAccountData data;
+	MailAccountData data;
 	private Properties props;
 	private Session session;
 	private Store store;
-	private boolean connected = false;
-	private boolean imap = false;
 	
 	// stores the folders within the mail account
 	// TODO: think about fetching these dynamically, but maybe this will be done by
@@ -83,6 +77,8 @@ public class MailAccount implements MailTreeViewable{
 	private AccountFolderWatcher accountFolderWatcher;
 	
 	private TreeItem<MailTreeViewable> accountTreeItem;
+	
+	private static ResourceBundle i18n;
 	
 	/* InboxWatcher detects new Messages at startup and adds mails to inbox redundant.
 	 * This can be avoided, if InboxWatcher checks, if inbox has been initialized.
@@ -98,6 +94,7 @@ public class MailAccount implements MailTreeViewable{
 	 */
 	public MailAccount(final MailAccountData data) {
 		this.data = data;
+		i18n = SerializeManager.getLocaleMessages();
 		buildConnection();
 	}
 	
@@ -109,8 +106,6 @@ public class MailAccount implements MailTreeViewable{
 		props = new Properties();
 		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
 			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
-			// currently we only work with IMAP...
-			imap = true;
 		}
 		props.put("mail.smtp.host", data.getSmtpHost()); //$NON-NLS-1$
 		props.setProperty("mail.smtp.starttls.enable", new Boolean(data.isTls()).toString()); //$NON-NLS-1$
@@ -127,7 +122,6 @@ public class MailAccount implements MailTreeViewable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		connected = true;
 	}
 	
 	
@@ -178,15 +172,15 @@ public class MailAccount implements MailTreeViewable{
 			store = session.getStore(data.getInboxType().toLowerCase());
 			store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
 		} catch (NoSuchProviderException e) {
-			return "Failed to get connection to server. Please check server URLs and Protocol type.";
+			return i18n.getString("error.URL"); //$NON-NLS-1$
 		} catch (AuthenticationFailedException e) {
-			return "Failed to authenticate to the server. Please check username and password.";
+			return i18n.getString("error.username"); //$NON-NLS-1$
 		} catch (IllegalStateException e) {
-			return "Failed to cennect to the server. This account already seems to be connected.";
+			return i18n.getString("error.connected"); //$NON-NLS-1$
 		} catch (MessagingException e) {
-			return "Failed to connect to server. Reason: " + e.getMessage();
+			return i18n.getString("error.connected") + e.getMessage(); //$NON-NLS-1$
 		}
-		return "Test successfull! Now push the Add Account button!";
+		return i18n.getString("info.settingsOK"); //$NON-NLS-1$
 	}		
 		
 	
@@ -221,7 +215,7 @@ public class MailAccount implements MailTreeViewable{
 	 */
 	public void addFolder() {
 		try {
-			Folder folder = parentFolder.getFolder("new Folder");
+			Folder folder = parentFolder.getFolder(i18n.getString("entry.newfolder")); //$NON-NLS-1$
 			if (!folder.exists())
 				folder.create(Folder.HOLDS_MESSAGES);
 			// trigger the addition of the new folder to the tree view
@@ -308,9 +302,9 @@ public class MailAccount implements MailTreeViewable{
 			msg.setHeader("X-mailer", FastMailGenerals.getNameVersion()); //$NON-NLS-1$
 			// attachments
 			if (attachments != null && !attachments.isEmpty()) {
-				MimeMultipart mmp = new MimeMultipart("mixed");
+				MimeMultipart mmp = new MimeMultipart("mixed"); //$NON-NLS-1$
 				MimeBodyPart content = new MimeBodyPart();
-				content.setContent(text, "text/plain");
+				content.setContent(text, "text/plain"); //$NON-NLS-1$
 				mmp.addBodyPart(content);
 				for (File file : attachments) {
 					MimeBodyPart mbp = new MimeBodyPart();

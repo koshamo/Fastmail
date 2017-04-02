@@ -19,10 +19,12 @@
 package com.github.koshamo.fastmail.gui;
 
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.mail.MailAccount;
 import com.github.koshamo.fastmail.mail.MailAccountData;
 import com.github.koshamo.fastmail.util.MailTools;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
@@ -58,6 +60,7 @@ public class MailAccountDialog {
 	 * data is available
 	 */
 	public MailAccountDialog() {
+		i18n = SerializeManager.getLocaleMessages();
 		accountData = new MailAccountData();
 		
 		addComponents(TYPE.ADD);
@@ -81,9 +84,10 @@ public class MailAccountDialog {
 	 * as parameter is null, this constructor throws a NullPointerException
 	 */
 	public MailAccountDialog(final MailAccountData accountData) {
+		i18n = SerializeManager.getLocaleMessages();
+
 		if (accountData == null)
-			throw new NullPointerException(
-					"You need to provide actual MailAccountData, if you use this constructor");
+			throw new NullPointerException(i18n.getString("error.mailaccountdialog")); //$NON-NLS-1$
 		this.accountData = accountData;
 		addComponents(TYPE.CHANGE);
 		
@@ -114,7 +118,7 @@ public class MailAccountDialog {
 	 * 					PRIVATE
 	 * ******************************************************
 	 */
-	private enum TYPE {ADD, CHANGE};
+	private enum TYPE {ADD, CHANGE}
 	private Dialog<MailAccountData> dialog;
 	private GridPane grid;
 	private TextField usernameField;
@@ -129,87 +133,88 @@ public class MailAccountDialog {
 	private Label statusLabel;
 	private MailAccountData accountData = null;
 	
+	private ResourceBundle i18n;
+	
 	/**
 	 * create the actual GUI
 	 */
 	private void addComponents(final TYPE type) {
 		dialog = new Dialog<MailAccountData>();
-		ButtonType add = new ButtonType("Add Account", ButtonData.OK_DONE);
-		ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+		ButtonType add = new ButtonType(i18n.getString("action.addaccount"), ButtonData.OK_DONE); //$NON-NLS-1$
+		ButtonType cancel = new ButtonType(i18n.getString("action.cancel"), ButtonData.CANCEL_CLOSE); //$NON-NLS-1$
 		
 		if (type == TYPE.ADD) {
-			dialog.setTitle("Add a new Mail Account");
-			dialog.setHeaderText(
-					"To add a new Mail Account, some basic information is needed.");
+			dialog.setTitle(i18n.getString("dialog.title.addnewaccount")); //$NON-NLS-1$
+			dialog.setHeaderText(i18n.getString("dialog.header.addnewaccount")); //$NON-NLS-1$
 		}
 		else {	// TYPE.CHANGE
-			dialog.setTitle("Change a Mail Account");
-			dialog.setHeaderText("Change the settings of your mail account.");
+			dialog.setTitle(i18n.getString("dialog.title.changeaccount")); //$NON-NLS-1$
+			dialog.setHeaderText(i18n.getString("dialog.header.changeaccount")); //$NON-NLS-1$
 		}
 
 		grid = new GridPane();
 		grid.setHgap(30);
 		grid.setVgap(15);
 		// USERNAME
-		Label usernameLabel = new Label("Username: ");
-		usernameLabel.setTooltip(new Tooltip("add a full qualified email address, e.g. jochen@com.github.koshamo.fastmail.org"));
+		Label usernameLabel = new Label(i18n.getString("entry.username")); //$NON-NLS-1$
+		usernameLabel.setTooltip(new Tooltip(i18n.getString("tooltip.username"))); //$NON-NLS-1$
 		grid.add(usernameLabel, 0, 0);
 		usernameField = new TextField();
-		usernameField.setTooltip(new Tooltip("add a full qualified email address, e.g. jochen@com.github.koshamo.fastmail.org"));
+		usernameField.setTooltip(new Tooltip(i18n.getString("tooltip.username"))); //$NON-NLS-1$
 		grid.add(usernameField, 1, 0);
 		// DISPLAYED NAME
-		Label displaynameLabel = new Label("Displayed name: ");
-		displaynameLabel.setTooltip(new Tooltip("this name is shown in most email clients"));
+		Label displaynameLabel = new Label(i18n.getString("entry.displayname")); //$NON-NLS-1$
+		displaynameLabel.setTooltip(new Tooltip(i18n.getString("tooltip.displayname"))); //$NON-NLS-1$
 		grid.add(displaynameLabel, 0, 1);
 		displaynameField = new TextField();
-		displaynameField.setTooltip(new Tooltip("this name is shown in most email clients"));
+		displaynameField.setTooltip(new Tooltip(i18n.getString("tooltip.displayname"))); //$NON-NLS-1$
 		grid.add(displaynameField, 1, 1);
 		// PASSWORD
-		Label passwordLabel = new Label("Password: ");
+		Label passwordLabel = new Label(i18n.getString("entry.password")); //$NON-NLS-1$
 		grid.add(passwordLabel, 0, 2);
 		passwordField = new PasswordField();
 		grid.add(passwordField, 1, 2);
 		// SERVER TYPE
-		Label serverTypeLabel = new Label("Server Type: ");
+		Label serverTypeLabel = new Label(i18n.getString("entry.servertype")); //$NON-NLS-1$
 		grid.add(serverTypeLabel, 0, 3);
-		serverTypeBox = new ChoiceBox<String>(FXCollections.observableArrayList("IMAP"));
-		serverTypeBox.setTooltip(new Tooltip("currently only IMAP is supported"));
-		serverTypeBox.setValue("IMAP");
+		serverTypeBox = new ChoiceBox<String>(FXCollections.observableArrayList(i18n.getString("entry.IMAP"))); //$NON-NLS-1$
+		serverTypeBox.setTooltip(new Tooltip(i18n.getString("info.IMAP"))); //$NON-NLS-1$
+		serverTypeBox.setValue(i18n.getString("entry.IMAP")); //$NON-NLS-1$
 		grid.add(serverTypeBox, 1, 3);
 		// SERVER ADDRESS
-		Label imapLabel = new Label("IMAP / POP3 server address: ");
-		imapLabel.setTooltip(new Tooltip("e.g. imap.gmail.com"));
+		Label imapLabel = new Label(i18n.getString("entry.addresstype")); //$NON-NLS-1$
+		imapLabel.setTooltip(new Tooltip(i18n.getString("tooltip.addresstype"))); //$NON-NLS-1$
 		grid.add(imapLabel, 0, 4);
 		imapField = new TextField();
-		imapField.setTooltip(new Tooltip("e.g. imap.gmail.com"));
+		imapField.setTooltip(new Tooltip(i18n.getString("tooltip.addresstype"))); //$NON-NLS-1$
 		grid.add(imapField, 1, 4);
 		// SSL CONNECTION
-		Label sslLabel = new Label("Secure SSL Connection: ");
+		Label sslLabel = new Label(i18n.getString("entry.SSL")); //$NON-NLS-1$
 		grid.add(sslLabel, 0, 5);
-		sslBox = new CheckBox("SSL enable");
-		sslBox.setTooltip(new Tooltip("if unsure, leave checked"));
+		sslBox = new CheckBox(i18n.getString("entry.SSLenable")); //$NON-NLS-1$
+		sslBox.setTooltip(new Tooltip(i18n.getString("tooltip.SSL"))); //$NON-NLS-1$
 		sslBox.setSelected(true);		
 		grid.add(sslBox, 1, 5);
 		// SMTP ADDRESS
-		Label smtpLabel = new Label("SMTP server address: ");
-		smtpLabel.setTooltip(new Tooltip("e.g. smtp.gmail.com"));
+		Label smtpLabel = new Label(i18n.getString("entry.SMTP")); //$NON-NLS-1$
+		smtpLabel.setTooltip(new Tooltip(i18n.getString("tooltip.SMTP"))); //$NON-NLS-1$
 		grid.add(smtpLabel, 0, 6);
 		smtpField = new TextField();
-		smtpField.setTooltip(new Tooltip("e.g. smtp.gmail.com"));
+		smtpField.setTooltip(new Tooltip(i18n.getString("tooltip.SMTP"))); //$NON-NLS-1$
 		grid.add(smtpField, 1, 6);
 		// TLS CONNECTION
-		Label tlsLabel = new Label("Secure TLS Connection: ");
+		Label tlsLabel = new Label(i18n.getString("entry.TLS")); //$NON-NLS-1$
 		grid.add(tlsLabel, 0, 7);
-		tlsBox = new CheckBox("TLS enable");
-		tlsBox.setTooltip(new Tooltip("if unsure, leave checked"));
+		tlsBox = new CheckBox(i18n.getString("entry.TLSenable")); //$NON-NLS-1$
+		tlsBox.setTooltip(new Tooltip(i18n.getString("tooltip.TLS"))); //$NON-NLS-1$
 		tlsBox.setSelected(true);
 		grid.add(tlsBox, 1, 7);
 		// TEST CONFIGURATION
-		testButton = new Button("test configuration");
+		testButton = new Button(i18n.getString("action.testconfiguration")); //$NON-NLS-1$
 		testButton.setOnAction(ev -> {
 			fillAccountData(true);
 		});
-		testButton.setTooltip(new Tooltip("test the server settings before you add the mail account"));
+		testButton.setTooltip(new Tooltip(i18n.getString("tooltip.testconfiguration"))); //$NON-NLS-1$
 		grid.add(testButton, 1, 8);
 		statusLabel = new Label();
 		grid.add(statusLabel, 0, 9, 2, 1);
@@ -242,31 +247,31 @@ public class MailAccountDialog {
 	 */
 	private boolean fillAccountData(final boolean test) {
 		if (usernameField.getText().isEmpty()) {
-			statusLabel.setText("Please enter username");
+			statusLabel.setText(i18n.getString("info.username")); //$NON-NLS-1$
 			return false;
 		}
 		if (!MailTools.isValid(usernameField.getText())) {
-			statusLabel.setText("Username is not valid");
+			statusLabel.setText(i18n.getString("alert.username")); //$NON-NLS-1$
 			return false;
 		}
 		if (passwordField.getText().isEmpty()) {
-			statusLabel.setText("Please enter password");
+			statusLabel.setText(i18n.getString("info.password")); //$NON-NLS-1$
 			return false;
 		}
 		if (imapField.getText().isEmpty()) {
-			statusLabel.setText("Please enter IMAP address");
+			statusLabel.setText(i18n.getString("info.IMAP")); //$NON-NLS-1$
 			return false;
 		}
 		if (!MailTools.isServerValid(imapField.getText())) {
-			statusLabel.setText("IMAP address doesn't seem to be valid");
+			statusLabel.setText(i18n.getString("alert.IMAP")); //$NON-NLS-1$
 			return false;
 		}
 		if (smtpField.getText().isEmpty()) {
-			statusLabel.setText("Please enter SMTP address");
+			statusLabel.setText(i18n.getString("info.SMTP")); //$NON-NLS-1$
 			return false;
 		}
 		if (!MailTools.isServerValid(smtpField.getText())) {
-			statusLabel.setText("SMTP address doesn't seem to be valid");
+			statusLabel.setText(i18n.getString("alert.SMTP")); //$NON-NLS-1$
 			return false;
 		}
 		accountData.setUsername(usernameField.getText());
@@ -282,7 +287,6 @@ public class MailAccountDialog {
 			statusLabel.setText(MailAccount.testConnection(accountData));
 			return false;
 		}
-		else
-			return true;
+		return true;
 	}
 }

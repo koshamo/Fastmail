@@ -18,13 +18,7 @@
 
 package com.github.koshamo.fastmail.mail;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;

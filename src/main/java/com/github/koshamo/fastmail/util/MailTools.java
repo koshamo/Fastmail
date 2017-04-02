@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.mail.BodyPart;
-import javax.mail.Flags.Flag;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -151,21 +150,21 @@ public class MailTools {
 	 */
 	public static void sortFolders(final ObservableList<TreeItem<MailTreeViewable>> list) {
 		list.sort((i1, i2) -> {
-			if ("INBOX".equals(i1.getValue().getName()))
+			if ("INBOX".equals(i1.getValue().getName())) //$NON-NLS-1$
 				return -1;
-			if ("INBOX".equals(i2.getValue().getName()))
+			if ("INBOX".equals(i2.getValue().getName())) //$NON-NLS-1$
 				return 1;
-			if ("Drafts".equals(i1.getValue().getName()))
+			if ("Drafts".equals(i1.getValue().getName())) //$NON-NLS-1$
 				return -1;
-			if ("Drafts".equals(i2.getValue().getName()))
+			if ("Drafts".equals(i2.getValue().getName())) //$NON-NLS-1$
 				return 1;
-			if ("Sent".equals(i1.getValue().getName()))
+			if ("Sent".equals(i1.getValue().getName())) //$NON-NLS-1$
 				return -1;
-			if ("Sent".equals(i2.getValue().getName()))
+			if ("Sent".equals(i2.getValue().getName())) //$NON-NLS-1$
 				return 1;
-			if ("Trash".equals(i1.getValue().getName()))
+			if ("Trash".equals(i1.getValue().getName())) //$NON-NLS-1$
 				return -1;
-			if ("Trash".equals(i2.getValue().getName()))
+			if ("Trash".equals(i2.getValue().getName())) //$NON-NLS-1$
 				return 1;
 			return i1.getValue().getName().compareTo(i2.getValue().getName());
 		});		

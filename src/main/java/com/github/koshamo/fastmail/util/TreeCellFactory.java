@@ -24,9 +24,6 @@ import javax.mail.MessagingException;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
 
-import javafx.event.ActionEvent;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -61,10 +58,10 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	public void startEdit() {
 		// Account and special folders are not renameable!
 		if (getItem().isAccount() || 
-				"INBOX".equals(getItem().getName()) ||
-				"Drafts".equals(getItem().getName()) || 
-				"Sent".equals(getItem().getName()) ||
-				"Trash".equals(getItem().getName())) {
+				"INBOX".equals(getItem().getName()) || //$NON-NLS-1$
+				"Drafts".equals(getItem().getName()) ||  //$NON-NLS-1$
+				"Sent".equals(getItem().getName()) || //$NON-NLS-1$
+				"Trash".equals(getItem().getName())) { //$NON-NLS-1$
 			return;
 		}
 		super.startEdit();

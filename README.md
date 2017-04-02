@@ -14,6 +14,10 @@ on to suit my needs.
 I am developing on FreeBSD using OpenJDK. 
 So please provide me with feedback for other platforms and compilers.
 
+Version 0.0.4 (HEAD)
+* context menu for mails with functionality, to reply, delete and move messages
+* externalized strings, preparation for internationalization
+
 Version 0.0.3
 * redesigned Mail and Folder integration to get a more flexible and straightforward design
 * Fastmail now can rename email folders

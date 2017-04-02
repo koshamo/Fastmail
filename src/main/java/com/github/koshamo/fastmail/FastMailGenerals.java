@@ -25,10 +25,10 @@ package com.github.koshamo.fastmail;
  *
  */
 public class FastMailGenerals {
-	private static final String applicationName = "Fastmail";
-	private static final String version = "0.0.3";
-	private static final String author = "Dr.-Ing. Jochen Raßler";
-	private static final String license = "GNU GPL 2.0 with Classpath Exception";
+	private static final String applicationName = "Fastmail"; //$NON-NLS-1$
+	private static final String version = "0.0.3"; //$NON-NLS-1$
+	private static final String author = "Dr.-Ing. Jochen Raßler"; //$NON-NLS-1$
+	private static final String license = "GNU GPL 2.0 with Classpath Exception"; //$NON-NLS-1$
 	
 	/**
 	 * Returns the name of this application
