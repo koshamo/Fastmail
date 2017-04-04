@@ -169,32 +169,104 @@ public class MailTools {
 			return i1.getValue().getName().compareTo(i2.getValue().getName());
 		});		
 	}
+	
+	
 	/**
-	 * The method getMessage returns the mail's content in plain text format
-	 * <p>
-	 * as Multipart messages have several body parts, currently the plain text
-	 * body part is chosen. We need some further investigation into this, as
-	 * we are able to display HTML text with webview. 
-	 * See @com.github.koshamo.fastmail.MailContentLister#getBodyContent() where the body parts are read
-	 * 
-	 * @param messageID the message number within the folder
-	 * @return the mail content Data object
+	 * Just in time loading of to addresses of the given message
+	 * @param message	the message to process
+	 * @return			the list of to addresses as array
 	 */
-	public static MailData getMessage(final Message message) {
-
-		MailData md = null;
-		
-		String from = ""; //$NON-NLS-1$
-		String fromName = ""; //$NON-NLS-1$
-		String[] to = null;
-		String[] toName = null;
-		String[] cc = null;
-		String[] ccName = null;
-		String subject = ""; //$NON-NLS-1$
-		String content = ""; //$NON-NLS-1$
-		AttachmentData[] attachments = null;
-
+	public static String[] getToAddresses(final Message message) {
 		try {
+			int toLength = ((InternetAddress[])message.getRecipients(RecipientType.TO)).length;
+			String[] to = new String[toLength];
+			for (int i = 0; i < toLength; i++) {
+				to[i] = ((InternetAddress[])message.getRecipients(RecipientType.TO))[i].getAddress();
+			}
+			return to;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+
+	/**
+	 * Just in time loading of to display names of the given message
+	 * @param message	the message to process
+	 * @return			the list of to display names as array
+	 */
+	public static String[] getToNames(final Message message) {
+		try {
+			int toLength = ((InternetAddress[])message.getRecipients(RecipientType.TO)).length;
+			String[] toName = new String[toLength];
+			for (int i = 0; i < toLength; i++) {
+				toName[i] = ((InternetAddress[])message.getRecipients(RecipientType.TO))[i].getPersonal();
+			}
+			return toName;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Just in time loading of cc addresses of the given message
+	 * @param message	the message to process
+	 * @return			the list of cc addresses as array
+	 */
+	public static String[] getCcAddresses(final Message message) {
+		try {
+			if (message.getRecipients(RecipientType.CC) != null) {
+				int ccLength = ((InternetAddress[])message.getRecipients(RecipientType.CC)).length;
+				String[] cc = new String[ccLength];
+				for (int i = 0; i < ccLength; i++) {
+					cc[i] = ((InternetAddress[])message.getRecipients(RecipientType.CC))[i].getAddress();
+				}
+				return cc;
+			}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Just in time loading of cc display names of the given message
+	 * @param message	the message to process
+	 * @return			the list of cc display names as array
+	 */
+	public static String[] getCcNames(final Message message) {
+		try {
+			if (message.getRecipients(RecipientType.CC) != null) {
+				int ccLength = ((InternetAddress[])message.getRecipients(RecipientType.CC)).length;
+				String[] ccName = new String[ccLength];
+				for (int i = 0; i < ccLength; i++) {
+					ccName[i] = ((InternetAddress[])message.getRecipients(RecipientType.CC))[i].getPersonal();
+				}
+				return ccName;
+			}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Just in time loading of message content (currently only plain text)
+	 * @param message	the message to process
+	 * @return			the message content
+	 */
+	public static String getContent(final Message message) {
+		try {
+			String content = null;
 			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
 				content = (String) message.getContent();
 			} else if (message.isMimeType("text/html")) { //$NON-NLS-1$
@@ -202,31 +274,16 @@ public class MailTools {
 			} else if (message.isMimeType("multipart/*")) { //$NON-NLS-1$
 				Multipart mp = (Multipart)message.getContent();
 				content = getTextBodyContent(mp);
-				if (message.isMimeType("multipart/mixed")) { //$NON-NLS-1$
-					int cnt = mp.getCount();
-					if (cnt > 1) {
-						attachments = new AttachmentData[cnt-1];
-						for (int i = 1; i < cnt; i++) {
-							BodyPart bp = mp.getBodyPart(i); 
-							if (bp.getContent() instanceof InputStream) {
-								attachments[i-1] = new AttachmentData(
-										bp.getFileName(), bp.getSize(), 
-										(InputStream) bp.getContent());
-							} else
-								attachments[i-1] = getAttachmentBodyContent(bp);
-						}
-					}
-				}
 			} else if (message.isMimeType("message/rfc822")) { //$NON-NLS-1$
 				// recursive reading
-				System.out.println("come back to MailTools::getMessage() to fix this");
+				System.out.println("come back to MailTools::getContent() to fix this");
 				System.out.println("ContentType is " + message.getContentType());
 //				MimeMultipart mm = (MimeMultipart) message.getContent();
 //				md = getMessage();
 			} else {
 				System.out.println("this is an unknown message type, " + message.getContentType());
 			}
-		
+			return content;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -234,39 +291,44 @@ public class MailTools {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-				
+		return null;
+	}
+	
+	
+	/**
+	 * Just in time loading of message attachments
+	 * @param message	the message to process
+	 * @return			the attachment data objects as array
+	 */
+	public static AttachmentData[] getAttachments(final Message message) {
 		try {
-			from = ((InternetAddress[]) message.getFrom())[0].getAddress();
-			fromName = ((InternetAddress[]) message.getFrom())[0].getPersonal();
-			int toLength = ((InternetAddress[])message.getRecipients(RecipientType.TO)).length;
-			to = new String[toLength];
-			toName = new String[toLength];
-			for (int i = 0; i < toLength; i++) {
-				to[i] = ((InternetAddress[])message.getRecipients(RecipientType.TO))[i].getAddress();
-				toName[i] = ((InternetAddress[])message.getRecipients(RecipientType.TO))[i].getPersonal();
-			}
-			if (message.getRecipients(RecipientType.CC) != null) {
-				int ccLength = ((InternetAddress[])message.getRecipients(RecipientType.CC)).length;
-				cc = new String[ccLength];
-				ccName = new String[ccLength];
-				for (int i = 0; i < ccLength; i++) {
-					cc[i] = ((InternetAddress[])message.getRecipients(RecipientType.CC))[i].getAddress();
-					ccName[i] = ((InternetAddress[])message.getRecipients(RecipientType.CC))[i].getPersonal();
+			if (message.isMimeType("multipart/mixed")) { //$NON-NLS-1$
+				Multipart mp = (Multipart)message.getContent();
+				int cnt = mp.getCount();
+				if (cnt > 1) {
+					AttachmentData[] attachments = new AttachmentData[cnt-1];
+					for (int i = 1; i < cnt; i++) {
+						BodyPart bp = mp.getBodyPart(i); 
+						if (bp.getContent() instanceof InputStream) {
+							attachments[i-1] = new AttachmentData(
+									bp.getFileName(), bp.getSize(), 
+									(InputStream) bp.getContent());
+						} else
+							attachments[i-1] = getAttachmentBodyContent(bp);
+					}
+					return attachments;
 				}
 			}
-			subject = message.getSubject();
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		if (md == null)
-			md = new MailData(from, fromName, to, toName, cc, ccName , 
-					subject, content, attachments, message);
-
-		return md;
-
+		return null;
 	}
+	
 
 
 	/**

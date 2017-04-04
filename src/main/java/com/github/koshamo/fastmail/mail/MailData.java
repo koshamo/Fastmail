@@ -18,7 +18,11 @@
 
 package com.github.koshamo.fastmail.mail;
 
+import java.time.Instant;
+
 import javax.mail.Message;
+
+import com.github.koshamo.fastmail.util.MailTools;
 
 /**
  * The MailData class is a pure data class to get pure data into
@@ -29,48 +33,57 @@ import javax.mail.Message;
  */
 public final class MailData {
 
+	/*
+	 *  fields that must be available at message construction to be
+	 *  shown in table view
+	 */
 	private final String from;
 	private final String fromName;
-	private final String[] to;
-	private final String[] toName;
-	private final String[] cc;
-	private final String[] ccName;
 	private final String subject;
-	private final String content;
-	private final AttachmentData[] attachments;
+	private final Instant sentDate;
+	private final boolean attached;
 	private final Message message;
+	/*
+	 * fields that can be loaded lazily, which means they only need to be
+	 * fetched from the server, if they are needed by the user
+	 */
+	private String[] to;
+	private String[] toName;
+	private String[] cc;
+	private String[] ccName;
+	private String content;
+	private AttachmentData[] attachments;
+	// the received date can change, e.g. if the message is moved to another folder
+	private Instant receivedDate;	
 
 	
+
 	/**
-	 * Build a new MailData object
+	 * Build a new Mail object using lazy loading. Only fill needed fields
+	 * for displaying in table view.
 	 * 
-	 * @param from	the from address of the mail
-	 * @param to	the to addresses of the mail as array
-	 * @param cc	the cc addresses of the mail as array
-	 * @param subject	the mail's subject
-	 * @param content	the mail's actual message content
-	 * @param attachments	all attachments assigned to this mail
+	 * @param from			the sender's internet address
+	 * @param fromName		the sender's display name
+	 * @param subject		the message's subject
+	 * @param sentDate		the message's sent date 
+	 * @param receivedDate	the message's received date
+	 * @param attached		set, if an attachment is available
+	 * @param message		the message reference
 	 */
-	public MailData(final String from, final String fromName,
-			final String[] to, final String[] toName,
-			final String[] cc, final String[] ccName,
-			final String subject, final String content, 
-			final AttachmentData[] attachments,
+	public MailData (final String from, final String fromName, 
+			final String subject, final Instant sentDate, 
+			final Instant receivedDate, final boolean attached,
 			final Message message) {
-		super();
 		this.from = from;
 		this.fromName = fromName;
-		this.to = to;
-		this.toName = toName;
-		this.cc = cc;
-		this.ccName = ccName;
 		this.subject = subject;
-		this.content = content;
-		this.attachments = attachments;
+		this.sentDate = sentDate;
+		this.receivedDate = receivedDate;
+		this.attached = attached;
 		this.message = message;
 	}
-
-
+	
+	
 	/**
 	 * Get the senders address
 	 * @return	the senders address
@@ -94,6 +107,9 @@ public final class MailData {
 	 * @return	the recipients as array
 	 */
 	public String[] getTo() {
+		if (to == null) {
+			to = MailTools.getToAddresses(message);
+		}
 		return to;
 	}
 	
@@ -102,6 +118,8 @@ public final class MailData {
 	 * @return	the recipients as string
 	 */
 	public String getToAsLine() {
+		if (to == null)
+			to = MailTools.getToAddresses(message);
 		StringBuilder sb = new StringBuilder();
 		for (String str: to)
 			sb.append(str).append(";"); //$NON-NLS-1$
@@ -114,6 +132,8 @@ public final class MailData {
 	 * @return	get the recipients names as array
 	 */
 	public String[] getToName() {
+		if (toName == null)
+			toName = MailTools.getToNames(message);
 		return toName;
 	}
 
@@ -123,6 +143,8 @@ public final class MailData {
 	 * @return	the cc recipients as array
 	 */
 	public String[] getCc() {
+		if (cc == null)
+			cc = MailTools.getCcAddresses(message);
 		return cc;
 	}
 
@@ -132,6 +154,8 @@ public final class MailData {
 	 * @return	the cc recipients as string
 	 */
 	public String getCcAsLine() {
+		if (cc == null)
+			cc = MailTools.getCcAddresses(message);
 		if (cc == null)
 			return ""; //$NON-NLS-1$
 		StringBuilder sb = new StringBuilder();
@@ -146,6 +170,8 @@ public final class MailData {
 	 * @return	get the cc recipients names as array
 	 */
 	public String[] getCcName() {
+		if (ccName == null) 
+			MailTools.getCcNames(message);
 		return ccName;
 	}
 
@@ -164,6 +190,8 @@ public final class MailData {
 	 * @return	the content as string
 	 */
 	public String getContent() {
+		if (content == null)
+			content = MailTools.getContent(message);
 		return content;
 	}
 
@@ -173,6 +201,8 @@ public final class MailData {
 	 * @return	the attachment data object
 	 */
 	public AttachmentData[] getAttachments() {
+		if (attachments == null)
+			attachments = MailTools.getAttachments(message);
 		return attachments;
 	}
 

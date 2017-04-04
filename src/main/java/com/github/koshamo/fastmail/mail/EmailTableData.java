@@ -29,7 +29,6 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
 
-import com.github.koshamo.fastmail.util.MailTools;
 import com.sun.mail.imap.IMAPMessage;
 
 import javafx.beans.property.BooleanProperty;
@@ -57,8 +56,9 @@ import javafx.beans.value.ObservableValue;
 public class EmailTableData implements Comparable<EmailTableData>{
 
 	private SimpleStringProperty subject;
-	private SimpleStringProperty from;
+	private SimpleStringProperty fromName;
 	private SimpleStringProperty fromAddress;
+	// received date may be processed for functional folders (TODO)
 	private Instant receivedDate;
 	private Instant sentDate;
 	private SimpleBooleanProperty attachment;
@@ -86,12 +86,12 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			imapMsg.setPeek(true);
 		}
 		String adr;
+		boolean attachment = false;
 		try {
 			adr = ((InternetAddress[]) msg.getFrom())[0].getPersonal();
 			fromAddress = new SimpleStringProperty(((InternetAddress[]) msg.getFrom())[0].getAddress());
 			if (adr == null || adr.isEmpty())
 				adr = fromAddress.get();
-			boolean attachment = false;
 			if (msg.isMimeType("multipart/mixed")) { //$NON-NLS-1$
 				Multipart mp = (Multipart) msg.getContent();
 				if (mp.getCount() > 1)
@@ -100,7 +100,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			this.subject = new SimpleStringProperty(msg.getSubject()); 
 			if (this.subject.get() == null)
 				this.subject.set(""); //$NON-NLS-1$
-			this.from = new SimpleStringProperty(adr); 
+			this.fromName = new SimpleStringProperty(adr); 
 			this.receivedDate = msg.getReceivedDate().toInstant();
 			this.sentDate = msg.getSentDate().toInstant();
 			this.read = new SimpleBooleanProperty(msg.isSet(Flag.SEEN));
@@ -136,8 +136,8 @@ public class EmailTableData implements Comparable<EmailTableData>{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// TODO: populate the properties using this data object (no code duplication needed)
-		mailData = MailTools.getMessage(msg);
+		mailData = new MailData(getFromAddress(), getFromName(), getSubject(),
+				sentDate, receivedDate, attachment, msg);
 	}
 	
 	
@@ -178,8 +178,8 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	 * @return the sender's displayed email name as String, if available, 
 	 * otherwise the internet email address as String 
 	 */
-	public String getFrom() {
-		return from.get();
+	public String getFromName() {
+		return fromName.get();
 	}
 		
 	/**
@@ -297,7 +297,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		// use negative test with shortcut
 		if (!this.getSentDate().equals(other.getSentDate()) ||
 				!this.getReceivedDate().equals(other.getReceivedDate()) ||
-				!this.getFrom().equals(other.getFrom()) ||
+				!this.getFromName().equals(other.getFromName()) ||
 				!this.getSubject().equals(other.getSubject()))
 			return false;
 		return true;
@@ -309,7 +309,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	 */
 	@Override
 	public int hashCode() {
-		return getSentDate().hashCode() + getFrom().hashCode() 
+		return getSentDate().hashCode() + getFromName().hashCode() 
 				+ getSubject().hashCode();
 	}
 
