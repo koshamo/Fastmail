@@ -41,7 +41,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
-import com.github.koshamo.fastmail.util.MailTools;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;

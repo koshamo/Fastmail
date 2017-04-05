@@ -22,8 +22,6 @@ import java.time.Instant;
 
 import javax.mail.Message;
 
-import com.github.koshamo.fastmail.util.MailTools;
-
 /**
  * The MailData class is a pure data class to get pure data into
  * the GUI without dealing with JavaMail API in the GUI

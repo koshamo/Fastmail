@@ -22,6 +22,7 @@ import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.mail.FolderItem;
+import com.github.koshamo.fastmail.mail.MailTools;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
 
 import javafx.scene.control.TextField;

@@ -23,8 +23,6 @@ import java.util.List;
 
 import javax.mail.Folder;
 
-import com.github.koshamo.fastmail.util.MailTools;
-
 import javafx.collections.ObservableList;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;

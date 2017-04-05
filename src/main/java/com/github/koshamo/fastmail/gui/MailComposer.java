@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.mail.MailAccount;
 import com.github.koshamo.fastmail.mail.MailData;
-import com.github.koshamo.fastmail.util.MailTools;
+import com.github.koshamo.fastmail.mail.MailTools;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;

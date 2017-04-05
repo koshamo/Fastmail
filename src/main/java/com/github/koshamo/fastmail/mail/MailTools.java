@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail.util;
+package com.github.koshamo.fastmail.mail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,10 +29,6 @@ import javax.mail.Multipart;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMultipart;
-
-import com.github.koshamo.fastmail.mail.AttachmentData;
-import com.github.koshamo.fastmail.mail.MailData;
-import com.github.koshamo.fastmail.mail.MailTreeViewable;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
