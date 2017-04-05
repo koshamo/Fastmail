@@ -33,6 +33,7 @@ import com.github.koshamo.fastmail.mail.MailAccountData;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
 import com.github.koshamo.fastmail.util.DateCellComparator;
 import com.github.koshamo.fastmail.util.DateCellFactory;
+import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fastmail.util.TreeCellFactory;
 
@@ -65,6 +66,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  * class FastGui is the main class for the GUI
@@ -634,6 +636,11 @@ public class FastGui extends Application {
 		AnchorPane.setLeftAnchor(lbl, Double.valueOf(5.0));
 		AnchorPane.setRightAnchor(progressBar, Double.valueOf(5.0));
 		anchor.getChildren().addAll(lbl, progressBar);
+		// the message consumer thread to populate the status bar
+		MessageConsumer consumer = 
+				new MessageConsumer(lbl.textProperty(), progressBar.progressProperty());
+		consumer.setPeriod(Duration.seconds(5));
+		consumer.start();
 		overallPane.getChildren().add(anchor);
 	}
 
