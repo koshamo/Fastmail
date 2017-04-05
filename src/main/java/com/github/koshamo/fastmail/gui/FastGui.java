@@ -50,6 +50,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
@@ -59,6 +60,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -625,10 +627,14 @@ public class FastGui extends Application {
 	 * @param overallPane this is the main windows layout container
 	 */
 	private void buildStatusLine(final VBox overallPane) {
-		HBox hbox = new HBox(8);
+		AnchorPane anchor = new AnchorPane();
 		Label lbl = new Label(i18n.getString("entry.status")); //$NON-NLS-1$
-		hbox.getChildren().addAll(lbl);
-		overallPane.getChildren().add(hbox);
+		ProgressBar progressBar = new ProgressBar();
+		progressBar.setProgress(0.0);
+		AnchorPane.setLeftAnchor(lbl, Double.valueOf(5.0));
+		AnchorPane.setRightAnchor(progressBar, Double.valueOf(5.0));
+		anchor.getChildren().addAll(lbl, progressBar);
+		overallPane.getChildren().add(anchor);
 	}
 
 }
