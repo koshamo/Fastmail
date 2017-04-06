@@ -41,6 +41,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
+import com.github.koshamo.fastmail.util.MessageItem;
+import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;
@@ -280,6 +282,8 @@ public class MailAccount implements MailTreeViewable{
 			final List<File> attachments, final Message message) {
 		MimeMessage msg;
 		Message m;
+		MessageItem mItem = new MessageItem("Sending Mail", 0.0, MessageItem.MessageType.WORK);
+		MessageMarket.getInstance().produceMessage(mItem);
 		try {
 			if (message != null) {
 				if (message instanceof MimeMessage) 
@@ -317,6 +321,7 @@ public class MailAccount implements MailTreeViewable{
 				@Override
 				protected Void call() throws Exception {
 					Transport.send(msg, data.getUsername(), data.getPassword());
+					mItem.done();
 					return null;
 				}
 			});
