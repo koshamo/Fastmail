@@ -30,13 +30,12 @@ import javafx.beans.property.StringProperty;
  */
 public class MessageConsumer extends AnimationTimer {
 
-	/* package private */
-	StringProperty text;
-	DoubleProperty progress;
-	MessageMarket market;
+	private StringProperty text;
+	private DoubleProperty progress;
+	private MessageMarket market;
 	
-	MessageItem currentItem;
-	MessageItem tmpItem;
+	private MessageItem currentItem;
+	private MessageItem tmpItem;
 	
 	public MessageConsumer(StringProperty text, DoubleProperty progress) {
 		this.text = text;

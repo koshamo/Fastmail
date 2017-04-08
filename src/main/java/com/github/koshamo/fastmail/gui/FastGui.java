@@ -231,6 +231,7 @@ public class FastGui extends Application {
 	 * 
 	 * @param overallPane this is the main windows layout container
 	 */
+	@SuppressWarnings("unused")
 	private void buildButtonPane(final VBox overallPane) {
 		HBox hbox = new HBox();
 		// NEW button
@@ -477,6 +478,7 @@ public class FastGui extends Application {
 		return delete;
 	}
 	
+	@SuppressWarnings("static-method")
 	private MenuItem addMoveToItem(EmailTableData mail, FolderItem target) {
 		MenuItem move = new MenuItem(target.getName());
 		move.setOnAction(ev -> {
@@ -555,6 +557,7 @@ public class FastGui extends Application {
 	/**
 	 * Reply Mail functionality, used for button and context menu
 	 */
+	@SuppressWarnings("unused")
 	private void replyMail() {
 		TreeItem<MailTreeViewable> treeItem = 
 				accountTree.getSelectionModel().getSelectedItem(); 
@@ -579,6 +582,7 @@ public class FastGui extends Application {
 	/**
 	 * Reply All functionality, used by button and context menu
 	 */
+	@SuppressWarnings("unused")
 	private void replyAllMail() {
 		TreeItem<MailTreeViewable> treeItem = 
 				accountTree.getSelectionModel().getSelectedItem(); 
@@ -627,9 +631,10 @@ public class FastGui extends Application {
 	 * 
 	 * @param overallPane this is the main windows layout container
 	 */
+	@SuppressWarnings("static-method")
 	private void buildStatusLine(final VBox overallPane) {
 		AnchorPane anchor = new AnchorPane();
-		Label lbl = new Label(i18n.getString("entry.status")); //$NON-NLS-1$
+		Label lbl = new Label();
 		ProgressBar progressBar = new ProgressBar();
 		progressBar.setProgress(0.0);
 		AnchorPane.setLeftAnchor(lbl, Double.valueOf(5.0));

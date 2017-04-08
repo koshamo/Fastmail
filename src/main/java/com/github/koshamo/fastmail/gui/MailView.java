@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import javax.mail.Folder;
@@ -32,6 +33,8 @@ import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.mail.AttachmentData;
 import com.github.koshamo.fastmail.mail.MailData;
+import com.github.koshamo.fastmail.util.MessageItem;
+import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;
@@ -124,16 +127,32 @@ public class MailView extends StackPane {
 							data.getMessage().getFolder().open(Folder.READ_WRITE);
 						if (is == null)
 							return null;
-						BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile));
-						byte[] pipe = new byte[1000];
-						while (is.read(pipe) > 0)
-							bos.write(pipe);
-						bos.close();
+						// Message status
+						MessageItem mItem = 
+								new MessageItem(
+										MessageFormat.format(i18n.getString("entry.saveattachment"), outputFile.getName()),  //$NON-NLS-1$
+										0.0, MessageItem.MessageType.PROGRESS);
+						MessageMarket.getInstance().produceMessage(mItem);
+						int fileSize = (data.getAttachments())[item].getSize();
+						int counter = 0; 
+						int cur = 0;
+						try(BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+							byte[] pipe = new byte[1000];
+							while ((cur = is.read(pipe)) > 0) {
+								counter += cur;
+								bos.write(pipe);
+								mItem.updateProgress((double) counter / fileSize);
+							}
+						} catch (IOException e) {
+							mItem.done();
+							mItem = new MessageItem(
+									MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
+									, 0.0, MessageItem.MessageType.EXCEPTION);
+							MessageMarket.getInstance().produceMessage(mItem);
+						}
+						mItem.done();
 						data.getMessage().getFolder().close(true);
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (MessagingException e) {
@@ -308,6 +327,6 @@ public class MailView extends StackPane {
 	private ObservableList<String> attachments;
 	MailData data;
 	
-	private ResourceBundle i18n;
+	ResourceBundle i18n;
 	
 }
