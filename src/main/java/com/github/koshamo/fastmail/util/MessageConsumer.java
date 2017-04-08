@@ -20,16 +20,16 @@ package com.github.koshamo.fastmail.util;
 
 import com.github.koshamo.fastmail.util.MessageItem.MessageType;
 
+import javafx.animation.AnimationTimer;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
-import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 
 /**
  * @author jochen
  *
  */
-public class MessageConsumer extends ScheduledService<Void> {
+public class MessageConsumer extends AnimationTimer {
 
 	/* package private */
 	StringProperty text;
@@ -45,36 +45,29 @@ public class MessageConsumer extends ScheduledService<Void> {
 		this.market = MessageMarket.getInstance();
 	}
 	
-	
+
 	/* (non-Javadoc)
-	 * @see javafx.concurrent.Service#createTask()
+	 * @see javafx.animation.AnimationTimer#handle(long)
 	 */
 	@Override
-	protected Task<Void> createTask() {
-		return new Task<Void>() {
-			@Override
-			protected Void call() throws Exception {
-				if (currentItem != null && currentItem.isProcessed()) {
-					text.unbind();
-					text.set(""); //$NON-NLS-1$
-					progress.unbind();
-					progress.set(0.0);
-				}
-				if (currentItem == null && tmpItem == null)
-					currentItem = market.consumeMessage();
-				if (currentItem != null) {
-					text.bind(currentItem.getMessageProperty());
-					if (currentItem.getType() != MessageType.WORK)
-						progress.bind(currentItem.getProgressProperty());
-					else
-						// set indeterminate
-						progress.set(-1.0);
-				}
-
-
-				return null;
-			}
-		};
+	public void handle(long now) {
+		if (currentItem != null && currentItem.isProcessed()) {
+			text.unbind();
+			text.set(""); //$NON-NLS-1$
+			progress.unbind();
+			progress.set(0.0);
+			currentItem = null;
+		}
+		if (currentItem == null && tmpItem == null)
+			currentItem = market.consumeMessage();
+		if (currentItem != null) {
+			text.bind(currentItem.getMessageProperty());
+			if (currentItem.getType() != MessageType.WORK)
+				progress.bind(currentItem.getProgressProperty());
+			else
+				// set indeterminate
+				progress.set(-1.0);
+		}
 	}
 
 }

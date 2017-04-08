@@ -94,7 +94,7 @@ public class MessageItem {
 		if (processed)
 			return processed;
 		if (type == MessageType.EXCEPTION)
-			if (Instant.now().isAfter(timestamp.minusSeconds(15))) {
+			if (Instant.now().isAfter(timestamp.minusSeconds(20))) {
 				processed = true;
 				return processed;
 			}
@@ -104,7 +104,7 @@ public class MessageItem {
 				return processed;
 			}
 		if (type == MessageType.INFORMATION)
-			if (Instant.now().isAfter(timestamp.minusSeconds(15))) {
+			if (Instant.now().isAfter(timestamp.minusSeconds(30))) {
 				processed = true;
 				return processed;
 			}

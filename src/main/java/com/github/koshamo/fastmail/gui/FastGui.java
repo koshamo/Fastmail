@@ -639,7 +639,6 @@ public class FastGui extends Application {
 		// the message consumer thread to populate the status bar
 		MessageConsumer consumer = 
 				new MessageConsumer(lbl.textProperty(), progressBar.progressProperty());
-		consumer.setPeriod(Duration.seconds(5));
 		consumer.start();
 		overallPane.getChildren().add(anchor);
 	}
