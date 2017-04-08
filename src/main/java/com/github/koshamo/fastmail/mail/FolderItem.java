@@ -55,7 +55,7 @@ public class FolderItem implements MailTreeViewable {
 	public FolderItem(final Folder folder) {
 		this.folder = folder;
 		
-		if ("INBOX".equals(folder.getFullName())) {
+		if ("INBOX".equals(folder.getFullName())) { //$NON-NLS-1$
 			isInbox = true;
 			// get all the content of this accounts inbox and store it in the list
 			inbox = FXCollections.observableList(new Vector<EmailTableData>());

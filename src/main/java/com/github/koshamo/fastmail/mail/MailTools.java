@@ -382,7 +382,7 @@ public class MailTools {
 		try {
 				Object obj = bp.getContent();
 				if (obj instanceof String) {
-					;	// do nothing with String attachment
+						// do nothing with String attachment
 				} 
 				else if (obj instanceof MimeMultipart) {
 					System.out.println("Multipart");

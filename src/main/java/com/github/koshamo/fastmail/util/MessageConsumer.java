@@ -23,7 +23,6 @@ import com.github.koshamo.fastmail.util.MessageItem.MessageType;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
-import javafx.concurrent.Task;
 
 /**
  * @author jochen

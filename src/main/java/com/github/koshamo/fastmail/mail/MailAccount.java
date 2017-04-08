@@ -282,7 +282,7 @@ public class MailAccount implements MailTreeViewable{
 			final List<File> attachments, final Message message) {
 		MimeMessage msg;
 		Message m;
-		MessageItem mItem = new MessageItem("Sending Mail", 0.0, MessageItem.MessageType.WORK);
+		MessageItem mItem = new MessageItem(i18n.getString("entry.sendmail"), 0.0, MessageItem.MessageType.WORK); //$NON-NLS-1$
 		MessageMarket.getInstance().produceMessage(mItem);
 		try {
 			if (message != null) {
