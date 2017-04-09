@@ -29,7 +29,6 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import javax.mail.Folder;
-import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.mail.AttachmentData;
 import com.github.koshamo.fastmail.mail.MailData;
@@ -122,39 +121,43 @@ public class MailView extends StackPane {
 			Thread t = new Thread(new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
-					try (InputStream is = (data.getAttachments())[item].getInputStream()) {
-						if (!data.getMessage().getFolder().isOpen())
-							data.getMessage().getFolder().open(Folder.READ_WRITE);
-						if (is == null)
-							return null;
-						// Message status
-						MessageItem mItem = new MessageItem(
-								MessageFormat.format(i18n.getString("entry.saveattachment"), outputFile.getName()),  //$NON-NLS-1$
-								0.0, MessageItem.MessageType.PROGRESS);
-						MessageMarket.getInstance().produceMessage(mItem);
-						int fileSize = (data.getAttachments())[item].getSize();
-						int counter = 0; 
-						int cur = 0;
-						try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) { 
-							byte[] pipe = new byte[1000];
-							while ((cur = is.read(pipe)) > 0) {
-								counter += cur;
-								bos.write(pipe);
-								mItem.updateProgress((double) counter / fileSize);
-							}
-						}catch (IOException e) {
-							mItem.done();
-							mItem = new MessageItem(
-									MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
-									, 0.0, MessageItem.MessageType.EXCEPTION);
-							MessageMarket.getInstance().produceMessage(mItem);
+					@SuppressWarnings("resource")
+					InputStream is = (data.getAttachments())[item].getInputStream();
+					if (!data.getMessage().getFolder().isOpen())
+						data.getMessage().getFolder().open(Folder.READ_WRITE);
+					if (is == null)
+						return null;
+					// Message status
+					MessageItem mItem = new MessageItem(
+							MessageFormat.format(i18n.getString("entry.saveattachment"), outputFile.getName()),  //$NON-NLS-1$
+							0.0, MessageItem.MessageType.PROGRESS);
+					MessageMarket.getInstance().produceMessage(mItem);
+					int fileSize = (data.getAttachments())[item].getSize();
+					int counter = 0; 
+					int cur = 0;
+					try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) { 
+						byte[] pipe = new byte[1000];
+						while ((cur = is.read(pipe)) > 0) {
+							counter += cur;
+							bos.write(pipe);
+							mItem.updateProgress((double) counter / fileSize);
 						}
-						mItem.done();
-						data.getMessage().getFolder().close(true);
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}  
+						mItem.done();
+						mItem = new MessageItem(
+								MessageFormat.format(i18n.getString("exception.savefile"), e.getMessage()) //$NON-NLS-1$
+								, 0.0, MessageItem.MessageType.EXCEPTION);
+						MessageMarket.getInstance().produceMessage(mItem);
+					}catch (IOException e) {
+						mItem.done();
+						mItem = new MessageItem(
+								MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
+								, 0.0, MessageItem.MessageType.EXCEPTION);
+						MessageMarket.getInstance().produceMessage(mItem);
+					}
+					mItem.done();
+					is.close();
+					data.getMessage().getFolder().close(true);
 					return null;
 				}
 			});
@@ -186,39 +189,42 @@ public class MailView extends StackPane {
 					for (AttachmentData ad : data.getAttachments())
 						totalFileSize += ad.getSize();
 					for (int i = 0; i < data.getAttachments().length; i++) {
-						try (InputStream is = (data.getAttachments())[i].getInputStream()) {
-							if (!data.getMessage().getFolder().isOpen())
-								data.getMessage().getFolder().open(Folder.READ_WRITE);
-							if (is == null)
-								return null;
-							mItem.updateMessage(MessageFormat.format(
-									i18n.getString("entry.saveallattachment"),  //$NON-NLS-1$
-									(data.getAttachments())[i].getFileName(), 
-									Integer.valueOf(i), 
-									Integer.valueOf(data.getAttachments().length)));
-							try (BufferedOutputStream bos = new BufferedOutputStream(
-									new FileOutputStream(
-											new File(outputDir.toString() + File.separator + 
-													data.getAttachments()[i].getFileName())))) {
-								byte[] pipe = new byte[1000];
-								while ((cur = is.read(pipe)) > 0) {
-									counter += cur;
-									bos.write(pipe);
-									mItem.updateProgress((double) counter / totalFileSize);
-								}
-							} catch (IOException e) {
-								mItem.done();
-								mItem = new MessageItem(
-										MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
-										, 0.0, MessageItem.MessageType.EXCEPTION);
-								MessageMarket.getInstance().produceMessage(mItem);
+						InputStream is = (data.getAttachments())[i].getInputStream();
+						if (!data.getMessage().getFolder().isOpen())
+							data.getMessage().getFolder().open(Folder.READ_WRITE);
+						if (is == null)
+							return null;
+						mItem.updateMessage(MessageFormat.format(
+								i18n.getString("entry.saveallattachment"),  //$NON-NLS-1$
+								(data.getAttachments())[i].getFileName(), 
+								Integer.valueOf(i), 
+								Integer.valueOf(data.getAttachments().length)));
+						try (BufferedOutputStream bos = new BufferedOutputStream(
+								new FileOutputStream(
+										new File(outputDir.toString() + File.separator + 
+												data.getAttachments()[i].getFileName())))) {
+							byte[] pipe = new byte[1000];
+							while ((cur = is.read(pipe)) > 0) {
+								counter += cur;
+								bos.write(pipe);
+								mItem.updateProgress((double) counter / totalFileSize);
 							}
-							mItem.done();
-							data.getMessage().getFolder().close(true);
 						} catch (FileNotFoundException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} 
+							mItem.done();
+							mItem = new MessageItem(
+									MessageFormat.format(i18n.getString("exception.savefile"), e.getMessage()) //$NON-NLS-1$
+									, 0.0, MessageItem.MessageType.EXCEPTION);
+							MessageMarket.getInstance().produceMessage(mItem);
+						} catch (IOException e) {
+							mItem.done();
+							mItem = new MessageItem(
+									MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
+									, 0.0, MessageItem.MessageType.EXCEPTION);
+							MessageMarket.getInstance().produceMessage(mItem);
+						}
+						mItem.done();
+						is.close();
+						data.getMessage().getFolder().close(true);
 					}
 					return null;
 				}
