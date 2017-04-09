@@ -81,6 +81,10 @@ public class MessageItem {
 		progress.set(current);
 	}
 	
+	public void updateMessage(String message) {
+		this.message.set(message);
+	}
+	
 	public MessageType getType() {
 		return type;
 	}

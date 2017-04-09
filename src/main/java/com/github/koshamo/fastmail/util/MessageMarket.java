@@ -74,7 +74,7 @@ public class MessageMarket {
 	 * the internal list. So you cannot consume it twice!
 	 * @return	the MessageItem to consume
 	 */
-	public synchronized MessageItem consumeMessage() {
+	public MessageItem consumeMessage() {
 		return kanban.poll();
 	}
 }
