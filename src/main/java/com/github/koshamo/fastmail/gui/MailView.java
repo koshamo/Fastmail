@@ -121,7 +121,7 @@ public class MailView extends StackPane {
 			Thread t = new Thread(new Task<Void>() {
 				@Override
 				protected Void call() throws Exception {
-					@SuppressWarnings("resource")
+					// wrong warning from eclipse, ignore it
 					InputStream is = (data.getAttachments())[item].getInputStream();
 					if (!data.getMessage().getFolder().isOpen())
 						data.getMessage().getFolder().open(Folder.READ_WRITE);
@@ -189,6 +189,7 @@ public class MailView extends StackPane {
 					for (AttachmentData ad : data.getAttachments())
 						totalFileSize += ad.getSize();
 					for (int i = 0; i < data.getAttachments().length; i++) {
+						// wrong warning from eclipse, ignore it
 						InputStream is = (data.getAttachments())[i].getInputStream();
 						if (!data.getMessage().getFolder().isOpen())
 							data.getMessage().getFolder().open(Folder.READ_WRITE);
