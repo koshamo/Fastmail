@@ -330,7 +330,7 @@ public class FastGui extends Application {
 		subjectCol.setMinWidth(400);
 		// FROM column
 		TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
-		fromCol.setCellValueFactory(new PropertyValueFactory<>("from")); //$NON-NLS-1$
+		fromCol.setCellValueFactory(new PropertyValueFactory<>("fromName")); //$NON-NLS-1$
 		fromCol.setMinWidth(250);
 		// DATE column
 		TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
