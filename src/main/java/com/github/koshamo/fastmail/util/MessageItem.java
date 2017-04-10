@@ -60,39 +60,99 @@ public class MessageItem {
 	private boolean processed;
 	private Instant timestamp;
 	
+	/**
+	 * Create a new MessageItem to be consumed by a consumer to show it 
+	 * in the UI.
+	 * <p>
+	 * The String represents the actual message, which may be decorated with
+	 * detailed information using a MessagerFormat tool.
+	 * <p>
+	 * The progress is only used to show a progress bar, e.g. to show the progress
+	 * of a download process. Set it to 0.0 if not needed.
+	 * <p>
+	 * The type indicates how this message item will be handled. Information, Work,
+	 * and Progress types are interruptible by Exceptions and Errors, which will
+	 * have a higher priority. The consumer is responsible to implement
+	 * interruption of low priority items.
+	 * 
+	 * @param message	the actual message to display
+	 * @param progress	the value of the progress bar. Values between 0.0 and 
+	 * 1.0 are valid. Set it to 0.0 if not used
+	 * @param type		the message type
+	 */
 	public MessageItem(final String message, final double progress, 
 			final MessageType type) {
 		this.message = new SimpleStringProperty(message);
+		// TODO: check range
 		this.progress = new SimpleDoubleProperty(progress);
 		this.type = type;
 		this.processed = false;
 	}
 	
+	/**
+	 * The Message Items String representation as property will be returned. 
+	 * This is due the changeable status of the String representation 
+	 * @return	the message's String representation as property
+	 */
 	public StringProperty getMessageProperty() {
 		timestamp = Instant.now();
 		return message;
 	}
 	
+	/**
+	 * The progress property is used to update the progress bar.
+	 * @return	the progress of the current process as double property
+	 */
 	public DoubleProperty getProgressProperty() {
 		return progress;
 	}
 	
+	/**
+	 * The producer may set the progress property either by using the property
+	 * or just set a new value with this method, which should be convenient for
+	 * most cases.
+	 * @param current	the current progress value, range between 0.0 and 1.0
+	 */
 	public void updateProgress(double current) {
+		// TODO: check range
 		progress.set(current);
 	}
 	
+	/**
+	 * The producer may set the message representation either by using the 
+	 * property or just set a new String with this method, which should be
+	 * convenient for most cases
+	 * @param message	the new String representation of the message item
+	 */
 	public void updateMessage(String message) {
 		this.message.set(message);
 	}
 	
+	/**
+	 * Get the type of the message item
+	 * @return	the message tpye
+	 */
 	public MessageType getType() {
 		return type;
 	}
 	
+	/**
+	 * Indicate that this message item is done. 
+	 * <p>
+	 * This method should be used for messages of type WORK and PROGRESS, 
+	 * as the former is indeterminate and the latter uses double values 
+	 * for the progress. Indicated file sizes of attachments may differ 
+	 * from real file sizes, so use this method to be sure the message item
+	 * is finalized.  
+	 */
 	public void done() {
 		processed = true;
 	}
 	
+	/**
+	 * Check if this message item has been processed
+	 * @return	the processed status 
+	 */
 	public boolean isProcessed() {
 		if (processed)
 			return processed;
