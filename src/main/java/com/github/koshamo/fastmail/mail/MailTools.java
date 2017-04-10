@@ -404,6 +404,7 @@ public class MailTools {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		// eclipse issue: is doesn't need to be closed
 		return new AttachmentData(fileName, size, is);
 	}
 
