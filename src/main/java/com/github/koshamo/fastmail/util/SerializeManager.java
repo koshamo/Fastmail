@@ -76,9 +76,11 @@ public class SerializeManager {
 			new File(homeDir + settingsPath).mkdirs();
 			try {
 				file.createNewFile();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (@SuppressWarnings("unused") IOException e) {
+				MessageItem mItem = new MessageItem(
+						i18nTexts.getString("exception.createfile"),  //$NON-NLS-1$
+						0.0, MessageItem.MessageType.EXCEPTION);
+				MessageMarket.getInstance().produceMessage(mItem);
 			}
 		}
 		Cipher cipher = getCipher(Cipher.ENCRYPT_MODE);
@@ -89,13 +91,17 @@ public class SerializeManager {
 			oos.flush();
 			oos.writeObject(mailAccounts);
 			oos.flush();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (@SuppressWarnings("unused") FileNotFoundException e) {
+			MessageItem mItem = new MessageItem(
+					i18nTexts.getString("exception.savefile"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (@SuppressWarnings("unused") IOException e) {
+			MessageItem mItem = new MessageItem(
+					i18nTexts.getString("exception.savefile"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 			return false;
 		} 
 		return true;
@@ -106,6 +112,7 @@ public class SerializeManager {
 	 * 
 	 * @return true if successful, false otherwise
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean deserialize() {
 		File file = new File(homeDir + settingsPath + settingsFile);
 		Cipher cipher = getCipher(Cipher.DECRYPT_MODE);
@@ -115,17 +122,21 @@ public class SerializeManager {
 								new BufferedInputStream(
 										new FileInputStream(file)), cipher))) {
 			mailAccounts = (Vector<MailAccountData>) ois.readObject();
-		} catch (FileNotFoundException e) {
+		} catch (@SuppressWarnings("unused") FileNotFoundException e) {
 			// should be default case for newly installed programs
 			System.out.println(getLocaleMessages().getString("info.newcomer")); //$NON-NLS-1$
 			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (@SuppressWarnings("unused") IOException e) {
+			MessageItem mItem = new MessageItem(
+					i18nTexts.getString("exception.readfile"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 			return false;
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (@SuppressWarnings("unused") ClassNotFoundException e) {
+			MessageItem mItem = new MessageItem(
+					i18nTexts.getString("exception.classnotfound"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 			return false;
 		} 
 		return true;
@@ -213,15 +224,21 @@ public class SerializeManager {
 		try {
 			cipher = Cipher.getInstance("Blowfish"); //$NON-NLS-1$
 			cipher.init(mode, key64);
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (@SuppressWarnings("unused") NoSuchAlgorithmException e) {
+			MessageItem mItem = new MessageItem(
+					i18nTexts.getString("exception.ciphering"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
+		} catch (@SuppressWarnings("unused") NoSuchPaddingException e) {
+			MessageItem mItem = new MessageItem(
+					i18nTexts.getString("exception.ciphering"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
+		} catch (@SuppressWarnings("unused") InvalidKeyException e) {
+			MessageItem mItem = new MessageItem(
+					i18nTexts.getString("exception.ciphering"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return cipher;
 	}

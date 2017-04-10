@@ -26,6 +26,7 @@ import javafx.application.Platform;
 
 public class Fastmail {
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SerializeManager manager = SerializeManager.getInstance();
 		manager.deserialize();
