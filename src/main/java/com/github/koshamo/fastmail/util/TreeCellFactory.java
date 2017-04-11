@@ -18,6 +18,8 @@
 
 package com.github.koshamo.fastmail.util;
 
+import java.text.MessageFormat;
+
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 
@@ -162,8 +164,12 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 					FolderItem newFolderItem = new FolderItem(newFolder);
 					commitEdit(newFolderItem);
 				} catch (MessagingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					MessageItem mItem = new MessageItem(
+							MessageFormat.format(
+									SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+									e.getMessage()),
+							0.0, MessageItem.MessageType.EXCEPTION);
+					MessageMarket.getInstance().produceMessage(mItem);
 				}
 			}
 		});

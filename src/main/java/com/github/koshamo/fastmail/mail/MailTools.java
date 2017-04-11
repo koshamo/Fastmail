@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail.mail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -29,6 +30,10 @@ import javax.mail.Multipart;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMultipart;
+
+import com.github.koshamo.fastmail.util.MessageItem;
+import com.github.koshamo.fastmail.util.MessageMarket;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
@@ -88,9 +93,11 @@ public class MailTools {
 		for (int i = 0; i < adr.length; i++) {
 			try {
 				inetAdr[i] = new InternetAddress(adr[i]);
-			} catch (AddressException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (@SuppressWarnings("unused") AddressException e) {
+				MessageItem mItem = new MessageItem(
+						SerializeManager.getLocaleMessages().getString("error.mailaddress"), //$NON-NLS-1$
+						0.0, MessageItem.MessageType.ERROR);
+				MessageMarket.getInstance().produceMessage(mItem);
 			}
 		}
 		return inetAdr;
@@ -181,8 +188,12 @@ public class MailTools {
 			}
 			return to;
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -202,8 +213,12 @@ public class MailTools {
 			}
 			return toName;
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -225,8 +240,12 @@ public class MailTools {
 				return cc;
 			}
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -248,8 +267,12 @@ public class MailTools {
 				return ccName;
 			}
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -281,11 +304,19 @@ public class MailTools {
 			}
 			return content;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -316,11 +347,19 @@ public class MailTools {
 				}
 			}
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -359,11 +398,19 @@ public class MailTools {
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return result;
 	}
@@ -398,11 +445,19 @@ public class MailTools {
 				} else
 					System.out.println("Object: " + obj.getClass());
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		// eclipse issue: is doesn't need to be closed
 		return new AttachmentData(fileName, size, is);
