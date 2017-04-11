@@ -19,6 +19,8 @@
 package com.github.koshamo.fastmail.mail;
 
 import java.lang.ref.SoftReference;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.mail.Flags;
@@ -26,6 +28,10 @@ import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
+import com.github.koshamo.fastmail.util.MessageItem;
+import com.github.koshamo.fastmail.util.MessageMarket;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,9 +57,12 @@ public class FolderItem implements MailTreeViewable {
 	private final boolean isInbox;
 	private SoftReference<ObservableList<EmailTableData>> folderContent = null;
 	private FolderSynchronizerTask fst;
+	
+	private final ResourceBundle i18n;
 
 	public FolderItem(final Folder folder) {
 		this.folder = folder;
+		i18n = SerializeManager.getLocaleMessages();
 		
 		if ("INBOX".equals(folder.getFullName())) { //$NON-NLS-1$
 			isInbox = true;
@@ -118,8 +127,11 @@ public class FolderItem implements MailTreeViewable {
 		try {
 			return folder.getParent();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -150,8 +162,11 @@ public class FolderItem implements MailTreeViewable {
 				f.close(true);
 			return folder.renameTo(f);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 			return false;
 		}
 	}
@@ -172,8 +187,11 @@ public class FolderItem implements MailTreeViewable {
 			deleted = true;
 			f.close(true);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		
 		if (deleted) {
@@ -192,8 +210,11 @@ public class FolderItem implements MailTreeViewable {
 				folder.close(true);
 			folder.delete(true);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		// TODO: FolderSynchronizer still throws exception after folder deletion
 		fst.stop();
@@ -208,8 +229,11 @@ public class FolderItem implements MailTreeViewable {
 			// delete message in original folder
 			mail.setFlag(Flag.DELETED, true);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 	}
 	

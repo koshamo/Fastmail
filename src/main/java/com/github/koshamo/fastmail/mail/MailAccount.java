@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail.mail;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -69,10 +70,7 @@ public class MailAccount implements MailTreeViewable{
 	private Session session;
 	private Store store;
 	
-	// stores the folders within the mail account
-	// TODO: think about fetching these dynamically, but maybe this will be done by
-	// the to be implemented method to watch the account...
-	private Folder[] folders;
+	// stores the parent folder within the mail account
 	private Folder parentFolder; 
 
 	private AccountFolderWatcher accountFolderWatcher;
@@ -80,11 +78,6 @@ public class MailAccount implements MailTreeViewable{
 	private TreeItem<MailTreeViewable> accountTreeItem;
 	
 	private static ResourceBundle i18n;
-	
-	/* InboxWatcher detects new Messages at startup and adds mails to inbox redundant.
-	 * This can be avoided, if InboxWatcher checks, if inbox has been initialized.
-	 */
-	private boolean setup;
 	
 
 	/**
@@ -103,7 +96,6 @@ public class MailAccount implements MailTreeViewable{
 	 * this method does the actual work for the constructor
 	 */
 	private void buildConnection() {
-		setup = false;
 		props = new Properties();
 		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
 			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
@@ -112,16 +104,20 @@ public class MailAccount implements MailTreeViewable{
 		props.setProperty("mail.smtp.starttls.enable", new Boolean(data.isTls()).toString()); //$NON-NLS-1$
 		session = Session.getInstance(props);
 		store = null;
-		folders = null;
 		try {
 			store = session.getStore(data.getInboxType().toLowerCase());
 			store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
-		} catch (NoSuchProviderException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (@SuppressWarnings("unused") NoSuchProviderException e) {
+			MessageItem mItem = new MessageItem(
+					i18n.getString("exception.provider"),  //$NON-NLS-1$
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 	}
 	
@@ -172,11 +168,11 @@ public class MailAccount implements MailTreeViewable{
 		try {
 			store = session.getStore(data.getInboxType().toLowerCase());
 			store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
-		} catch (NoSuchProviderException e) {
+		} catch (@SuppressWarnings("unused") NoSuchProviderException e) {
 			return i18n.getString("error.URL"); //$NON-NLS-1$
-		} catch (AuthenticationFailedException e) {
+		} catch (@SuppressWarnings("unused") AuthenticationFailedException e) {
 			return i18n.getString("error.username"); //$NON-NLS-1$
-		} catch (IllegalStateException e) {
+		} catch (@SuppressWarnings("unused") IllegalStateException e) {
 			return i18n.getString("error.connected"); //$NON-NLS-1$
 		} catch (MessagingException e) {
 			return i18n.getString("error.connected") + e.getMessage(); //$NON-NLS-1$
@@ -202,11 +198,13 @@ public class MailAccount implements MailTreeViewable{
 	public Folder[] getFolders() {
 		try {
 			parentFolder = store.getDefaultFolder();
-			folders = parentFolder.list();
-			return folders;
+			return parentFolder.list();
 		} catch(MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		return null;
 	}
@@ -222,8 +220,11 @@ public class MailAccount implements MailTreeViewable{
 			// trigger the addition of the new folder to the tree view
 			forceFolderUpdate();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 	}
 	
@@ -246,26 +247,15 @@ public class MailAccount implements MailTreeViewable{
 		try {
 			store.close();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 	}
 
-	
-	/**
-	 * This Method is for InboxWatcher to check, if mailbox has been set up.
-	 * <p>
-	 * If the mailbox has not been set up, new mails are probably old mails
-	 * still in the inbox.
-	 * TODO: what happens, if old mails are in inbox and new mails have come
-	 * since last startup? How to differ between new and old mails?
-	 * This may most probably only recognized using local storage of mails.
-	 * @return
-	 */
-	public boolean isSetup() {
-		return setup;
-	}
-	
+		
 	/**
 	 * this method sends a mail from this account.
 	 * 
@@ -327,11 +317,17 @@ public class MailAccount implements MailTreeViewable{
 			});
 			t.start();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem meItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(meItem);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem meItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailboxaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(meItem);
 		}
 	}
 

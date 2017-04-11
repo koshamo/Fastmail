@@ -18,13 +18,19 @@
 
 package com.github.koshamo.fastmail.mail;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
+import com.github.koshamo.fastmail.util.MessageItem;
+import com.github.koshamo.fastmail.util.MessageMarket;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -50,6 +56,7 @@ public class FolderSynchronizerTask extends Task<Void> {
 	private final ObservableList<EmailTableData> mailList;
 
 	private boolean stop = false;
+	private final ResourceBundle i18n;
 	
 	/**
 	 * The constructor builds the context of this task, which is the folder 
@@ -62,6 +69,7 @@ public class FolderSynchronizerTask extends Task<Void> {
 			final ObservableList<EmailTableData> mailList) {
 		this.folder = folder;
 		this.mailList = mailList;
+		i18n = SerializeManager.getLocaleMessages();
 	}
 	
 	/**
@@ -128,8 +136,11 @@ public class FolderSynchronizerTask extends Task<Void> {
 			// sort the list in the natural order
 			mailList.sort(null);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 
 		return null;
