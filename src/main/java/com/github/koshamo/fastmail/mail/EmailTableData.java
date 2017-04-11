@@ -19,7 +19,9 @@
 package com.github.koshamo.fastmail.mail;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ResourceBundle;
 
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
@@ -29,6 +31,9 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
 
+import com.github.koshamo.fastmail.util.MessageItem;
+import com.github.koshamo.fastmail.util.MessageMarket;
+import com.github.koshamo.fastmail.util.SerializeManager;
 import com.sun.mail.imap.IMAPMessage;
 
 import javafx.beans.property.BooleanProperty;
@@ -66,6 +71,8 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	private SimpleBooleanProperty marked;
 	private MailData mailData;
 	
+	final ResourceBundle i18n;
+	
 
 	/**
 	 * The constructor takes a Javamail Message and constructs a EmailTableData 
@@ -74,6 +81,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	 * @param msg a message read from the mail account
 	 */
 	public EmailTableData (final Message msg) {
+		i18n = SerializeManager.getLocaleMessages();
 		// TODO: message can be expunged while running this method
 		// this causes an exception.... but do we need to care for that message?
 		
@@ -110,8 +118,11 @@ public class EmailTableData implements Comparable<EmailTableData>{
 					try {
 						msg.setFlag(Flag.SEEN, newVal.booleanValue());
 					} catch (MessagingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						MessageItem mItem = new MessageItem(
+								MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+										e.getMessage()),
+								0.0, MessageItem.MessageType.EXCEPTION);
+						MessageMarket.getInstance().produceMessage(mItem);
 					}
 				}
 			});
@@ -124,17 +135,26 @@ public class EmailTableData implements Comparable<EmailTableData>{
 					try {
 						msg.setFlag(Flag.FLAGGED, newVal.booleanValue());
 					} catch (MessagingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						MessageItem mItem = new MessageItem(
+								MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+										e.getMessage()),
+								0.0, MessageItem.MessageType.EXCEPTION);
+						MessageMarket.getInstance().produceMessage(mItem);
 					}
 				}
 			});
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailboxaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		mailData = new MailData(getFromAddress(), getFromName(), getSubject(),
 				sentDate, receivedDate, attachment, msg);
@@ -265,8 +285,11 @@ public class EmailTableData implements Comparable<EmailTableData>{
 		try {
 			mailData.getMessage().setFlag(flag, set);
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
 		}
 	}
 	
