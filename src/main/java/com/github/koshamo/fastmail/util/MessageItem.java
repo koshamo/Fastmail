@@ -77,13 +77,14 @@ public class MessageItem {
 	 * 
 	 * @param message	the actual message to display
 	 * @param progress	the value of the progress bar. Values between 0.0 and 
-	 * 1.0 are valid. Set it to 0.0 if not used
+	 * 1.0 are valid. Set it to 0.0 if not used. Values greater than one are 
+	 * interpreted as 100%, negative values will be handled as indeterminate
+	 * state and should be avoided in this call.
 	 * @param type		the message type
 	 */
 	public MessageItem(final String message, final double progress, 
 			final MessageType type) {
 		this.message = new SimpleStringProperty(message);
-		// TODO: check range
 		this.progress = new SimpleDoubleProperty(progress);
 		this.type = type;
 		this.processed = false;
@@ -111,10 +112,13 @@ public class MessageItem {
 	 * The producer may set the progress property either by using the property
 	 * or just set a new value with this method, which should be convenient for
 	 * most cases.
-	 * @param current	the current progress value, range between 0.0 and 1.0
+	 * @param current	the current progress value, range between 0.0 and 1.0.
+	 * Values between 0.0 and 1.0 are valid. Set it to 0.0 if not used. 
+	 * Values greater than one are interpreted as 100%, negative values 
+	 * will be handled as indeterminate state and should be avoided in 
+	 * this call.
 	 */
 	public void updateProgress(double current) {
-		// TODO: check range
 		progress.set(current);
 	}
 	
