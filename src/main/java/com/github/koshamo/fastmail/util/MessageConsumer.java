@@ -25,6 +25,12 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
 
 /**
+ * The MessageConsumer is a JavaFX thread doing the update of the status bar.
+ * <p>
+ * This class is intended to consume the in-application messages put in the
+ * MessageMarket by producers and update the status bar. This class shows the
+ * messages stored in MessageItems and handles updating of the status bar.
+ * 
  * @author jochen
  *
  */
@@ -37,6 +43,16 @@ public class MessageConsumer extends AnimationTimer {
 	private MessageItem currentItem;
 	private MessageItem tmpItem;
 	
+	/**
+	 * The constructor needs the properties of the status label and the status
+	 * bar, which will be bind to the MessageItem to be able to be updated
+	 * by producers on the fly. This in particular will be used by saving
+	 * several attachments, where the progress bar needs to be updated and 
+	 * the current downloaded file will be named.
+	 *   
+	 * @param text		the property of the status label
+	 * @param progress	the property of the status progress bar
+	 */
 	public MessageConsumer(StringProperty text, DoubleProperty progress) {
 		this.text = text;
 		this.progress = progress;
@@ -45,6 +61,8 @@ public class MessageConsumer extends AnimationTimer {
 	
 
 	/* (non-Javadoc)
+	 * The handle method processes the current MessageItem in every single
+	 * UI frame.
 	 * @see javafx.animation.AnimationTimer#handle(long)
 	 */
 	@Override
