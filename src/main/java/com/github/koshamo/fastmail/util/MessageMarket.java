@@ -21,6 +21,8 @@ package com.github.koshamo.fastmail.util;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.github.koshamo.fastmail.util.MessageItem.MessageType;
+
 /**
  * MessageMarket represents a Producer Consumer Pattern for MessageItems.
  * <p>
@@ -76,5 +78,38 @@ public class MessageMarket {
 	 */
 	public MessageItem consumeMessage() {
 		return kanban.poll();
+	}
+	
+	/**
+	 * To show high priority items before the low priority items, you need to
+	 * check, if any high priority items exist. This method checks if any
+	 * high priority items are stored in its queue.
+	 * 
+	 * @return	true, if any high priority items exist, otherwise false
+	 */
+	public boolean hasHighPriorityItem() {
+		for (MessageItem item : kanban)
+			if (item.getType() == MessageType.ERROR 
+					|| item.getType() == MessageType.EXCEPTION)
+				return true;
+		return false;
+	}
+	
+	/**
+	 * If the Queue holds a MessageItem with high priority, which should
+	 * have been checked with hasHighPriorityItem(), get this item.
+	 * 
+	 * @return	the first high priority MessageItem, otherwise null
+	 */
+	public MessageItem getNextHighPriorityItem() {
+		MessageItem highPrioItem = null;
+		for (MessageItem item : kanban)
+			if (item.getType() == MessageType.ERROR 
+					|| item.getType() == MessageType.EXCEPTION) {
+				highPrioItem = item;
+				break;	// check only for the first
+			}
+		kanban.remove(highPrioItem);
+		return highPrioItem;
 	}
 }

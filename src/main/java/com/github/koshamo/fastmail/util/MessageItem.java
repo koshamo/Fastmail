@@ -179,4 +179,41 @@ public class MessageItem {
 			processed = true;
 		return processed;
 	}
+	
+	/**
+	 * This method checks if this MessageItem holds a message that may be
+	 * interrupted by a more important message.
+	 * 
+	 * @return	true, if interruptible, otherwise false
+	 */
+	public boolean isInterruptible() {
+		if (type == MessageType.ERROR || type == MessageType.EXCEPTION)
+			return false;
+		return true;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (this == obj)
+			return true;
+		if (this.getClass() != obj.getClass())
+			return false;
+		MessageItem other = (MessageItem) obj;
+		
+		return this.message.getValue().equals(other.message.getValue()) 
+				&& this.type == other.type;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override 
+	public int hashCode() {
+		return type.ordinal() + message.getValue().hashCode();
+	}
 }

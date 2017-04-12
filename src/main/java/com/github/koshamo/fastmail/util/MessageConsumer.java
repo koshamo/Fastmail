@@ -41,7 +41,7 @@ public class MessageConsumer extends AnimationTimer {
 	private MessageMarket market;
 	
 	private MessageItem currentItem;
-	private MessageItem tmpItem;
+	private MessageItem interruptedItem;
 	
 	/**
 	 * The constructor needs the properties of the status label and the status
@@ -67,6 +67,7 @@ public class MessageConsumer extends AnimationTimer {
 	 */
 	@Override
 	public void handle(long now) {
+		// if current item is processed, clear status bar
 		if (currentItem != null && currentItem.isProcessed()) {
 			text.unbind();
 			text.set(""); //$NON-NLS-1$
@@ -74,8 +75,24 @@ public class MessageConsumer extends AnimationTimer {
 			progress.set(0.0);
 			currentItem = null;
 		}
-		if (currentItem == null && tmpItem == null)
+		// if current item is processed and a high priority items exists
+		if (currentItem == null && market.hasHighPriorityItem())
+			currentItem = market.getNextHighPriorityItem();
+		// if a low priority item is shown and a high priority item exists
+		if (currentItem != null && currentItem.isInterruptible() 
+				&& market.hasHighPriorityItem()) {
+			interruptedItem = currentItem;
+			currentItem = market.getNextHighPriorityItem();
+		}
+		// if no high priority item exists and a low priority item has been interrupted
+		if (currentItem == null && interruptedItem != null) {
+			currentItem = interruptedItem;
+			interruptedItem = null;
+		}
+		// if no item is shown
+		if (currentItem == null && interruptedItem == null)
 			currentItem = market.consumeMessage();
+		// display current item
 		if (currentItem != null) {
 			text.bind(currentItem.getMessageProperty());
 			if (currentItem.getType() != MessageType.WORK)
