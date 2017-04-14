@@ -57,6 +57,9 @@ jar {
 	}
 }
 
+assemble.dependsOn copyI18nFiles
+assemble.dependsOn copyEclipseFiles
+
 //pmd {
 //	ruleSets = ["java-basic", "braces", "design"]
 //	ignoreFailures true
