@@ -28,10 +28,14 @@ repositories {
 }
 
 task copyI18nFiles(type: Copy) {
-	from 'src/main/resources/messages*'
-	into 'bin/'
-	from 'src/main/resources/messages*'
-	into 'build/classes/main/'
+	from 'src/main/resources'
+	include '*.properties'
+	into 'build/classes/main'
+}
+task copyEclipseFiles(type: Copy) {
+	from 'src/main/resources'
+	include '*.properties'
+	into 'bin'
 }
 
 // In this section you declare the dependencies for your production and test code
