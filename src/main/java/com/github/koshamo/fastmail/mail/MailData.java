@@ -169,7 +169,7 @@ public final class MailData {
 	 */
 	public String[] getCcName() {
 		if (ccName == null) 
-			MailTools.getCcNames(message);
+			ccName = MailTools.getCcNames(message);
 		return ccName;
 	}
 
