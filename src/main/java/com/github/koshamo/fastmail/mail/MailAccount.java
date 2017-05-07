@@ -284,14 +284,16 @@ public class MailAccount implements MailTreeViewable{
 			}
 			else
 				msg = new MimeMessage(session);
-			InternetAddress ia = new InternetAddress(data.getUsername(), data.getDisplayName());
+			InternetAddress ia = new InternetAddress(
+					data.getUsername(), data.getDisplayName(), 
+					java.nio.charset.StandardCharsets.ISO_8859_1.toString());
 			msg.setFrom(ia);
 			msg.setRecipients(RecipientType.TO, MailTools.parseAddresses(to));
 			if (cc != null && !cc.isEmpty())
 				msg.setRecipients(RecipientType.CC, MailTools.parseAddresses(cc));
-			msg.setSubject(subject);
+			msg.setSubject(subject, java.nio.charset.StandardCharsets.ISO_8859_1.toString());
 			msg.setSentDate(Date.from(Instant.now()));
-			msg.setText(text);
+			msg.setText(text, java.nio.charset.StandardCharsets.ISO_8859_1.toString());
 			msg.setHeader("X-mailer", FastMailGenerals.getNameVersion()); //$NON-NLS-1$
 			// attachments
 			if (attachments != null && !attachments.isEmpty()) {
