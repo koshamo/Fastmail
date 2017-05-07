@@ -439,7 +439,7 @@ public class FastGui extends Application {
 						btnReply.setDisable(true);
 						btnReplyAll.setDisable(true);
 						btnDelete.setDisable(true);
-						folderMailTable.setItems(newVal.getValue().getFolderContent());
+						folderMailTable.setItems(newVal.getValue().getFolderContent().sorted());
 					}
 				});
 		// we do not want to see the root item: simulate the Accounts as 
