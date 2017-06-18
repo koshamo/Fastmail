@@ -59,7 +59,7 @@ public class SerializeManager {
 	 * 
 	 * @return the one and only object of SerializeManager
 	 */
-	public static SerializeManager getInstance() {
+	public static synchronized SerializeManager getInstance() {
 		if (manager == null)
 			manager = new SerializeManager();
 		return manager;
