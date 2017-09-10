@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -157,6 +157,8 @@ public class MailAccount implements MailTreeViewable{
 	 * @return		a String with a success or failure description
 	 */
 	public static String testConnection(final MailAccountData data) {
+		if (i18n == null)
+			i18n = SerializeManager.getLocaleMessages();
 		Properties props = new Properties();
 		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
 			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
