@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,7 +42,6 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 
 	MailAccount account;
 	TreeItem<MailTreeViewable> accountTreeItem;
-	ObservableList<TreeItem<MailTreeViewable>> localList;
 	boolean stop = false;
 	
 	/**
@@ -51,11 +50,10 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	 * @param account the current account to check for new folders
 	 * @param accountTreeItem root item of the account
 	 */
-	AccountFolderWatcher(final MailAccount account, 
+	public AccountFolderWatcher(final MailAccount account, 
 			final TreeItem<MailTreeViewable> accountTreeItem) {
 		this.account = account;
 		this.accountTreeItem = accountTreeItem;
-		localList = accountTreeItem.getChildren();
 	}
 	
 	/**
@@ -91,64 +89,84 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 			protected Void call() {
 				if (stop) return null;	// thread needs to be stopped
 				
-				Folder[] folders = account.getFolders();
+				final Folder[] folders = account.getFolders();
 				if (folders == null)
 					return null;
 				
 				if (stop) return null;	// thread needs to be stopped
+				buildFolderTree(folders, accountTreeItem);
 
-				// add folders, if they aren't already in the tree view
-				Folder[] localFolders = new Folder[localList.size()];
-				for (int i = 0; i < localList.size(); i++) 
-					localFolders[i] = localList.get(i).getValue().getFolder();
-				for (Folder sf : folders) {
-					boolean contained = false;
-					for (Folder lf : localFolders) {
-						if (sf.getFullName().equals(lf.getFullName())) {
-							contained = true;
-							break;
-						}
-					}
-					if (!contained) {
-						FolderItem folderItem = new FolderItem(sf);
-						TreeItem<MailTreeViewable> treeItem = 
-								new TreeItem<MailTreeViewable>(folderItem);
-						localList.add(treeItem);
-					}
-				}
-				
-				
-				if (stop) return null;	// thread needs to be stopped
-				
-				// remove items from tree view, that aren't on the server anymore
-				// (e.g. because they are renamed)
-				List<Folder> toRemove = new ArrayList<Folder>();
-				for (Folder lf : localFolders) {
-					boolean contained = false;
-					for (Folder sf : folders) {
-						if (lf.getFullName().equals(sf.getFullName())) {
-							contained = true;
-							break; 
-						}
-					}
-					if (!contained) {
-						toRemove.add(lf);
-					}
-				}
-				if (!toRemove.isEmpty()) {
-					for (Folder tr : toRemove) {
-						for (TreeItem<MailTreeViewable> item : localList) {
-							if (item.getValue().getFolder().getFullName().equals(tr.getFullName()))
-								localList.remove(item);
-						}
-					}
-				}
-								
-				// sort the folder to represent items in a natural way
-				MailTools.sortFolders(localList);
 				return null;
 			}
 		};
 	}
 
+	/**
+	 * buildFolderTree is the actual working method for the task above.
+	 * It gets all the folders and subfolders of a mail account and
+	 * creates TreeItems for the TreeView in a recursive way and adds
+	 * them to the current TreeItem
+	 * 
+	 * @param folders the folders to be examined
+	 * @param root the current TreeItem, where subfolders can be added
+	 */
+	/*package private*/ 
+	void buildFolderTree(final Folder[] folders, final TreeItem<MailTreeViewable> root) {
+		final ObservableList<TreeItem<MailTreeViewable>> localList =
+				root.getChildren();
+		// add folders, if they aren't already in the tree view
+		final Folder[] localFolders = new Folder[localList.size()];
+		for (int i = 0; i < localList.size(); i++) 
+			localFolders[i] = localList.get(i).getValue().getFolder();
+		for (Folder sf : folders) {
+			boolean contained = false;
+			TreeItem<MailTreeViewable> treeItem = null;
+			for (Folder lf : localFolders) {
+				if (sf.getFullName().equals(lf.getFullName())) {
+					contained = true;
+					treeItem = localList.get(
+							localList.indexOf(new TreeItem<MailTreeViewable>(
+									new FolderItem(lf)))); 
+					break;
+				}
+			}
+			if (!contained) {
+				treeItem = new TreeItem<>(new FolderItem(sf));
+				localList.add(treeItem);
+			}
+			final Folder[] subFolders = MailTools.getSubFolders(sf);
+			buildFolderTree(subFolders, treeItem);
+		}
+		
+		
+		if (stop) return;	// thread needs to be stopped
+		
+		// remove items from tree view, that aren't on the server anymore
+		// (e.g. because they are renamed)
+		final List<Folder> toRemove = new ArrayList<>();
+		for (Folder lf : localFolders) {
+			boolean contained = false;
+			for (Folder sf : folders) {
+				if (lf.getFullName().equals(sf.getFullName())) {
+					contained = true;
+					break; 
+				}
+			}
+			if (!contained) {
+				toRemove.add(lf);
+			}
+		}
+		if (!toRemove.isEmpty()) {
+			for (Folder tr : toRemove) {
+				for (TreeItem<MailTreeViewable> item : localList) {
+					if (item.getValue().getFolder().getFullName().equals(tr.getFullName()))
+						localList.remove(item);
+				}
+			}
+		}
+						
+		// sort the folder to represent items in a natural way
+		MailTools.sortFolders(localList);
+		
+	}
 }

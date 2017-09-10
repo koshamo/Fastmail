@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 
 import javax.mail.BodyPart;
+import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
@@ -173,6 +174,26 @@ public class MailTools {
 		});		
 	}
 	
+	/**
+	 * getSubFolders lists the subfolders of a given Folder.
+	 * This method is intended to encapsulate the try..catch surrounding
+	 * the the Folder.list() method to keep GUI-code clean.
+	 * 
+	 * @param root the folder, from which the subfolders need to be read
+	 * @return	the array of subfolders
+	 */
+	public static Folder[] getSubFolders(final Folder root) {
+		Folder[] subFolders = null;
+		try {
+			subFolders = root.list();
+		} catch (@SuppressWarnings("unused") MessagingException e) {
+			MessageItem mItem = new MessageItem(
+					SerializeManager.getLocaleMessages().getString("exception.subfolders"), //$NON-NLS-1$
+					0.0, MessageItem.MessageType.ERROR);
+			MessageMarket.getInstance().produceMessage(mItem);
+		}
+		return subFolders;
+	}
 	
 	/**
 	 * Just in time loading of to addresses of the given message

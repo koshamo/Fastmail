@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -96,7 +96,7 @@ public class FolderItem implements MailTreeViewable {
 
 	@Override
 	public String toString() {
-		return folder.getFullName();
+		return folder.getName();
 	}
 
 	/* (non-Javadoc)
@@ -141,7 +141,7 @@ public class FolderItem implements MailTreeViewable {
 	 */
 	@Override
 	public String getName() {
-		return folder.getFullName();
+		return folder.getName();
 	}
 	
 	/**
