@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,9 +36,12 @@ import com.github.koshamo.fastmail.util.MessageItem;
 import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Button;
@@ -47,6 +50,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -103,135 +107,16 @@ public class MailView extends StackPane {
 		attachmentPane = new VBox();
 		attachmentLbl = new Label();
 		attachments = FXCollections.observableArrayList();
-		attachmentBox = new ChoiceBox<String>(attachments);
+		attachmentBox = new ChoiceBox<>(attachments);
 		HBox btnBox = new HBox();
 		// SAVE AS button
 		saveAsBtn = new Button(i18n.getString("action.saveas")); //$NON-NLS-1$
 		saveAsBtn.setDisable(true);
-		saveAsBtn.setOnAction(ev -> {
-			int item = attachmentBox.getSelectionModel().getSelectedIndex();
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle(i18n.getString("dialog.title.saveas")); //$NON-NLS-1$
-			fileChooser.setInitialDirectory(
-					new File(System.getProperty("user.home"))); //$NON-NLS-1$
-			fileChooser.setInitialFileName(data.getAttachments()[item].getFileName());
-			File outputFile = fileChooser.showSaveDialog(getScene().getWindow());
-			if (outputFile == null)
-				return;
-			Thread t = new Thread(new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					// wrong warning from eclipse, ignore it
-					InputStream is = (data.getAttachments())[item].getInputStream();
-					if (!data.getMessage().getFolder().isOpen())
-						data.getMessage().getFolder().open(Folder.READ_WRITE);
-					if (is == null)
-						return null;
-					// Message status
-					MessageItem mItem = new MessageItem(
-							MessageFormat.format(i18n.getString("entry.saveattachment"), outputFile.getName()),  //$NON-NLS-1$
-							0.0, MessageItem.MessageType.PROGRESS);
-					MessageMarket.getInstance().produceMessage(mItem);
-					int fileSize = (data.getAttachments())[item].getSize();
-					int counter = 0; 
-					int cur = 0;
-					try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) { 
-						byte[] pipe = new byte[1000];
-						while ((cur = is.read(pipe)) > 0) {
-							counter += cur;
-							bos.write(pipe);
-							mItem.updateProgress((double) counter / fileSize);
-						}
-					} catch (FileNotFoundException e) {
-						mItem.done();
-						mItem = new MessageItem(
-								MessageFormat.format(i18n.getString("exception.savefile"), e.getMessage()) //$NON-NLS-1$
-								, 0.0, MessageItem.MessageType.EXCEPTION);
-						MessageMarket.getInstance().produceMessage(mItem);
-					}catch (IOException e) {
-						mItem.done();
-						mItem = new MessageItem(
-								MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
-								, 0.0, MessageItem.MessageType.EXCEPTION);
-						MessageMarket.getInstance().produceMessage(mItem);
-					}
-					mItem.done();
-					is.close();
-					data.getMessage().getFolder().close(true);
-					return null;
-				}
-			});
-			t.start();
-		});
+		saveAsBtn.setOnAction(new SaveAsEventHandler());
 		// SAVE ALL button
 		saveAllBtn = new Button(i18n.getString("action.saveall")); //$NON-NLS-1$
 		saveAllBtn.setDisable(true);
-		saveAllBtn.setOnAction(ev -> {
-			DirectoryChooser directoryChooser = new DirectoryChooser();
-			directoryChooser.setTitle(i18n.getString("dialog.title.saveall")); //$NON-NLS-1$
-			directoryChooser.setInitialDirectory(
-					new File(System.getProperty("user.home"))); //$NON-NLS-1$
-			File outputDir = directoryChooser.showDialog(getScene().getWindow());
-			if (outputDir == null)
-				return;
-			Thread t = new Thread(new Task<Void>() {
-				@Override
-				protected Void call() throws Exception {
-					// Message status
-					MessageItem mItem = 
-							new MessageItem(
-									i18n.getString("entry.initial.saveallattachment"),  //$NON-NLS-1$
-									0.0, MessageItem.MessageType.PROGRESS);
-					MessageMarket.getInstance().produceMessage(mItem);
-					int totalFileSize = 0;
-					int counter = 0; 
-					int cur = 0;
-					for (AttachmentData ad : data.getAttachments())
-						totalFileSize += ad.getSize();
-					for (int i = 0; i < data.getAttachments().length; i++) {
-						// wrong warning from eclipse, ignore it
-						InputStream is = (data.getAttachments())[i].getInputStream();
-						if (!data.getMessage().getFolder().isOpen())
-							data.getMessage().getFolder().open(Folder.READ_WRITE);
-						if (is == null)
-							return null;
-						mItem.updateMessage(MessageFormat.format(
-								i18n.getString("entry.saveallattachment"),  //$NON-NLS-1$
-								(data.getAttachments())[i].getFileName(), 
-								Integer.valueOf(i), 
-								Integer.valueOf(data.getAttachments().length)));
-						try (BufferedOutputStream bos = new BufferedOutputStream(
-								new FileOutputStream(
-										new File(outputDir.toString() + File.separator + 
-												data.getAttachments()[i].getFileName())))) {
-							byte[] pipe = new byte[1000];
-							while ((cur = is.read(pipe)) > 0) {
-								counter += cur;
-								bos.write(pipe);
-								mItem.updateProgress((double) counter / totalFileSize);
-							}
-						} catch (FileNotFoundException e) {
-							mItem.done();
-							mItem = new MessageItem(
-									MessageFormat.format(i18n.getString("exception.savefile"), e.getMessage()) //$NON-NLS-1$
-									, 0.0, MessageItem.MessageType.EXCEPTION);
-							MessageMarket.getInstance().produceMessage(mItem);
-						} catch (IOException e) {
-							mItem.done();
-							mItem = new MessageItem(
-									MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
-									, 0.0, MessageItem.MessageType.EXCEPTION);
-							MessageMarket.getInstance().produceMessage(mItem);
-						}
-						mItem.done();
-						is.close();
-						data.getMessage().getFolder().close(true);
-					}
-					return null;
-				}
-			});
-			t.start();
-		});
+		saveAllBtn.setOnAction(new SaveAllEventHandler());
 		btnBox.getChildren().addAll(saveAsBtn, saveAllBtn);
 		attachmentPane.getChildren().addAll(attachmentLbl, attachmentBox, btnBox);
 		
@@ -243,7 +128,7 @@ public class MailView extends StackPane {
 		AnchorPane.setRightAnchor(attachmentPane, Double.valueOf(1.0));
 		AnchorPane.setBottomAnchor(attachmentPane, Double.valueOf(1.0));
 		anchorPane.getChildren().addAll(mailHeader, attachmentPane);
-
+		
 		ScrollPane infoScroller = new ScrollPane(anchorPane);
 		infoScroller.setFitToWidth(true);
 
@@ -346,7 +231,7 @@ public class MailView extends StackPane {
 	private Label ccLbl;
 	private Label cc;
 	private Label attachmentLbl;
-	private ChoiceBox<String> attachmentBox;
+	ChoiceBox<String> attachmentBox;
 	private Button saveAsBtn;
 	private Button saveAllBtn;
 	private GridPane mailHeader;
@@ -355,5 +240,139 @@ public class MailView extends StackPane {
 	MailData data;
 	
 	final ResourceBundle i18n;
+	
+	/*package private*/ 
+	final class SaveAsEventHandler implements EventHandler<ActionEvent> {
+		@Override
+		public void handle(ActionEvent event) {
+			int item = attachmentBox.getSelectionModel().getSelectedIndex();
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle(i18n.getString("dialog.title.saveas")); //$NON-NLS-1$
+			fileChooser.setInitialDirectory(
+					new File(System.getProperty("user.home"))); //$NON-NLS-1$
+			fileChooser.setInitialFileName(data.getAttachments()[item].getFileName());
+			File outputFile = fileChooser.showSaveDialog(getScene().getWindow());
+			if (outputFile == null)
+				return;
+			Thread t = new Thread(new Task<Void>() {
+				@Override
+				protected Void call() throws Exception {
+					// wrong warning from eclipse, ignore it
+					InputStream is = (data.getAttachments())[item].getInputStream();
+					if (!data.getMessage().getFolder().isOpen())
+						data.getMessage().getFolder().open(Folder.READ_WRITE);
+					if (is == null)
+						return null;
+					// Message status
+					MessageItem mItem = new MessageItem(
+							MessageFormat.format(i18n.getString("entry.saveattachment"), outputFile.getName()),  //$NON-NLS-1$
+							0.0, MessageItem.MessageType.PROGRESS);
+					MessageMarket.getInstance().produceMessage(mItem);
+					int fileSize = (data.getAttachments())[item].getSize();
+					int counter = 0; 
+					int cur = 0;
+					try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) { 
+						byte[] pipe = new byte[1000];
+						while ((cur = is.read(pipe)) > 0) {
+							counter += cur;
+							bos.write(pipe);
+							mItem.updateProgress((double) counter / fileSize);
+						}
+					} catch (FileNotFoundException e) {
+						mItem.done();
+						mItem = new MessageItem(
+								MessageFormat.format(i18n.getString("exception.savefile"), e.getMessage()) //$NON-NLS-1$
+								, 0.0, MessageItem.MessageType.EXCEPTION);
+						MessageMarket.getInstance().produceMessage(mItem);
+					}catch (IOException e) {
+						mItem.done();
+						mItem = new MessageItem(
+								MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
+								, 0.0, MessageItem.MessageType.EXCEPTION);
+						MessageMarket.getInstance().produceMessage(mItem);
+					}
+					mItem.done();
+					is.close();
+					data.getMessage().getFolder().close(true);
+					return null;
+				}
+			});
+			t.start();
+		}
+	}
+	
+	/* package private*/
+	final class SaveAllEventHandler implements EventHandler<ActionEvent> {
+		@Override
+		public void handle(ActionEvent event) {
+			DirectoryChooser directoryChooser = new DirectoryChooser();
+			directoryChooser.setTitle(i18n.getString("dialog.title.saveall")); //$NON-NLS-1$
+			directoryChooser.setInitialDirectory(
+					new File(System.getProperty("user.home"))); //$NON-NLS-1$
+			File outputDir = directoryChooser.showDialog(getScene().getWindow());
+			if (outputDir == null)
+				return;
+			Thread t = new Thread(new Task<Void>() {
+				@Override
+				protected Void call() throws Exception {
+					// Message status
+					final MessageItem mItem = 
+							new MessageItem(
+									i18n.getString("entry.initial.saveallattachment"),  //$NON-NLS-1$
+									0.0, MessageItem.MessageType.PROGRESS);
+					MessageMarket.getInstance().produceMessage(mItem);
+					int totalFileSize = 0;
+					int counter = 0; 
+					int cur = 0;
+					for (AttachmentData ad : data.getAttachments())
+						totalFileSize += ad.getSize();
+					for (int i = 0; i < data.getAttachments().length; i++) {
+						// wrong warning from eclipse, ignore it
+						InputStream is = (data.getAttachments())[i].getInputStream();
+						if (!data.getMessage().getFolder().isOpen())
+							data.getMessage().getFolder().open(Folder.READ_WRITE);
+						if (is == null)
+							return null;
+						final int aCnt = i;	// final variable for inner class
+						Platform.runLater(()-> {
+							mItem.updateMessage(MessageFormat.format(
+									i18n.getString("entry.saveallattachment"),  //$NON-NLS-1$
+									(data.getAttachments())[aCnt].getFileName(), 
+									Integer.valueOf(aCnt), 
+									Integer.valueOf(data.getAttachments().length)));
+						});
+						try (BufferedOutputStream bos = new BufferedOutputStream(
+								new FileOutputStream(
+										new File(outputDir.toString() + File.separator + 
+												data.getAttachments()[i].getFileName())))) {
+							byte[] pipe = new byte[1000];
+							while ((cur = is.read(pipe)) > 0) {
+								counter += cur;
+								bos.write(pipe);
+								mItem.updateProgress((double) counter / totalFileSize);
+							}
+						} catch (FileNotFoundException e) {
+							mItem.done();
+							MessageItem meItem = new MessageItem(
+									MessageFormat.format(i18n.getString("exception.savefile"), e.getMessage()) //$NON-NLS-1$
+									, 0.0, MessageItem.MessageType.EXCEPTION);
+							MessageMarket.getInstance().produceMessage(meItem);
+						} catch (IOException e) {
+							mItem.done();
+							MessageItem meItem = new MessageItem(
+									MessageFormat.format(i18n.getString("exception.saveattachment"), e.getMessage()) //$NON-NLS-1$
+									, 0.0, MessageItem.MessageType.EXCEPTION);
+							MessageMarket.getInstance().produceMessage(meItem);
+						}
+						mItem.done();
+						is.close();
+						data.getMessage().getFolder().close(true);
+					}
+					return null;
+				}
+			});
+			t.start();
+		}
+	}
 	
 }
