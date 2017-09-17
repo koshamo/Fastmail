@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,8 +26,8 @@ package com.github.koshamo.fastmail;
  */
 public class FastMailGenerals {
 	private static final String applicationName = "Fastmail"; //$NON-NLS-1$
-	private static final String version = "0.0.3"; //$NON-NLS-1$
-	private static final String author = "Dr.-Ing. Jochen Ra√üler"; //$NON-NLS-1$
+	private static final String version = "0.0.4"; //$NON-NLS-1$
+	private static final String author = "Dr.-Ing. Jochen Raﬂler"; //$NON-NLS-1$
 	private static final String license = "GNU GPL 2.0 with Classpath Exception"; //$NON-NLS-1$
 	
 	/**
