@@ -44,6 +44,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -133,17 +134,24 @@ public class MailView extends StackPane {
 
 		Label fromLbl = new Label(i18n.getString("entry.from")); //$NON-NLS-1$
 		from = new Label();
+		from.setWrapText(true);
 		Label subjectLbl = new Label(i18n.getString("entry.subject")); //$NON-NLS-1$
 		subject = new Label();
+		subject.setWrapText(true);
 		Label toLbl = new Label(i18n.getString("entry.to")); //$NON-NLS-1$
 		to = new Label();
+		to.setWrapText(true);
 		ccLbl = new Label(i18n.getString("entry.cc")); //$NON-NLS-1$
 		cc = new Label();
+		cc.setWrapText(true);
 		mailHeader.add(fromLbl, 0, 0);
+		GridPane.setValignment(fromLbl, VPos.TOP);
 		mailHeader.add(from, 1, 0);
 		mailHeader.add(subjectLbl, 0, 1);
+		GridPane.setValignment(subjectLbl, VPos.TOP);
 		mailHeader.add(subject, 1, 1);
 		mailHeader.add(toLbl, 0, 2);
+		GridPane.setValignment(toLbl, VPos.TOP);
 		mailHeader.add(to, 1, 2);
 	}
 	
@@ -154,7 +162,7 @@ public class MailView extends StackPane {
 	 * @return returns the local attachment widget
 	 */
 	private Node buildAttachmentPanel() {
-		VBox attachmentPane = new VBox();
+		attachmentPane = new VBox();
 		attachmentLbl = new Label();
 		attachments = FXCollections.observableArrayList();
 		attachmentBox = new ChoiceBox<>(attachments);
@@ -213,50 +221,17 @@ public class MailView extends StackPane {
 	public void setContent(final MailData data) {
 		clear();
 		this.data = data;
-		if (data.getFromName() != null)
-			from.setText(data.getFromName() + " <" + data.getFrom() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
-		else
-			from.setText(data.getFrom());
+		// set attachments first, to get current data for header label width
+		setAttachmentContent(data);
+		// set from
+		setFromContent(data);
+		// set subject
 		subject.setText(data.getSubject());
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < data.getTo().length; i++ ) {
-			if (data.getToName()[i] != null)
-				sb.append(data.getToName()[i]).append(" <") //$NON-NLS-1$
-				.append(data.getTo()[i]).append(">"); //$NON-NLS-1$
-			else
-				sb.append(data.getTo()[i]);
-			sb.append("; "); //$NON-NLS-1$
-		}
-		to.setText(sb.toString());
-		sb = new StringBuilder();
-		if (data.getCc() != null) {
-			for (int i = 0; i < data.getCc().length; i++) {
-				if (data.getCcName()[i] != null)
-					sb.append(data.getCcName()[i]).append(" <") //$NON-NLS-1$
-					.append(data.getCc()[i]).append(">"); //$NON-NLS-1$
-				else
-					sb.append(data.getCc()[i]);
-				sb.append("; "); //$NON-NLS-1$
-			}
-			mailHeader.add(ccLbl, 0, 3);
-			mailHeader.add(cc, 1, 3);
-		}
-		cc.setText(sb.toString());
-		int attachCnt;
-		if (data.getAttachments() != null) {
-			attachCnt = data.getAttachments().length;
-			if (attachCnt > 0) {
-				attachmentLbl.setText(attachCnt + " attachments"); //$NON-NLS-1$
-				for (AttachmentData ad : data.getAttachments())
-					attachments.add(ad.getFileName() + " (" + (ad.getSize() / 1024) + "kb)"); //$NON-NLS-1$ //$NON-NLS-2$
-				attachmentBox.setValue(attachments.get(0));
-				saveAsBtn.setDisable(false);
-				if (attachCnt > 1)
-					saveAllBtn.setDisable(false);
-			}
-		} else {
-			attachmentLbl.setText("No attachments"); //$NON-NLS-1$
-		}
+		// set to
+		setToContent(data);
+		// set cc
+		setCcContent(data);
+		// set body
 		mailBody.setText(data.getContent());
 	}
 	
@@ -267,6 +242,7 @@ public class MailView extends StackPane {
 	 * ****************************************************
 	 */
 	
+	private VBox attachmentPane;
 	private TextArea mailBody;
 	private Label from;
 	private Label subject;
@@ -282,6 +258,94 @@ public class MailView extends StackPane {
 	MailData data;
 	
 	final ResourceBundle i18n;
+	
+	/**
+	 * fill attachmentPane with mails content
+	 * 
+	 * @param data the current mail to display
+	 */
+	private void setAttachmentContent(final MailData data) {
+		int attachCnt;
+		if (data.getAttachments() != null) {
+			attachCnt = data.getAttachments().length;
+			if (attachCnt > 0) {
+				attachmentLbl.setText(attachCnt + " attachments"); //$NON-NLS-1$
+				for (AttachmentData ad : data.getAttachments())
+					attachments.add(ad.getFileName() + " (" + (ad.getSize() / 1024) + "kb)"); //$NON-NLS-1$ //$NON-NLS-2$
+				attachmentBox.setValue(attachments.get(0));
+				saveAsBtn.setDisable(false);
+				if (attachCnt > 1)
+					saveAllBtn.setDisable(false);
+			}
+		} else {
+			attachmentLbl.setText("No attachments"); //$NON-NLS-1$
+		}
+		// layout the attachment widget and set the max size for 
+		// the header info panel
+		layout();
+		setHeaderWidht();
+	}
+	
+	/**
+	 *  fill to Label with mails content
+	 *  
+	 * @param data the current mail to display
+	 */
+	private void setToContent(final MailData data) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < data.getTo().length; i++ ) {
+			if (data.getToName()[i] != null)
+				sb.append(data.getToName()[i]).append(" <") //$NON-NLS-1$
+				.append(data.getTo()[i]).append(">"); //$NON-NLS-1$
+			else
+				sb.append(data.getTo()[i]);
+			sb.append("; "); //$NON-NLS-1$
+		}
+		to.setText(sb.toString());
+	}
+	
+	/**
+	 * fill cc Label with mails content
+	 * @param data the current mail to display
+	 */
+	private void setCcContent(final MailData data) {
+		StringBuilder sb = new StringBuilder();
+		if (data.getCc() != null) {
+			for (int i = 0; i < data.getCc().length; i++) {
+				if (data.getCcName()[i] != null)
+					sb.append(data.getCcName()[i]).append(" <") //$NON-NLS-1$
+					.append(data.getCc()[i]).append(">"); //$NON-NLS-1$
+				else
+					sb.append(data.getCc()[i]);
+				sb.append("; "); //$NON-NLS-1$
+			}
+			mailHeader.add(ccLbl, 0, 3);
+			GridPane.setValignment(ccLbl, VPos.TOP);
+			mailHeader.add(cc, 1, 3);
+		}
+		cc.setText(sb.toString());
+	}
+	
+	/**
+	 * fill from Label with mails content 
+	 * 
+	 * @param data the current mail to display
+	 */
+	private void setFromContent(final MailData data) {
+		if (data.getFromName() != null)
+			from.setText(data.getFromName() + " <" + data.getFrom() + ">"); //$NON-NLS-1$ //$NON-NLS-2$
+		else
+			from.setText(data.getFrom());
+	}
+	
+	/**
+	 * calculate the width for header info panel and set it
+	 */
+	private void setHeaderWidht() {
+		double width = getWidth() - attachmentPane.getWidth() - 20;
+		mailHeader.setMaxWidth(width);
+	}
+	
 	
 	/*package private*/ 
 	final class SaveAsEventHandler implements EventHandler<ActionEvent> {

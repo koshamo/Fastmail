@@ -21,6 +21,7 @@ Version 0.0.4 (HEAD)
 * better support of lazy loading (as intended by JavaMail)
 * mail folders now show their subfolders
 * fixed bug in saveAll
+* fixed visibility issue in mail view
 
 Version 0.0.3
 * redesigned Mail and Folder integration to get a more flexible and straightforward design
