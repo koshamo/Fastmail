@@ -20,6 +20,7 @@ Version 0.0.4 (HEAD)
 * i18n Packages for en_US and de_DE added
 * better support of lazy loading (as intended by JavaMail)
 * mail folders now show their subfolders
+* fixed bug in saveAll
 
 Version 0.0.3
 * redesigned Mail and Folder integration to get a more flexible and straightforward design
