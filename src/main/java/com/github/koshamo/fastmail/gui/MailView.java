@@ -44,13 +44,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -81,6 +81,47 @@ public class MailView extends StackPane {
 		i18n = SerializeManager.getLocaleMessages();
 		VBox vbox = new VBox();
 		
+		Node infoScroller = buildInfoPanel();
+		Node bodyScroller = buildMailBodyPanel();
+		SplitPane splitter = new SplitPane(infoScroller, bodyScroller);
+		splitter.setOrientation(Orientation.VERTICAL);
+		splitter.setDividerPositions(0.2);
+
+		vbox.getChildren().add(splitter);
+		VBox.setVgrow(splitter, Priority.ALWAYS);
+		getChildren().add(vbox);
+	}
+	
+	/**
+	 * this method builds the header panel shown on top of each mail,
+	 * containing the actual header data as well as the attachment
+	 * information
+	 * 
+	 * @return the panel including all header data
+	 */
+	private Node buildInfoPanel() {
+		buildHeaderInfoPanel();
+		Node attachmentPane = buildAttachmentPanel();
+
+		AnchorPane anchorPane = new AnchorPane();
+		AnchorPane.setTopAnchor(mailHeader, Double.valueOf(1.0));
+		AnchorPane.setLeftAnchor(mailHeader, Double.valueOf(1.0));
+		AnchorPane.setBottomAnchor(mailHeader, Double.valueOf(1.0));
+		AnchorPane.setTopAnchor(attachmentPane, Double.valueOf(1.0));
+		AnchorPane.setRightAnchor(attachmentPane, Double.valueOf(1.0));
+		AnchorPane.setBottomAnchor(attachmentPane, Double.valueOf(1.0));
+		anchorPane.getChildren().addAll(mailHeader, attachmentPane);
+		
+		ScrollPane infoScroller = new ScrollPane(anchorPane);
+		infoScroller.setFitToWidth(true);
+		return infoScroller;
+	}
+	
+	/**
+	 * this method builds the panel showing the relevant mail data,
+	 * including from, subject, to, and cc 
+	 */
+	private void buildHeaderInfoPanel() {
 		mailHeader = new GridPane();
 		mailHeader.setHgap(20);
 		ColumnConstraints colLabel = new ColumnConstraints(80);
@@ -104,7 +145,16 @@ public class MailView extends StackPane {
 		mailHeader.add(subject, 1, 1);
 		mailHeader.add(toLbl, 0, 2);
 		mailHeader.add(to, 1, 2);
-		attachmentPane = new VBox();
+	}
+	
+	
+	/**
+	 * this method builds the attachment access for the header panel
+	 * 
+	 * @return returns the local attachment widget
+	 */
+	private Node buildAttachmentPanel() {
+		VBox attachmentPane = new VBox();
 		attachmentLbl = new Label();
 		attachments = FXCollections.observableArrayList();
 		attachmentBox = new ChoiceBox<>(attachments);
@@ -119,32 +169,25 @@ public class MailView extends StackPane {
 		saveAllBtn.setOnAction(new SaveAllEventHandler());
 		btnBox.getChildren().addAll(saveAsBtn, saveAllBtn);
 		attachmentPane.getChildren().addAll(attachmentLbl, attachmentBox, btnBox);
-		
-		AnchorPane anchorPane = new AnchorPane();
-		AnchorPane.setTopAnchor(mailHeader, Double.valueOf(1.0));
-		AnchorPane.setLeftAnchor(mailHeader, Double.valueOf(1.0));
-		AnchorPane.setBottomAnchor(mailHeader, Double.valueOf(1.0));
-		AnchorPane.setTopAnchor(attachmentPane, Double.valueOf(1.0));
-		AnchorPane.setRightAnchor(attachmentPane, Double.valueOf(1.0));
-		AnchorPane.setBottomAnchor(attachmentPane, Double.valueOf(1.0));
-		anchorPane.getChildren().addAll(mailHeader, attachmentPane);
-		
-		ScrollPane infoScroller = new ScrollPane(anchorPane);
-		infoScroller.setFitToWidth(true);
-
+		return attachmentPane;
+	}
+	
+	
+	/**
+	 * this method builds the actual mailbody, which is the viewing
+	 * widget within a scroll panel
+	 * @return
+	 */
+	private Node buildMailBodyPanel() {
 		mailBody = new TextArea();
 		mailBody.setEditable(false);
 		mailBody.setWrapText(true);
 		ScrollPane bodyScroller = new ScrollPane(mailBody);
 		bodyScroller.setFitToHeight(true);
 		bodyScroller.setFitToWidth(true);
-		SplitPane splitter = new SplitPane(infoScroller, bodyScroller);
-		splitter.setOrientation(Orientation.VERTICAL);
-		splitter.setDividerPositions(0.2);
-		vbox.getChildren().add(splitter);
-		VBox.setVgrow(splitter, Priority.ALWAYS);
-		getChildren().add(vbox);
+		return bodyScroller;
 	}
+	
 	
 	/**
 	 * To unset the widgets content, you may call this method
@@ -235,7 +278,6 @@ public class MailView extends StackPane {
 	private Button saveAsBtn;
 	private Button saveAllBtn;
 	private GridPane mailHeader;
-	private VBox attachmentPane;
 	private ObservableList<String> attachments;
 	MailData data;
 	
