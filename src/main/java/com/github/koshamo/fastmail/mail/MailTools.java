@@ -443,6 +443,12 @@ public class MailTools {
 	 * @return the AttachmentData object with the proper input stream
 	 */
 	// TODO: test this with a proper mail.... if not testable, remove!
+	/*
+	 * SuppressWarning Reason: we do not open the stream, we just
+	 * pull it out of the body part. Eclipse does not recognize this
+	 * so the suppress warning annotation is for Eclipse only (?)
+	 */
+	@SuppressWarnings("resource")
 	private static AttachmentData getAttachmentBodyContent(final BodyPart bp) {
 		String fileName = null;
 		int size = 0;
