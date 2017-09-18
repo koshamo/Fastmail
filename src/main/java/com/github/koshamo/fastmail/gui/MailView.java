@@ -93,6 +93,71 @@ public class MailView extends StackPane {
 		getChildren().add(vbox);
 	}
 	
+	
+	/**
+	 * To unset the widgets content, you may call this method
+	 */
+	public void clear() {
+		from.setText(null);
+		subject.setText(null);
+		to.setText(null);
+		cc.setText(null);
+		mailHeader.getChildren().removeAll(ccLbl, cc);
+		mailBody.setText(null);
+		attachmentLbl.setText(null);
+		attachments.clear();
+		saveAsBtn.setDisable(true);
+		saveAllBtn.setDisable(true);
+		this.data = null;
+	}
+
+	
+	/**
+	 * Call this method to fill the widgets content
+	 * @param data	the data object containing all relevant mail data
+	 */
+	public void setContent(final MailData data) {
+		clear();
+		this.data = data;
+		// set attachments first, to get current data for header label width
+		setAttachmentContent(data);
+		// set from
+		setFromContent(data);
+		// set subject
+		subject.setText(data.getSubject());
+		// set to
+		setToContent(data);
+		// set cc
+		setCcContent(data);
+		// set body
+		mailBody.setText(data.getContent());
+	}
+	
+	
+	/*
+	 * ****************************************************
+	 * 					PRIVATE
+	 * ****************************************************
+	 */
+	
+	private VBox attachmentPane;
+	private TextArea mailBody;
+	private Label from;
+	private Label subject;
+	private Label to;
+	private Label ccLbl;
+	private Label cc;
+	private Label attachmentLbl;
+	ChoiceBox<String> attachmentBox;
+	private Button saveAsBtn;
+	private Button saveAllBtn;
+	private GridPane mailHeader;
+	private ObservableList<String> attachments;
+	MailData data;
+	
+	final ResourceBundle i18n;
+	
+	
 	/**
 	 * this method builds the header panel shown on top of each mail,
 	 * containing the actual header data as well as the attachment
@@ -117,6 +182,7 @@ public class MailView extends StackPane {
 		infoScroller.setFitToWidth(true);
 		return infoScroller;
 	}
+	
 	
 	/**
 	 * this method builds the panel showing the relevant mail data,
@@ -197,68 +263,7 @@ public class MailView extends StackPane {
 	}
 	
 	
-	/**
-	 * To unset the widgets content, you may call this method
-	 */
-	public void clear() {
-		from.setText(null);
-		subject.setText(null);
-		to.setText(null);
-		cc.setText(null);
-		mailHeader.getChildren().removeAll(ccLbl, cc);
-		mailBody.setText(null);
-		attachmentLbl.setText(null);
-		attachments.clear();
-		saveAsBtn.setDisable(true);
-		saveAllBtn.setDisable(true);
-		this.data = null;
-	}
 
-	/**
-	 * Call this method to fill the widgets content
-	 * @param data	the data object containing all relevant mail data
-	 */
-	public void setContent(final MailData data) {
-		clear();
-		this.data = data;
-		// set attachments first, to get current data for header label width
-		setAttachmentContent(data);
-		// set from
-		setFromContent(data);
-		// set subject
-		subject.setText(data.getSubject());
-		// set to
-		setToContent(data);
-		// set cc
-		setCcContent(data);
-		// set body
-		mailBody.setText(data.getContent());
-	}
-	
-	
-	/*
-	 * ****************************************************
-	 * 					PRIVATE
-	 * ****************************************************
-	 */
-	
-	private VBox attachmentPane;
-	private TextArea mailBody;
-	private Label from;
-	private Label subject;
-	private Label to;
-	private Label ccLbl;
-	private Label cc;
-	private Label attachmentLbl;
-	ChoiceBox<String> attachmentBox;
-	private Button saveAsBtn;
-	private Button saveAllBtn;
-	private GridPane mailHeader;
-	private ObservableList<String> attachments;
-	MailData data;
-	
-	final ResourceBundle i18n;
-	
 	/**
 	 * fill attachmentPane with mails content
 	 * 
@@ -286,6 +291,7 @@ public class MailView extends StackPane {
 		setHeaderWidht();
 	}
 	
+	
 	/**
 	 *  fill to Label with mails content
 	 *  
@@ -303,6 +309,7 @@ public class MailView extends StackPane {
 		}
 		to.setText(sb.toString());
 	}
+	
 	
 	/**
 	 * fill cc Label with mails content
@@ -325,6 +332,7 @@ public class MailView extends StackPane {
 		}
 		cc.setText(sb.toString());
 	}
+	
 	
 	/**
 	 * fill from Label with mails content 
@@ -406,6 +414,7 @@ public class MailView extends StackPane {
 			t.start();
 		}
 	}
+	
 	
 	/* package private*/
 	final class SaveAllEventHandler implements EventHandler<ActionEvent> {

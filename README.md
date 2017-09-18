@@ -3,18 +3,20 @@ Fast Java Mail Client
 
 Fastmail is a Java Email Client, that uses 
 JavaMail ( https://java.net/projects/javamail/pages/Home )
-for email connection to server.
-JavaMail needs Java Activation Framework, jaf-1.1.1, so you most probably need to install 
-that, too.
+for email connection to server. The GUI is build using JavaFX.
 
 I wrote this peace of software as I had been in need of a new Email client for
 my new Laptop. The available Email clients didn't fit my needs so I decided to write
-on to suit my needs.
+one to suit my needs.
 
 I am developing on FreeBSD using OpenJDK. 
 So please provide me with feedback for other platforms and compilers.
 
-Version 0.0.4 (HEAD)
+
+Version 0.0.5 (HEAD)
+
+
+Version 0.0.4
 * context menu for mails with functionality, to reply, delete and move messages
 * externalized strings, preparation for internationalization
 * i18n Packages for en_US and de_DE added
