@@ -14,7 +14,7 @@ So please provide me with feedback for other platforms and compilers.
 
 
 Version 0.0.5 (HEAD)
-
+* fixed bug on FolderSynchronizerTask: FX integration for worker thread
 
 Version 0.0.4
 * context menu for mails with functionality, to reply, delete and move messages
