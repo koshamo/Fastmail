@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -108,7 +108,8 @@ public class MailComposer {
 		if (replyAll)
 			ccAddress.setText(mail.getCcAsLine());
 		subjectText.setText(MailTools.makeSubject(mail.getSubject()));
-		area.setText(MailTools.decorateMailText(mail.getContent()));
+		// TODO: currently we only use plain text for message composing
+		area.setText(MailTools.decorateMailText(mail.getTextContent()));
 	}
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen RaÃŸler
+ * Copyright (C) 2017  Dr. Jochen Raßler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 package com.github.koshamo.fastmail.mail;
 
 import java.time.Instant;
+import java.util.NoSuchElementException;
 
 import javax.mail.Message;
 
@@ -49,7 +50,7 @@ public final class MailData {
 	private String[] toName;
 	private String[] cc;
 	private String[] ccName;
-	private String content;
+	private String[] content;
 	private AttachmentData[] attachments;
 	// the received date can change, e.g. if the message is moved to another folder
 	private Instant receivedDate;	
@@ -187,12 +188,37 @@ public final class MailData {
 	 * Get the mail's text content
 	 * @return	the content as string
 	 */
-	public String getContent() {
+	public String getTextContent() {
 		if (content == null)
 			content = MailTools.getContent(message);
-		return content;
+		return content[0];
 	}
 
+	
+	/**
+	 * Get the mail's HTML content
+	 * @return	the content as string
+	 */
+	public String getHtmlContent() {
+		if (content == null)
+			content = MailTools.getContent(message);
+		if (content.length > 1)
+			return content[1];
+		throw new NoSuchElementException("No HTML Message Part available");
+		// TODO: externalize this Exception message
+	}
+
+	
+	/**
+	 * Checks whether a HTML content part is available
+	 * @return	true, if HTML message is available, else false
+	 */
+	public boolean hasHtmlContent() {
+		if (content == null)
+			content = MailTools.getContent(message);
+		return content.length > 1 ? true : false;
+	}
+	
 
 	/**
 	 * Get the contained attachments

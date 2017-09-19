@@ -300,17 +300,22 @@ public class MailTools {
 	
 	
 	/**
-	 * Just in time loading of message content (currently only plain text)
+	 * Just in time loading of message content. Returns an array, 
+	 * containing the content. First entry is plain text, second
+	 * entry, if available, holds HTML message
+	 *  
 	 * @param message	the message to process
 	 * @return			the message content
 	 */
-	public static String getContent(final Message message) {
+	public static String[] getContent(final Message message) {
 		try {
-			String content = null;
+			String[] content = null;
 			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
-				content = (String) message.getContent();
+				content = new String[1];
+				content[0] = (String) message.getContent();
 			} else if (message.isMimeType("text/html")) { //$NON-NLS-1$
-				content = (String) message.getContent();
+				content = new String[1];
+				content[0] = (String) message.getContent();
 			} else if (message.isMimeType("multipart/*")) { //$NON-NLS-1$
 				Multipart mp = (Multipart)message.getContent();
 				content = getTextBodyContent(mp);
@@ -390,32 +395,45 @@ public class MailTools {
 	/**
 	 * this method provides the content of Multipart messages
 	 * <p>
-	 * currently we read the plain text body part, which is the first body part
-	 * provided. the second one seems to be the HTML body part, which currently
-	 * is ignored.
+	 * we read the plain text body part, which is the first body part
+	 * provided. the second one seems to be the HTML body part.
+	 * Both parts are stored in that order into the returning String array.
+	 * <p>
 	 * If the body part contains another body part, we dive recursively into it
 	 * to get the real content - currently as plain text, see above
 	 * 
 	 * @param mp the Multipart message of the mail, which is the body part
-	 * @return the mails content as plain text
+	 * @return the mails content as String array
 	 */
-	private static String getTextBodyContent(final Multipart mp) {
-		String result = ""; //$NON-NLS-1$
+	private static String[] getTextBodyContent(final Multipart mp) {
+		int cnt = 0;
+		try {
+			cnt = mp.getCount();
+		} catch(MessagingException e) {
+			MessageItem mItem = new MessageItem(
+					MessageFormat.format(
+							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							e.getMessage()),
+					0.0, MessageItem.MessageType.EXCEPTION);
+			MessageMarket.getInstance().produceMessage(mItem);
+		}
+		String[] simpleResult = new String[cnt];
+		String[] complexResult = null;
 		// seems that most Multipart messages have 2 Body parts
 		// first body part: plain text
 		// second body part: HTML message
 		try {
-			for (int i = 0; i < mp.getCount(); i++) {
+			for (int i = 0; i < cnt; i++) {
 				Object obj = mp.getBodyPart(i).getContent();
 				if (obj instanceof String) {
-					// TODO: we return the first body part, which is the plain text message
-					// the second body part seems to be the HTML body, which will be
-					// needed, as soon as we are able to display HTML text
-					result = (String) mp.getBodyPart(i).getContent();
+					// this is the Multipart containing the message BodyParts
+					simpleResult[i] = (String) mp.getBodyPart(i).getContent();
 					break;
 				} 
 				else if (obj instanceof MimeMultipart) {
-					result = getTextBodyContent((Multipart) obj);
+					// this Multipart doesn't own the message BodyParts
+					// on itself, so recursively dive into it
+					complexResult = getTextBodyContent((Multipart) obj);
 				}
 			}
 		} catch (IOException e) {
@@ -433,7 +451,7 @@ public class MailTools {
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);
 		}
-		return result;
+		return complexResult == null ? simpleResult : complexResult;
 	}
 	
 	/**

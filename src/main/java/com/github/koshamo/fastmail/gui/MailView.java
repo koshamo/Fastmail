@@ -59,6 +59,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
@@ -130,7 +131,7 @@ public class MailView extends StackPane {
 		// set cc
 		setCcContent(data);
 		// set body
-		mailBody.setText(data.getContent());
+		mailBody.setText(data.getTextContent());
 	}
 	
 	
@@ -154,6 +155,9 @@ public class MailView extends StackPane {
 	private GridPane mailHeader;
 	private ObservableList<String> attachments;
 	MailData data;
+	
+	private final int LABEL_WIDTH = 80;
+	private final int LABEL_GAP = 20;
 	
 	final ResourceBundle i18n;
 	
@@ -354,6 +358,10 @@ public class MailView extends StackPane {
 		mailHeader.setMaxWidth(width);
 	}
 	
+	private double getInfoPanelWidth() {
+		return getWidth() - attachmentPane.getWidth() - 
+				LABEL_WIDTH - LABEL_GAP;
+	}
 	
 	/*package private*/ 
 	final class SaveAsEventHandler implements EventHandler<ActionEvent> {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,6 +32,7 @@ import com.github.koshamo.fastmail.util.MessageItem;
 import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
@@ -40,7 +41,7 @@ import javafx.concurrent.Task;
  * <p>
  * Used standalone in a thread, this task runs once to synch the given folder,
  * e.g. for local folders, when we know a change has been made and we
- * want to force an upadte.
+ * want to force an update.
  * <p>
  * The class can be used in a Scheduled Service, as it is implemented in
  * FolderSynchronizer, that uses this Task to poll the update of a given 
@@ -92,7 +93,7 @@ public class FolderSynchronizerTask extends Task<Void> {
 			if (!folder.isOpen())
 				folder.open(Folder.READ_WRITE);
 			Message[] messages = folder.getMessages();
-			List<EmailTableData> serverList = new ArrayList<EmailTableData>();
+			List<EmailTableData> serverList = new ArrayList<>();
 			/* 
 			 * first step: add mails, if there really are more mails
 			 * on server than on the local end
@@ -105,7 +106,9 @@ public class FolderSynchronizerTask extends Task<Void> {
 						continue;
 					EmailTableData etd = new EmailTableData(msg);
 					if (!mailList.contains(etd)) 
-						mailList.add(etd);
+						Platform.runLater(()-> {
+							mailList.add(etd);
+						});
 					// prepare for step two
 					if (count > 0)
 						serverList.add(etd);
@@ -125,7 +128,7 @@ public class FolderSynchronizerTask extends Task<Void> {
 				 */
 				if (mailList.size() != serverList.size()) {
 					// prevent ConcurrentModificationException
-					Collection<EmailTableData> toBeRemoved = new ArrayList<EmailTableData>();
+					Collection<EmailTableData> toBeRemoved = new ArrayList<>();
 					for (EmailTableData etd : mailList) {
 						if (!serverList.contains(etd))
 							toBeRemoved.add(etd);
