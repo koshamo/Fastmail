@@ -418,6 +418,7 @@ public class MailTools {
 			MessageMarket.getInstance().produceMessage(mItem);
 		}
 		String[] simpleResult = new String[cnt];
+		System.out.println("BodyPart Count: " + cnt);
 		String[] complexResult = null;
 		// seems that most Multipart messages have 2 Body parts
 		// first body part: plain text
@@ -425,10 +426,10 @@ public class MailTools {
 		try {
 			for (int i = 0; i < cnt; i++) {
 				Object obj = mp.getBodyPart(i).getContent();
+				System.out.println("BodyPart Type: " + obj.getClass());
 				if (obj instanceof String) {
 					// this is the Multipart containing the message BodyParts
 					simpleResult[i] = (String) mp.getBodyPart(i).getContent();
-					break;
 				} 
 				else if (obj instanceof MimeMultipart) {
 					// this Multipart doesn't own the message BodyParts

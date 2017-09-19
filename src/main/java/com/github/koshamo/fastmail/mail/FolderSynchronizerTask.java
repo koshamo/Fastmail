@@ -137,7 +137,8 @@ public class FolderSynchronizerTask extends Task<Void> {
 				}
 			}
 			// sort the list in the natural order
-			mailList.sort(null);
+			// TODO: verify this solves the ArrayIndexOutOfBoundsException 
+			Platform.runLater(()-> {mailList.sort(null);});
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$

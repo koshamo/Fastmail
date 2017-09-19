@@ -51,7 +51,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -59,7 +58,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
@@ -88,6 +87,7 @@ public class MailView extends StackPane {
 		SplitPane splitter = new SplitPane(infoScroller, bodyScroller);
 		splitter.setOrientation(Orientation.VERTICAL);
 		splitter.setDividerPositions(0.2);
+		SplitPane.setResizableWithParent(infoScroller, Boolean.FALSE);
 
 		vbox.getChildren().add(splitter);
 		VBox.setVgrow(splitter, Priority.ALWAYS);
@@ -104,7 +104,7 @@ public class MailView extends StackPane {
 		to.setText(null);
 		cc.setText(null);
 		mailHeader.getChildren().removeAll(ccLbl, cc);
-		mailBody.setText(null);
+		mailBody.getEngine().loadContent(" ");
 		attachmentLbl.setText(null);
 		attachments.clear();
 		saveAsBtn.setDisable(true);
@@ -131,7 +131,14 @@ public class MailView extends StackPane {
 		// set cc
 		setCcContent(data);
 		// set body
-		mailBody.setText(data.getTextContent());
+		if (data.hasHtmlContent()) {
+			mailBody.getEngine().loadContent(data.getHtmlContent());
+			System.out.println("WebEngine: HTML");
+		}
+		else {
+			mailBody.getEngine().loadContent(data.getTextContent());
+			System.out.println("WebEngine: Text");
+		}
 	}
 	
 	
@@ -142,7 +149,7 @@ public class MailView extends StackPane {
 	 */
 	
 	private VBox attachmentPane;
-	private TextArea mailBody;
+	private WebView mailBody;
 	private Label from;
 	private Label subject;
 	private Label to;
@@ -155,9 +162,6 @@ public class MailView extends StackPane {
 	private GridPane mailHeader;
 	private ObservableList<String> attachments;
 	MailData data;
-	
-	private final int LABEL_WIDTH = 80;
-	private final int LABEL_GAP = 20;
 	
 	final ResourceBundle i18n;
 	
@@ -257,9 +261,9 @@ public class MailView extends StackPane {
 	 * @return
 	 */
 	private Node buildMailBodyPanel() {
-		mailBody = new TextArea();
-		mailBody.setEditable(false);
-		mailBody.setWrapText(true);
+		mailBody = new WebView();
+//		mailBody.setEditable(false);
+//		mailBody.setWrapText(true);
 		ScrollPane bodyScroller = new ScrollPane(mailBody);
 		bodyScroller.setFitToHeight(true);
 		bodyScroller.setFitToWidth(true);
@@ -358,11 +362,6 @@ public class MailView extends StackPane {
 		mailHeader.setMaxWidth(width);
 	}
 	
-	private double getInfoPanelWidth() {
-		return getWidth() - attachmentPane.getWidth() - 
-				LABEL_WIDTH - LABEL_GAP;
-	}
-	
 	/*package private*/ 
 	final class SaveAsEventHandler implements EventHandler<ActionEvent> {
 		@Override
@@ -380,6 +379,7 @@ public class MailView extends StackPane {
 				@Override
 				protected Void call() throws Exception {
 					// wrong warning from eclipse, ignore it
+					@SuppressWarnings("resource")
 					InputStream is = (data.getAttachments())[item].getInputStream();
 					if (!data.getMessage().getFolder().isOpen())
 						data.getMessage().getFolder().open(Folder.READ_WRITE);
@@ -451,6 +451,7 @@ public class MailView extends StackPane {
 						totalFileSize += ad.getSize();
 					for (int i = 0; i < data.getAttachments().length; i++) {
 						// wrong warning from eclipse, ignore it
+						@SuppressWarnings("resource")
 						InputStream is = (data.getAttachments())[i].getInputStream();
 						if (!data.getMessage().getFolder().isOpen())
 							data.getMessage().getFolder().open(Folder.READ_WRITE);
