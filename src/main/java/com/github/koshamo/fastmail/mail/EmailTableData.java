@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ResourceBundle;
 
+import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -104,6 +105,10 @@ public class EmailTableData implements Comparable<EmailTableData>{
 				Multipart mp = (Multipart) msg.getContent();
 				if (mp.getCount() > 1)
 					attachment = true;
+				else 
+					if (mp.getBodyPart(0).getContentType().contains("APPLICATION"))
+						attachment = true;
+				
 			}
 			this.subject = new SimpleStringProperty(msg.getSubject()); 
 			if (this.subject.get() == null)
