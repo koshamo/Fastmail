@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,11 +26,9 @@ import javafx.application.Platform;
 
 public class Fastmail {
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SerializeManager manager = SerializeManager.getInstance();
 		manager.deserialize();
-		new FastGui();
 		Application.launch(FastGui.class, args);
 		manager.serialize();
 		Platform.exit();
