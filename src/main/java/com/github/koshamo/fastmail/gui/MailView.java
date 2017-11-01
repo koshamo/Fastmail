@@ -131,14 +131,11 @@ public class MailView extends StackPane {
 		// set cc
 		setCcContent(data);
 		// set body
-		if (data.hasHtmlContent()) {
+		if (data.hasHtmlContent()) 
 			mailBody.getEngine().loadContent(data.getHtmlContent());
-			System.out.println("WebEngine: HTML");
-		}
-		else {
-			mailBody.getEngine().loadContent(data.getTextContent());
-			System.out.println("WebEngine: Text");
-		}
+		else 
+			if (data.getTextContent() != null)
+				mailBody.getEngine().loadContent(data.getTextContent());
 	}
 	
 	
@@ -162,7 +159,7 @@ public class MailView extends StackPane {
 	private GridPane mailHeader;
 	private ObservableList<String> attachments;
 	MailData data;
-	private final static String DefaultView = "<html></html>";
+	private final static String DefaultView = "";
 	
 	final ResourceBundle i18n;
 	
@@ -263,8 +260,6 @@ public class MailView extends StackPane {
 	 */
 	private Node buildMailBodyPanel() {
 		mailBody = new WebView();
-//		mailBody.setEditable(false);
-//		mailBody.setWrapText(true);
 		ScrollPane bodyScroller = new ScrollPane(mailBody);
 		bodyScroller.setFitToHeight(true);
 		bodyScroller.setFitToWidth(true);
