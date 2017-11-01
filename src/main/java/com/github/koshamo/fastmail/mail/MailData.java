@@ -201,7 +201,9 @@ public final class MailData {
 	public String getHtmlContent() {
 		if (content == null)
 			content = MailTools.parseMailContent(message);
-			return content.getHtmlContent();
+		System.out.println("### HTML Content: ###");
+		System.out.println(content.getHtmlContent());
+		return content.getHtmlContent();
 	}
 
 	

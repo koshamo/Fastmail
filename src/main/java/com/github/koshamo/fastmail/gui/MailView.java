@@ -131,11 +131,20 @@ public class MailView extends StackPane {
 		// set cc
 		setCcContent(data);
 		// set body
-		if (data.hasHtmlContent()) 
-			mailBody.getEngine().loadContent(data.getHtmlContent());
-		else 
+		String content = null;
+		String type = null;
+		if (data.hasHtmlContent()) {
+			content = data.getHtmlContent();
+			type = "text/HTML"; //$NON-NLS-1$
+		}
+		else { 
 			if (data.getTextContent() != null)
-				mailBody.getEngine().loadContent(data.getTextContent());
+				content = data.getTextContent();
+			else
+				content = DefaultView;
+			type = "text/plain"; //$NON-NLS-1$
+		}
+		mailBody.getEngine().loadContent(content, type);
 	}
 	
 	
