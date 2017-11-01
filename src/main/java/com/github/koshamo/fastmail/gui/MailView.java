@@ -104,7 +104,7 @@ public class MailView extends StackPane {
 		to.setText(null);
 		cc.setText(null);
 		mailHeader.getChildren().removeAll(ccLbl, cc);
-		mailBody.getEngine().loadContent(" ");
+		mailBody.getEngine().loadContent(DefaultView);
 		attachmentLbl.setText(null);
 		attachments.clear();
 		saveAsBtn.setDisable(true);
@@ -162,6 +162,7 @@ public class MailView extends StackPane {
 	private GridPane mailHeader;
 	private ObservableList<String> attachments;
 	MailData data;
+	private final static String DefaultView = "<html></html>";
 	
 	final ResourceBundle i18n;
 	

@@ -50,8 +50,7 @@ public final class MailData {
 	private String[] toName;
 	private String[] cc;
 	private String[] ccName;
-	private String[] content;
-	private AttachmentData[] attachments;
+	private MailContent content;
 	// the received date can change, e.g. if the message is moved to another folder
 	private Instant receivedDate;	
 
@@ -190,8 +189,8 @@ public final class MailData {
 	 */
 	public String getTextContent() {
 		if (content == null)
-			content = MailTools.getContent(message);
-		return content[0];
+			content = MailTools.parseMailContent(message);
+		return content.getTextContent();
 	}
 
 	
@@ -201,11 +200,8 @@ public final class MailData {
 	 */
 	public String getHtmlContent() {
 		if (content == null)
-			content = MailTools.getContent(message);
-		if (content.length > 1)
-			return content[1];
-		throw new NoSuchElementException("No HTML Message Part available");
-		// TODO: externalize this Exception message
+			content = MailTools.parseMailContent(message);
+			return content.getHtmlContent();
 	}
 
 	
@@ -215,8 +211,8 @@ public final class MailData {
 	 */
 	public boolean hasHtmlContent() {
 		if (content == null)
-			content = MailTools.getContent(message);
-		return content.length > 1 ? true : false;
+			content = MailTools.parseMailContent(message);
+		return content.getHtmlContent() != null ? true : false;
 	}
 	
 
@@ -225,9 +221,9 @@ public final class MailData {
 	 * @return	the attachment data object
 	 */
 	public AttachmentData[] getAttachments() {
-		if (attachments == null)
-			attachments = MailTools.getAttachments(message);
-		return attachments;
+		if (content == null)
+			content = MailTools.parseMailContent(message);
+		return content.getAttachments().toArray(new AttachmentData[0]);
 	}
 
 

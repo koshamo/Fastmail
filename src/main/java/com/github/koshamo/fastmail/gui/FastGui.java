@@ -30,6 +30,7 @@ import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccount;
 import com.github.koshamo.fastmail.mail.MailAccountData;
+import com.github.koshamo.fastmail.mail.MailTools;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
 import com.github.koshamo.fastmail.util.DateCellComparator;
 import com.github.koshamo.fastmail.util.DateCellFactory;
@@ -414,6 +415,8 @@ public class FastGui extends Application {
 						btnReplyAll.setDisable(false);
 						btnDelete.setDisable(false);
 						mailBody.setContent(newVal.getMailData());
+						// analyze mail content to get real content
+//						MailTools.analyzeContent(newVal.getMessage());
 					}
 				});
 

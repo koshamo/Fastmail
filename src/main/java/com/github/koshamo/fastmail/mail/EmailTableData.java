@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -106,9 +106,10 @@ public class EmailTableData implements Comparable<EmailTableData>{
 				if (mp.getCount() > 1)
 					attachment = true;
 				else 
+					// TODO: what, if image is the only content?
+					// would it be better to check against not-TEXT?
 					if (mp.getBodyPart(0).getContentType().contains("APPLICATION"))
 						attachment = true;
-				
 			}
 			this.subject = new SimpleStringProperty(msg.getSubject()); 
 			if (this.subject.get() == null)

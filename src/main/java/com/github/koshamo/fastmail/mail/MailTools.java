@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 
+import javax.activation.DataHandler;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -35,6 +36,7 @@ import javax.mail.internet.MimeMultipart;
 import com.github.koshamo.fastmail.util.MessageItem;
 import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
+import com.sun.mail.util.BASE64DecoderStream;
 
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
@@ -43,6 +45,10 @@ import javafx.scene.control.TreeItem;
  * MailTools is a helper class that holds some static methods which are useful
  * throughout the application and do some basic stuff
  * 
+ * @author jochen
+ *
+ */
+/**
  * @author jochen
  *
  */
@@ -298,216 +304,180 @@ public class MailTools {
 		return null;
 	}
 	
-	
-	/**
-	 * Just in time loading of message content. Returns an array, 
-	 * containing the content. First entry is plain text, second
-	 * entry, if available, holds HTML message
-	 *  
-	 * @param message	the message to process
-	 * @return			the message content
-	 */
-	public static String[] getContent(final Message message) {
-		try {
-			String[] content = null;
-			if (message.isMimeType("text/plain")) { //$NON-NLS-1$
-				content = new String[1];
-				content[0] = (String) message.getContent();
-			} else if (message.isMimeType("text/html")) { //$NON-NLS-1$
-				content = new String[1];
-				content[0] = (String) message.getContent();
-			} else if (message.isMimeType("multipart/*")) { //$NON-NLS-1$
-				Multipart mp = (Multipart)message.getContent();
-				content = getTextBodyContent(mp);
-			} else if (message.isMimeType("message/rfc822")) { //$NON-NLS-1$
-				// recursive reading
-				System.out.println("come back to MailTools::getContent() to fix this");
-				System.out.println("ContentType is " + message.getContentType());
-//				MimeMultipart mm = (MimeMultipart) message.getContent();
-//				md = getMessage();
-			} else {
-				System.out.println("this is an unknown message type, " + message.getContentType());
-			}
-			return content;
-		} catch (IOException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
-		} catch (MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
-		}
-		return null;
-	}
-	
-	
-	/**
-	 * Just in time loading of message attachments
-	 * @param message	the message to process
-	 * @return			the attachment data objects as array
-	 */
-	public static AttachmentData[] getAttachments(final Message message) {
-		try {
-			if (message.isMimeType("multipart/mixed")) { //$NON-NLS-1$
-				Multipart mp = (Multipart)message.getContent();
-				int cnt = mp.getCount();
-				if (cnt > 1) {
-					AttachmentData[] attachments = new AttachmentData[cnt-1];
-					for (int i = 1; i < cnt; i++) {
-						BodyPart bp = mp.getBodyPart(i); 
-						if (bp.getContent() instanceof InputStream) {
-							attachments[i-1] = new AttachmentData(
-									bp.getFileName(), bp.getSize(), 
-									(InputStream) bp.getContent());
-						} else
-							attachments[i-1] = getAttachmentBodyContent(bp);
-					}
-					return attachments;
-				}
-			}
-		} catch (MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
-		} catch (IOException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
-		}
-		return null;
-	}
-	
 
-
+	
 	/**
-	 * this method provides the content of Multipart messages
-	 * <p>
-	 * we read the plain text body part, which is the first body part
-	 * provided. the second one seems to be the HTML body part.
-	 * Both parts are stored in that order into the returning String array.
-	 * <p>
-	 * If the body part contains another body part, we dive recursively into it
-	 * to get the real content - currently as plain text, see above
+	 * Just in time loading of Message content, such as Text and HTML
+	 * content and attachments
 	 * 
-	 * @param mp the Multipart message of the mail, which is the body part
-	 * @return the mails content as String array
+	 * @param msg	the message to be read 
+	 * @return		the MailContent object containing text, and HTML 
+	 * content as well as the attachments
 	 */
-	private static String[] getTextBodyContent(final Multipart mp) {
-		int cnt = 0;
+	public static MailContent parseMailContent(final Message msg) {
+		MailContent content = null;
+		
 		try {
-			cnt = mp.getCount();
-		} catch(MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
-		}
-		String[] simpleResult = new String[cnt];
-		System.out.println("BodyPart Count: " + cnt);
-		String[] complexResult = null;
-		// seems that most Multipart messages have 2 Body parts
-		// first body part: plain text
-		// second body part: HTML message
-		try {
-			for (int i = 0; i < cnt; i++) {
-				Object obj = mp.getBodyPart(i).getContent();
-				System.out.println("BodyPart Type: " + obj.getClass());
-				if (obj instanceof String) {
-					// this is the Multipart containing the message BodyParts
-					simpleResult[i] = (String) mp.getBodyPart(i).getContent();
-				} 
-				else if (obj instanceof MimeMultipart) {
-					// this Multipart doesn't own the message BodyParts
-					// on itself, so recursively dive into it
-					complexResult = getTextBodyContent((Multipart) obj);
+			String type = msg.getContentType();
+			if (type.toLowerCase().contains("text")) { //$NON-NLS-1$
+				content = new MailContent();
+				// content type TEXT/PLAIN 
+				if (type.toLowerCase().contains("plain")) { //$NON-NLS-1$
+					if (!(msg.getContent() instanceof String))
+						System.out.println("Content is no String?!");
+					content.setTextContent((String)msg.getContent());
 				}
+				// content type TEXT/HTML
+				if (type.toLowerCase().contains("html")) { //$NON-NLS-1$
+					if (!(msg.getContent() instanceof String))
+						System.out.println("Content is no String?!");
+					content.setHtmlContent((String)msg.getContent());
+				}
+				return content;
 			}
-		} catch (IOException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+			// content type MULTIPART
+			if (type.toLowerCase().contains("multipart")) //$NON-NLS-1$
+				content = parseMultipartContent((Multipart) msg.getContent());
+			return content;
 		} catch (MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return complexResult == null ? simpleResult : complexResult;
+		// TODO: what to return, if an exception occurred?
+		return null;
 	}
 	
 	/**
-	 * if BodyPart is recursively packed, this method is convenient 
-	 * to get the attachments
-	 * @param bp the BodyPart of a MimeMultipart message
-	 * @return the AttachmentData object with the proper input stream
+	 * A Mail either contains only a simple text content (plain or HTML), 
+	 * or is a Multipart message, possibly with attachments.
+	 * If the mail is Multipart message, this method diggs into it.
+	 * 
+	 * @param part	the Multipart object in the mail
+	 * @return		the MailContent object containing text, and HTML 
+	 * content as well as the attachments
+	 * @throws MessagingException 	if the message is expunged or similar
+	 * @throws IOException 			if the internet connection is lost
 	 */
-	// TODO: test this with a proper mail.... if not testable, remove!
-	/*
-	 * SuppressWarning Reason: we do not open the stream, we just
-	 * pull it out of the body part. Eclipse does not recognize this
-	 * so the suppress warning annotation is for Eclipse only (?)
+	private static MailContent parseMultipartContent(final Multipart part) 
+			throws MessagingException, IOException {
+		MailContent content = new MailContent();
+			for (int i = 0; i < part.getCount(); i++) 
+				parseBodyPart(part.getBodyPart(i), content);
+		return content;
+	}
+	
+	
+	/**
+	 * The actual content of a Multipart message object is within a
+	 * Bodypart object. So this method gets the content and stores it to
+	 * the content object.
+	 * 
+	 * Note: this method has side effects to the parameter content!
+	 * 
+	 * @param bodyPart	the Bodypart object to process
+	 * @param conent	the MailContent object to store the date
+	 * @throws MessagingException 	if the message is expunged or similar
+	 * @throws IOException 			if the internet connection is lost
 	 */
-	@SuppressWarnings("resource")
-	private static AttachmentData getAttachmentBodyContent(final BodyPart bp) {
-		String fileName = null;
-		int size = 0;
-		InputStream is = null;
-		try {
-				Object obj = bp.getContent();
-				if (obj instanceof String) {
-						// do nothing with String attachment
-				} 
-				else if (obj instanceof MimeMultipart) {
-					System.out.println("Multipart");
-					getAttachmentBodyContent(((MimeMultipart) obj).getBodyPart(0));
-					fileName = ((MimeMultipart) obj).getBodyPart(0).getFileName();
-					System.out.println("Filename " + fileName);
-					size = ((MimeMultipart) obj).getBodyPart(0).getSize();
-					System.out.println("Size " + size);
-				}
-				else if (obj instanceof InputStream) {
-					System.out.println("InputStream " + obj);
-					is = (InputStream) obj;
-				} else
-					System.out.println("Object: " + obj.getClass());
-		} catch (MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
-		} catch (IOException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailboxaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+	private static void parseBodyPart(final BodyPart bodyPart, 
+			final MailContent content) 
+			throws IOException, MessagingException {
+		Object obj = bodyPart.getContent();
+		if (bodyPart.getContentType().toLowerCase().contains("text")) {
+			if (bodyPart.getContentType().toLowerCase().contains("plain"))
+				content.setTextContent((String) obj);
+			if (bodyPart.getContentType().toLowerCase().contains("html"))
+				content.setHtmlContent((String) obj);
 		}
-		// eclipse issue: is doesn't need to be closed
-		return new AttachmentData(fileName, size, is);
+		if (obj instanceof Multipart) {
+			MailContent inline = parseMultipartContent((Multipart) obj);
+			if (inline.getTextContent() != null)
+				content.setTextContent(inline.getTextContent());
+			if (inline.getHtmlContent() != null)
+				content.setHtmlContent(inline.getHtmlContent());
+			if (inline.getAttachments() != null)
+				content.addAttachment(inline.getAttachments());
+		}
+		if (obj instanceof DataHandler)
+			System.out.println("Content is DataHandler - is it the same as a BASE64DecoderStream?");
+		if (obj instanceof BodyPart)
+			System.out.println("A BodyPart should contain Multiparts, no Bodyparts!");
+		if (obj instanceof BASE64DecoderStream)
+			content.addAttachment(bodyPart.getFileName(), bodyPart.getSize(), 
+					bodyPart.getContentType(), (InputStream) obj);
+		
 	}
 
 
+	/**
+	 * This method is to analyze the mail messages, as the
+	 * javamail documentation and the FAQ does not cover all
+	 * possible mail configurations and thus some mails can't get
+	 * read correctly.
+	 * 
+	 * @param msg
+	 */
+	public static void analyzeContent(Message msg) {
+		try {
+			System.out.println("===== Message Content =====?");
+			System.out.println("=== " + msg.getSubject() + " ===");
+			System.out.println("Content Type: " + msg.getContentType());
+			// content type can be Text, multipart or unknown
+			if (msg.getContentType().contains("multipart"))
+				analyzeMultipart((Multipart)msg.getContent(), 0);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * @param part	possibly Multipart?
+	 * @param lvl	for recursion
+	 */
+	public static void analyzeMultipart(Multipart part, int lvl) {
+		System.out.println("MULTIPART Level: " + lvl + " Class: " + part.getClass());
+		
+		try {
+			System.out.println("Multipart Content Type: " + part.getContentType());
+			System.out.println("Body Count: " + part.getCount());
+			for (int i = 0; i < part.getCount(); i++) 
+				analyzeBodyPart(part.getBodyPart(i), lvl);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void analyzeBodyPart(BodyPart bp, int lvl) {
+		try {
+			System.out.println("BODYPART Level: " + lvl + " Class: " + bp.getClass());
+			System.out.println("Content Type: " + bp.getContentType());
+			Object obj = bp.getContent();
+			System.out.println("Class of Content: " + obj.getClass());
+			if (obj instanceof Multipart)
+				analyzeMultipart((Multipart)obj, ++lvl);
+			if (obj instanceof DataHandler)
+				System.out.println("Content is DataHandler");
+			if (obj instanceof BodyPart)
+				analyzeBodyPart((BodyPart) obj, ++lvl);
+			if (obj instanceof BASE64DecoderStream)
+				System.out.println("ATTACHMENT");
+			
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

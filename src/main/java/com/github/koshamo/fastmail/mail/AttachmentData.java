@@ -30,6 +30,7 @@ public final class AttachmentData {
 
 	private final String fileName;
 	private final int size;
+	private final String type;
 	private final InputStream inputStream;
 	
 	/**
@@ -38,10 +39,11 @@ public final class AttachmentData {
 	 * @param inputStream	the attachment's input stream
 	 */
 	public AttachmentData(final String fileName, final int size, 
-			final InputStream inputStream) {
+			final String type, final InputStream inputStream) {
 		super();
 		this.fileName = fileName;
 		this.size = size;
+		this.type = type;
 		this.inputStream = inputStream;
 	}
 	
