@@ -411,6 +411,10 @@ public class MailTools {
 		
 	}
 
+	// TODO: delete at given time
+	// ALL ANALYZE METHODS BELOW
+	// are just for testing purpose and may be deleted, 
+	// if proper working of parse* methods is proven
 
 	/**
 	 * This method is to analyze the mail messages, as the
