@@ -13,7 +13,10 @@ I am developing on FreeBSD using OpenJDK.
 So please provide me with feedback for other platforms and compilers.
 
 
-Version 0.0.5 (HEAD)
+Version 0.1.1 (HEAD)
+
+
+Version 0.1.0
 * fixed bug on FolderSynchronizerTask: FX integration for worker thread
 * messages now view in WebEngine widget, so HTML messages can be displayed
 
