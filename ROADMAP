@@ -1,0 +1,16 @@
+Planned features:
+=================
+
+* display unread / all mail numbers at mail folders names
+* highlight unread mails in mail folder list
+* include possibility to maintain offline mail storage
+* include settings for several GUI related things
+* include settings for functionality based things
+* include themeing capability
+
+Issues needs to be addressed:
+=============================
+
+* increase download speed of mailbox content (mails)
+* increase download speed of attachments
+* inline attachments? (seems to be an outlook issue, that can be used by spammers! So really implement this?)
