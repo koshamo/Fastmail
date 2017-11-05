@@ -30,7 +30,6 @@ import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccount;
 import com.github.koshamo.fastmail.mail.MailAccountData;
-import com.github.koshamo.fastmail.mail.MailTools;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
 import com.github.koshamo.fastmail.util.DateCellComparator;
 import com.github.koshamo.fastmail.util.DateCellFactory;
@@ -376,7 +375,7 @@ public class FastGui extends Application {
 		// MESSAGE READ column
 		final TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
 		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
-		readCol.setCellFactory(CheckBoxTableCell.forTableColumn(readCol));
+		readCol.setCellFactory((TableColumn<EmailTableData, Boolean> p) -> new TableCellFactory(readCol));
 		readCol.setEditable(true);
 		readCol.setMaxWidth(30);
 		// ATTACHMENT column
