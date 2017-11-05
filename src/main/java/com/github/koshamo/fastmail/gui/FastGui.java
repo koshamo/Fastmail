@@ -35,7 +35,6 @@ import com.github.koshamo.fastmail.util.DateCellComparator;
 import com.github.koshamo.fastmail.util.DateCellFactory;
 import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
-import com.github.koshamo.fastmail.util.TreeCellFactory;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;

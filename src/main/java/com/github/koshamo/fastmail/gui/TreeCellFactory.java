@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Ra√üler
+ * Copyright (C) 2017  Dr. Jochen Raﬂler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail.util;
+package com.github.koshamo.fastmail.gui;
 
 import java.text.MessageFormat;
 
@@ -26,6 +26,9 @@ import javax.mail.MessagingException;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailTools;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
+import com.github.koshamo.fastmail.util.MessageItem;
+import com.github.koshamo.fastmail.util.MessageMarket;
+import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeCell;
