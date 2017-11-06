@@ -21,9 +21,11 @@ package com.github.koshamo.fastmail.gui;
 import com.github.koshamo.fastmail.mail.EmailTableData;
 
 import javafx.scene.Node;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.paint.Color;
 
 /**
  * This class is intended to be used for the main Mail TableView
@@ -63,10 +65,18 @@ public class TableCellFactory extends CheckBoxTableCell<EmailTableData, Boolean>
 		} else {
 			if (item.booleanValue()) {
 				for (Node n : row.getChildrenUnmodifiable())
-					n.setStyle(""); //$NON-NLS-1$
+					if (n instanceof Labeled) {
+						Labeled l = (Labeled) n;
+						l.setUnderline(false);
+						l.setTextFill(Color.BLACK);
+					}
 			} else {
-				for (Node n : row.getChildrenUnmodifiable())
-					n.setStyle("-fx-underline: true; -fx-text-fill: limegreen"); //$NON-NLS-1$
+				for (Node n : row.getChildrenUnmodifiable()) 
+					if (n instanceof Labeled) {
+						Labeled l = (Labeled) n;
+						l.setUnderline(true);
+						l.setTextFill(Color.LIMEGREEN);
+					}
 			}
 		}
 	}
