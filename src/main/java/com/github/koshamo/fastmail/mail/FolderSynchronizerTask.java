@@ -106,9 +106,8 @@ public class FolderSynchronizerTask extends Task<Void> {
 						continue;
 					EmailTableData etd = new EmailTableData(msg);
 					if (!mailList.contains(etd)) 
-						Platform.runLater(()-> {
-							mailList.add(etd);
-						});
+						// TODO: this may cause a NullPointerException. Why?
+						Platform.runLater(()-> mailList.add(etd));
 					// prepare for step two
 					if (count > 0)
 						serverList.add(etd);
@@ -137,8 +136,9 @@ public class FolderSynchronizerTask extends Task<Void> {
 				}
 			}
 			// sort the list in the natural order
-			// TODO: verify this solves the ArrayIndexOutOfBoundsException 
-			Platform.runLater(()-> {mailList.sort(null);});
+			// TODO: verify this solves the ArrayIndexOutOfBoundsException
+			// does not!!
+			Platform.runLater(()-> mailList.sort(null));
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$

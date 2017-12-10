@@ -90,9 +90,12 @@ public class InboxWatcher extends ScheduledService<Void> {
 							if (msg != null) {
 								EmailTableData etd = new EmailTableData(msg);
 								if (!mailList.contains(etd))
+									// TODO: this may cause a NullPointerException. Why?
 									mailList.add(etd);
 							}
 						}
+						// TODO: this may cause a NullPointerException and
+						// a ArrayIndexOutOfBoundsException. Why?
 						mailList.sort(null);
 					}
 				}
