@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Raﬂler
+ * Copyright (C) 2017  Dr. Jochen Ra√üler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -137,7 +137,7 @@ public class FolderSynchronizerTask extends Task<Void> {
 			}
 			// sort the list in the natural order
 			// TODO: verify this solves the ArrayIndexOutOfBoundsException
-			// does not!!
+			// FIXME: does not!!
 			Platform.runLater(()-> mailList.sort(null));
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Raﬂler
+ * Copyright (C) 2017  Dr. Jochen Ra√üler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
