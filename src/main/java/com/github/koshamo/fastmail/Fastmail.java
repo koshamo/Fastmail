@@ -20,8 +20,10 @@ package com.github.koshamo.fastmail;
 
 import com.github.koshamo.fastmail.gui.FastGui;
 import com.github.koshamo.fastmail.util.SerializeManager;
+import com.github.koshamo.fiddler.MessageBus;
+import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
+import com.github.koshamo.fiddler.jfx.FiddlerFxAppRunner;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 
 public class Fastmail {
@@ -29,7 +31,11 @@ public class Fastmail {
 	public static void main(String[] args) {
 		SerializeManager manager = SerializeManager.getInstance();
 		manager.deserialize();
-		Application.launch(FastGui.class, args);
+		
+		MessageBus messageBus = new MessageBus();
+		new Thread(new FiddlerFxAppRunner(FastGui.class, args)).start();
+		FiddlerFxApp.setMessageBus(messageBus);
+		
 		manager.serialize();
 		Platform.exit();
 	}

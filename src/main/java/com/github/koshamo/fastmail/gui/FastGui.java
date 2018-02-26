@@ -35,8 +35,9 @@ import com.github.koshamo.fastmail.util.DateCellComparator;
 import com.github.koshamo.fastmail.util.DateCellFactory;
 import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
+import com.github.koshamo.fiddler.Event;
+import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
 
-import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -73,7 +74,7 @@ import javafx.stage.Stage;
  * @author jochen
  *
  */
-public class FastGui extends Application {
+public class FastGui extends FiddlerFxApp {
 
 	/* start is the starting point of a JavaFX application
 	 * all we do here is to call methods to build the GUI
@@ -663,6 +664,24 @@ public class FastGui extends Application {
 				new MessageConsumer(lbl.textProperty(), progressBar.progressProperty());
 		consumer.start();
 		return anchor;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fiddler.EventHandler#handle(com.github.koshamo.fiddler.Event)
+	 */
+	@Override
+	public void handle(Event event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fiddler.EventHandler#shutdown()
+	 */
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
