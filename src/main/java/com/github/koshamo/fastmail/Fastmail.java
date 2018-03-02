@@ -19,6 +19,7 @@
 package com.github.koshamo.fastmail;
 
 import com.github.koshamo.fastmail.gui.FastGui;
+import com.github.koshamo.fastmail.mail.MailModule;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fiddler.MessageBus;
 import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
@@ -35,6 +36,8 @@ public class Fastmail {
 		MessageBus messageBus = new MessageBus();
 		new Thread(new FiddlerFxAppRunner(FastGui.class, args)).start();
 		FiddlerFxApp.setMessageBus(messageBus);
+		MailModule mailModule = new MailModule(messageBus);
+		mailModule.start();
 		
 		manager.serialize();
 		Platform.exit();
