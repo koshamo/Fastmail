@@ -20,7 +20,6 @@ package com.github.koshamo.fastmail.mail;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -42,17 +41,11 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
-import com.github.koshamo.fastmail.util.MessageItem;
-import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
-import com.github.koshamo.fiddler.MessageBus;
-import com.github.koshamo.fiddler.MessageEvent;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.scene.control.TreeItem;
-import javafx.util.Duration;
 
 /**
  * MailAccount is the class that contains a mail account information.
@@ -68,7 +61,7 @@ import javafx.util.Duration;
 public class MailAccount implements MailTreeViewable{
 	// some fields needed to create connection
 	private final MailAccountData data;
-	private final MessageBus messageBus;
+	private final MailModule mailModule;
 	private Properties props;
 	private Session session;
 	private Store store;
@@ -78,7 +71,7 @@ public class MailAccount implements MailTreeViewable{
 
 	private AccountFolderWatcher accountFolderWatcher;
 	
-	private TreeItem<MailTreeViewable> accountTreeItem;
+//	private TreeItem<MailTreeViewable> accountTreeItem;
 	
 	private static ResourceBundle i18n;
 	
@@ -91,9 +84,9 @@ public class MailAccount implements MailTreeViewable{
 	 * @param messageBus	the MessageBus, to which error messages can be 
 	 * delivered
 	 */
-	public MailAccount(final MailAccountData data, final MessageBus messageBus) {
+	public MailAccount(final MailAccountData data, final MailModule mailModule) {
 		this.data = data;
-		this.messageBus = messageBus;
+		this.mailModule = mailModule;
 		i18n = SerializeManager.getLocaleMessageBundle();
 	}
 	
@@ -113,14 +106,11 @@ public class MailAccount implements MailTreeViewable{
 			store = session.getStore(data.getInboxType().toLowerCase());
 			store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
 		} catch (@SuppressWarnings("unused") NoSuchProviderException e) {
-			messageBus.postEvent(new MessageEvent(null, null, "Provider Unknown"));
+			mailModule.postMessage("Provider Unknown");
 		} catch (AuthenticationFailedException e) {
-			messageBus.postEvent(new 
-					MessageEvent(null, null, "Authentication Failed: " + 
-							e.getMessage()));
+			mailModule.postMessage("Authentication Failed: " +e.getMessage());
 		} catch (MessagingException e) {
-			messageBus.postEvent(new 
-					MessageEvent(null, null, "Something weird happened connecting to mail server"));
+			mailModule.postMessage("Something weird happened connecting to mail server");
 		}
 	}
 	
@@ -133,21 +123,21 @@ public class MailAccount implements MailTreeViewable{
 	 *  
 	 * @param accountTreeItem
 	 */
-	public void addFolderWatcher(final TreeItem<MailTreeViewable> accountTreeItem) {
-		this.accountTreeItem = accountTreeItem;
-		accountFolderWatcher = new AccountFolderWatcher(this, accountTreeItem);
-		accountFolderWatcher.setPeriod(Duration.seconds(60));
-		accountFolderWatcher.start();
-	}
+//	public void addFolderWatcher(final TreeItem<MailTreeViewable> accountTreeItem) {
+//		this.accountTreeItem = accountTreeItem;
+//		accountFolderWatcher = new AccountFolderWatcher(this, accountTreeItem);
+//		accountFolderWatcher.setPeriod(Duration.seconds(60));
+//		accountFolderWatcher.start();
+//	}
 
 	/**
 	 * To delete this account from the tree view, use this method, as it also
 	 * stops the folder watcher.
 	 */
-	public void remove() {
-		accountFolderWatcher.cancel();
-		accountTreeItem.getParent().getChildren().remove(accountTreeItem);
-	}
+//	public void remove() {
+//		accountFolderWatcher.cancel();
+//		accountTreeItem.getParent().getChildren().remove(accountTreeItem);
+//	}
 	
 	/**
 	 * This method is to test a new account configuration and returns a message 
@@ -205,11 +195,7 @@ public class MailAccount implements MailTreeViewable{
 			parentFolder = store.getDefaultFolder();
 			return parentFolder.list();
 		} catch(MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+			mailModule.postMessage(i18n.getString("exception.mailaccess"));
 		}
 		return null;
 	}
@@ -223,13 +209,9 @@ public class MailAccount implements MailTreeViewable{
 			if (!folder.exists())
 				folder.create(Folder.HOLDS_MESSAGES);
 			// trigger the addition of the new folder to the tree view
-			forceFolderUpdate();
+//			forceFolderUpdate();
 		} catch (MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+			mailModule.postMessage(i18n.getString("exception.mailaccess"));
 		}
 	}
 	
@@ -237,9 +219,9 @@ public class MailAccount implements MailTreeViewable{
 	 * Triggers the execution of a new AccountFolderWatcher task to force the
 	 * update of the tree view after changing folder items
 	 */
-	public void forceFolderUpdate() {
-		new Thread(accountFolderWatcher.createTask()).start();
-	}
+//	public void forceFolderUpdate() {
+//		new Thread(accountFolderWatcher.createTask()).start();
+//	}
 	
 	
 	/* (non-Javadoc)
@@ -252,11 +234,7 @@ public class MailAccount implements MailTreeViewable{
 		try {
 			store.close();
 		} catch (MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+			mailModule.postMessage(i18n.getString("exception.mailaccess"));
 		}
 	}
 
@@ -277,8 +255,8 @@ public class MailAccount implements MailTreeViewable{
 			final List<File> attachments, final Message message) {
 		MimeMessage msg;
 		Message m;
-		MessageItem mItem = new MessageItem(i18n.getString("entry.sendmail"), 0.0, MessageItem.MessageType.WORK); //$NON-NLS-1$
-		MessageMarket.getInstance().produceMessage(mItem);
+		mailModule.postMessage(i18n.getString("entry.sendmail"));
+		
 		try {
 			if (message != null) {
 				if (message instanceof MimeMessage) 
@@ -318,23 +296,15 @@ public class MailAccount implements MailTreeViewable{
 				@Override
 				protected Void call() throws Exception {
 					Transport.send(msg, data.getUsername(), data.getPassword());
-					mItem.done();
+					mailModule.postMessage("Mail sent");
 					return null;
 				}
 			});
 			t.start();
 		} catch (MessagingException e) {
-			MessageItem meItem = new MessageItem(
-					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(meItem);
+			mailModule.postMessage(i18n.getString("exception.mailaccess"));
 		} catch (IOException e) {
-			MessageItem meItem = new MessageItem(
-					MessageFormat.format(i18n.getString("exception.mailboxaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(meItem);
+			mailModule.postMessage(i18n.getString("exception.mailboxaccess"));
 		}
 	}
 
@@ -353,9 +323,9 @@ public class MailAccount implements MailTreeViewable{
 	 * 
 	 * @param data a MailAccountData object
 	 */
-	public void setMailAccountData(final MailAccountData data) {
+//	public void setMailAccountData(final MailAccountData data) {
 //		this.data = data;
-	}
+//	}
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#isAccount()

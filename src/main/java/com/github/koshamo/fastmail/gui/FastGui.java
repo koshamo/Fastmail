@@ -27,7 +27,6 @@ import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.mail.AccountRootItem;
 import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
-import com.github.koshamo.fastmail.mail.MailAccount;
 import com.github.koshamo.fastmail.mail.MailAccountData;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
 import com.github.koshamo.fastmail.util.DateCellComparator;
@@ -567,13 +566,14 @@ public class FastGui extends FiddlerFxApp {
 			final Optional<ButtonType> opt = alert.showAndWait();
 			if (opt.get().equals(ButtonType.CANCEL))
 				return;
-			if (opt.get().equals(ButtonType.YES)) {
-				((FolderItem)curItem.getValue()).removeFolder();
-				// force update of tree view after folder deletion
-				while (!curItem.getValue().isAccount())
-					curItem = curItem.getParent();
-				((MailAccount)curItem.getValue()).forceFolderUpdate();
-			}
+			// TODO:
+//			if (opt.get().equals(ButtonType.YES)) {
+//				((FolderItem)curItem.getValue()).removeFolder();
+//				// force update of tree view after folder deletion
+//				while (!curItem.getValue().isAccount())
+//					curItem = curItem.getParent();
+//				((MailAccount)curItem.getValue()).forceFolderUpdate();
+//			}
 		});
 		return delete;
 	}

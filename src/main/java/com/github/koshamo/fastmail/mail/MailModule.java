@@ -25,6 +25,7 @@ import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fiddler.Event;
 import com.github.koshamo.fiddler.EventHandler;
 import com.github.koshamo.fiddler.MessageBus;
+import com.github.koshamo.fiddler.MessageEvent;
 
 /**
  * @author Dr. Jochen Raßler
@@ -47,12 +48,17 @@ public class MailModule implements EventHandler {
 		List<MailAccount> accounts = new ArrayList<>();
 		
 		for (MailAccountData mad : accountData)
-			accounts.add(new MailAccount(mad, messageBus));
+			accounts.add(new MailAccount(mad, this));
 		
 		for (MailAccount ma : accounts)
 			ma.connect();
 		
 	}
+	
+	/*private*/ void postMessage(String message) {
+		messageBus.postEvent(new MessageEvent(this, null, message));
+	}
+	
 	
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#handle(com.github.koshamo.fiddler.Event)
