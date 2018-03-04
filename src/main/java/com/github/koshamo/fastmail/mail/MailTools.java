@@ -102,7 +102,7 @@ public class MailTools {
 				inetAdr[i] = new InternetAddress(adr[i]);
 			} catch (@SuppressWarnings("unused") AddressException e) {
 				MessageItem mItem = new MessageItem(
-						SerializeManager.getLocaleMessages().getString("error.mailaddress"), //$NON-NLS-1$
+						SerializeManager.getLocaleMessageBundle().getString("error.mailaddress"), //$NON-NLS-1$
 						0.0, MessageItem.MessageType.ERROR);
 				MessageMarket.getInstance().produceMessage(mItem);
 			}
@@ -194,7 +194,7 @@ public class MailTools {
 			subFolders = root.list();
 		} catch (@SuppressWarnings("unused") MessagingException e) {
 			MessageItem mItem = new MessageItem(
-					SerializeManager.getLocaleMessages().getString("exception.subfolders"), //$NON-NLS-1$
+					SerializeManager.getLocaleMessageBundle().getString("exception.subfolders"), //$NON-NLS-1$
 					0.0, MessageItem.MessageType.ERROR);
 			MessageMarket.getInstance().produceMessage(mItem);
 		}
@@ -217,7 +217,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);
@@ -242,7 +242,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);
@@ -269,7 +269,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);
@@ -296,7 +296,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);

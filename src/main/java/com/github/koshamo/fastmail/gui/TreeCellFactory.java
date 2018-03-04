@@ -169,7 +169,7 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 				} catch (MessagingException e) {
 					MessageItem mItem = new MessageItem(
 							MessageFormat.format(
-									SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+									SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 									e.getMessage()),
 							0.0, MessageItem.MessageType.EXCEPTION);
 					MessageMarket.getInstance().produceMessage(mItem);

@@ -45,6 +45,8 @@ import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.util.MessageItem;
 import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
+import com.github.koshamo.fiddler.MessageBus;
+import com.github.koshamo.fiddler.MessageEvent;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -65,7 +67,8 @@ import javafx.util.Duration;
  */
 public class MailAccount implements MailTreeViewable{
 	// some fields needed to create connection
-	MailAccountData data;
+	private final MailAccountData data;
+	private final MessageBus messageBus;
 	private Properties props;
 	private Session session;
 	private Store store;
@@ -83,19 +86,21 @@ public class MailAccount implements MailTreeViewable{
 	/**
 	 * In this constructor we initialize the account.
 	 * 
-	 * @param data a MailAccountData object containing all relevant data for 
+	 * @param data 	a MailAccountData object containing all relevant data for 
 	 * server connection
+	 * @param messageBus	the MessageBus, to which error messages can be 
+	 * delivered
 	 */
-	public MailAccount(final MailAccountData data) {
+	public MailAccount(final MailAccountData data, final MessageBus messageBus) {
 		this.data = data;
-		i18n = SerializeManager.getLocaleMessages();
-		buildConnection();
+		this.messageBus = messageBus;
+		i18n = SerializeManager.getLocaleMessageBundle();
 	}
 	
 	/**
 	 * this method does the actual work for the constructor
 	 */
-	private void buildConnection() {
+	public void connect() {
 		props = new Properties();
 		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
 			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
@@ -108,16 +113,14 @@ public class MailAccount implements MailTreeViewable{
 			store = session.getStore(data.getInboxType().toLowerCase());
 			store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
 		} catch (@SuppressWarnings("unused") NoSuchProviderException e) {
-			MessageItem mItem = new MessageItem(
-					i18n.getString("exception.provider"),  //$NON-NLS-1$
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+			messageBus.postEvent(new MessageEvent(null, null, "Provider Unknown"));
+		} catch (AuthenticationFailedException e) {
+			messageBus.postEvent(new 
+					MessageEvent(null, null, "Authentication Failed: " + 
+							e.getMessage()));
 		} catch (MessagingException e) {
-			MessageItem mItem = new MessageItem(
-					MessageFormat.format(i18n.getString("exception.mailaccess"),  //$NON-NLS-1$
-							e.getMessage()),
-					0.0, MessageItem.MessageType.EXCEPTION);
-			MessageMarket.getInstance().produceMessage(mItem);
+			messageBus.postEvent(new 
+					MessageEvent(null, null, "Something weird happened connecting to mail server"));
 		}
 	}
 	
@@ -158,7 +161,7 @@ public class MailAccount implements MailTreeViewable{
 	 */
 	public static String testConnection(final MailAccountData data) {
 		if (i18n == null)
-			i18n = SerializeManager.getLocaleMessages();
+			i18n = SerializeManager.getLocaleMessageBundle();
 		Properties props = new Properties();
 		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
 			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
@@ -343,13 +346,15 @@ public class MailAccount implements MailTreeViewable{
 		return data;
 	}
 
+	// TODO: delete this method -> if settings have changed, create a new
+	// MailAccount
 	/**
 	 * Set the settings data of this mail account
 	 * 
 	 * @param data a MailAccountData object
 	 */
 	public void setMailAccountData(final MailAccountData data) {
-		this.data = data;
+//		this.data = data;
 	}
 
 	/* (non-Javadoc)

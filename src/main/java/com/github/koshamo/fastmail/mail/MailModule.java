@@ -18,6 +18,10 @@
 
 package com.github.koshamo.fastmail.mail;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fiddler.Event;
 import com.github.koshamo.fiddler.EventHandler;
 import com.github.koshamo.fiddler.MessageBus;
@@ -38,6 +42,15 @@ public class MailModule implements EventHandler {
 	}
 
 	public void start() {
+		List<MailAccountData> accountData = 
+				SerializeManager.getInstance().getMailAccounts();
+		List<MailAccount> accounts = new ArrayList<>();
+		
+		for (MailAccountData mad : accountData)
+			accounts.add(new MailAccount(mad, messageBus));
+		
+		for (MailAccount ma : accounts)
+			ma.connect();
 		
 	}
 	

@@ -82,7 +82,7 @@ public class EmailTableData implements Comparable<EmailTableData>{
 	 * @param msg a message read from the mail account
 	 */
 	public EmailTableData (final Message msg) {
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 		// TODO: message can be expunged while running this method
 		// this causes an exception.... but do we need to care for that message?
 		

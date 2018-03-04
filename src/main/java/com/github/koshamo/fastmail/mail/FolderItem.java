@@ -62,7 +62,7 @@ public class FolderItem implements MailTreeViewable {
 
 	public FolderItem(final Folder folder) {
 		this.folder = folder;
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 		
 		if ("INBOX".equals(folder.getFullName())) { //$NON-NLS-1$
 			isInbox = true;

@@ -20,7 +20,6 @@ package com.github.koshamo.fastmail.gui;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -82,13 +81,13 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	@Override
 	public void start(final Stage primaryStage) {
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 		primaryStage.setTitle(FastMailGenerals.getApplicationName() + " "  //$NON-NLS-1$
 				+ FastMailGenerals.getVersion());
 		buildGUI(primaryStage);
 		primaryStage.show();
-		SerializeManager.getLocaleMessages();
-		i18n = SerializeManager.getLocaleMessages();
+		SerializeManager.getLocaleMessageBundle();
+		i18n = SerializeManager.getLocaleMessageBundle();
 	}
 
 	// the resource bundle containing the internationalized strings
@@ -129,14 +128,15 @@ public class FastGui extends FiddlerFxApp {
 		 * if mail accounts had been added in a previous session,
 		 * load them from disk and initialize the tree view
 		 */
-		final List<MailAccountData> mad = SerializeManager.getInstance().getMailAccounts();
-		for (MailAccountData d : mad) {
-			final TreeItem<MailTreeViewable> account = 
-					new TreeItem<>(new MailAccount(d));
-			((MailAccount) account.getValue()).addFolderWatcher(account);
-			account.setExpanded(true);
-			rootItem.getChildren().add(account);
-		}
+		// TODO:
+//		final List<MailAccountData> mad = SerializeManager.getInstance().getMailAccounts();
+//		for (MailAccountData d : mad) {
+//			final TreeItem<MailTreeViewable> account = 
+//					new TreeItem<>(new MailAccount(d));
+//			((MailAccount) account.getValue()).addFolderWatcher(account);
+//			account.setExpanded(true);
+//			rootItem.getChildren().add(account);
+//		}
 
 		final Scene scene = new Scene(overallPane, 1300, 800);
 		primaryStage.setScene(scene);
@@ -180,12 +180,13 @@ public class FastGui extends FiddlerFxApp {
 			final MailAccountData accountData = dialog.showAndWait();
 			if (accountData == null)
 				return;
-			final TreeItem<MailTreeViewable> account = 
-					new TreeItem<>(new MailAccount(accountData));
-			((MailAccount) account.getValue()).addFolderWatcher(account);
-			rootItem.getChildren().add(account);
-			account.setExpanded(true);
-			SerializeManager.getInstance().addMailAccount(accountData);
+			// TODO:
+//			final TreeItem<MailTreeViewable> account = 
+//					new TreeItem<>(new MailAccount(accountData));
+//			((MailAccount) account.getValue()).addFolderWatcher(account);
+//			rootItem.getChildren().add(account);
+//			account.setExpanded(true);
+//			SerializeManager.getInstance().addMailAccount(accountData);
 		});
 		return addAccountItem;
 	}
@@ -197,11 +198,12 @@ public class FastGui extends FiddlerFxApp {
 				return;
 			final TreeItem<MailTreeViewable> curItem = 
 					accountTree.getSelectionModel().getSelectedItem(); 
-			while (!curItem.getValue().isAccount())
-				curItem.getParent();
-			final MailAccountDialog dialog = new MailAccountDialog(
-					((MailAccount) curItem.getValue()).getMailAccountData());
-			dialog.showAndWait();
+			// TODO:
+//			while (!curItem.getValue().isAccount())
+//				curItem.getParent();
+//			final MailAccountDialog dialog = new MailAccountDialog(
+//					((MailAccount) curItem.getValue()).getMailAccountData());
+//			dialog.showAndWait();
 		});
 		return editAccountItem;
 	}
@@ -224,14 +226,15 @@ public class FastGui extends FiddlerFxApp {
 			final Optional<ButtonType> opt = alert.showAndWait();
 			if (opt.get().equals(ButtonType.CANCEL))
 				return;
-			if (opt.get().equals(ButtonType.YES)) {
-				SerializeManager.getInstance().removeMailAccount(
-						((MailAccount) curItem.getValue()).getMailAccountData());
-				((MailAccount) curItem.getValue()).remove();
-				folderMailTable.getItems().clear();
-				mailBody.clear();
-			}
-			return;
+			// TODO:
+//			if (opt.get().equals(ButtonType.YES)) {
+//				SerializeManager.getInstance().removeMailAccount(
+//						((MailAccount) curItem.getValue()).getMailAccountData());
+//				((MailAccount) curItem.getValue()).remove();
+//				folderMailTable.getItems().clear();
+//				mailBody.clear();
+//			}
+//			return;
 		});
 		return removeAccountItem;
 	}
@@ -273,12 +276,13 @@ public class FastGui extends FiddlerFxApp {
 		btnNew.setOnAction(ev -> {
 			ObservableList<TreeItem<MailTreeViewable>> accountList = 
 					rootItem.getChildren();
-			final MailAccount[] ma = new MailAccount[accountList.size()];
-			for (int i = 0; i < ma.length; i++)
-				ma[i] = (MailAccount)accountList.get(i).getValue();
+			// TODO:
+//			final MailAccount[] ma = new MailAccount[accountList.size()];
+//			for (int i = 0; i < ma.length; i++)
+//				ma[i] = (MailAccount)accountList.get(i).getValue();
 			// this is where a unused warning comes from
 			// as MailComposer does everything on its own
-			new MailComposer(ma);
+//			new MailComposer(ma);
 		});
 		// REPLY button
 		btnReply = new Button(i18n.getString("action.reply")); //$NON-NLS-1$
@@ -533,9 +537,10 @@ public class FastGui extends FiddlerFxApp {
 		add.setOnAction(p -> {
 			TreeItem<MailTreeViewable> curItem = 
 					accountTree.getSelectionModel().getSelectedItem();
-			while (!curItem.getValue().isAccount())
-				curItem = curItem.getParent();
-			((MailAccount)curItem.getValue()).addFolder();
+			// TODO:
+//			while (!curItem.getValue().isAccount())
+//				curItem = curItem.getParent();
+//			((MailAccount)curItem.getValue()).addFolder();
 		});
 		return add;
 	}
@@ -578,7 +583,8 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	@SuppressWarnings("unused")
 	private void replyMail() {
-		TreeItem<MailTreeViewable> treeItem = 
+		// TODO:
+/*		TreeItem<MailTreeViewable> treeItem = 
 				accountTree.getSelectionModel().getSelectedItem(); 
 		if (treeItem == null)
 			return;
@@ -595,6 +601,7 @@ public class FastGui extends FiddlerFxApp {
 			ma[i] = (MailAccount)accountList.get(i).getValue();
 		final int index = rootItem.getChildren().indexOf(treeItem);
 		new MailComposer(ma, index, tableData.getMailData(), false);
+		*/
 	}
 
 
@@ -603,6 +610,8 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	@SuppressWarnings("unused")
 	private void replyAllMail() {
+		// TODO:
+		/*
 		TreeItem<MailTreeViewable> treeItem = 
 				accountTree.getSelectionModel().getSelectedItem(); 
 		if (treeItem == null)
@@ -620,12 +629,15 @@ public class FastGui extends FiddlerFxApp {
 			ma[i] = (MailAccount)accountList.get(i).getValue();
 		final int index = rootItem.getChildren().indexOf(treeItem);
 		new MailComposer(ma, index, tableData.getMailData(), true);
+		*/
 	}
 	
 	/**
 	 * Delete Mail functionality, used by button and context menu
 	 */
 	private void deleteMail() {
+		// TODO:
+		/*
 		final TreeItem<MailTreeViewable> treeItem = accountTree.getSelectionModel().getSelectedItem(); 
 		if (treeItem == null || treeItem.getValue().isAccount())
 			return;
@@ -641,6 +653,7 @@ public class FastGui extends FiddlerFxApp {
 		btnReplyAll.setDisable(false);
 		btnDelete.setDisable(false);
 		mailBody.clear();
+		*/
 	}
 	
 	

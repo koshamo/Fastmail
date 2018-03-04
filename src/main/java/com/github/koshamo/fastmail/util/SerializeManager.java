@@ -124,7 +124,7 @@ public class SerializeManager {
 			mailAccounts = (Vector<MailAccountData>) ois.readObject();
 		} catch (@SuppressWarnings("unused") FileNotFoundException e) {
 			// should be default case for newly installed programs
-			System.out.println(getLocaleMessages().getString("info.newcomer")); //$NON-NLS-1$
+			System.out.println(getLocaleMessageBundle().getString("info.newcomer")); //$NON-NLS-1$
 			return false;
 		} catch (@SuppressWarnings("unused") IOException e) {
 			MessageItem mItem = new MessageItem(
@@ -173,7 +173,7 @@ public class SerializeManager {
 	 * loaded, otherwise the reference to the data object will be returned 
 	 * @return	the resource bundle containing the internationalized texts
 	 */
-	public static ResourceBundle getLocaleMessages() {
+	public static ResourceBundle getLocaleMessageBundle() {
 		if (i18nTexts == null)
 			i18nTexts = ResourceBundle.getBundle("messages"); //$NON-NLS-1$
 		return i18nTexts;

@@ -117,7 +117,7 @@ public class MailComposer {
 	 * main method to construct the GUI
 	 */
 	private void buildGui() {
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 		stage = new Stage();
 		VBox overallPane = new VBox();
 		
