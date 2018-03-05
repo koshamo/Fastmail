@@ -86,31 +86,41 @@ public class MailAccount /*implements MailTreeViewable*/{
 	public MailAccount(final MailAccountData data, final MailModule mailModule) {
 		this.data = data;
 		this.mailModule = mailModule;
+		this.store = null;
 		i18n = SerializeManager.getLocaleMessageBundle();
+		props = createSessionProperties();
 	}
 	
 	/**
 	 * this method does the actual work for the constructor
 	 */
 	public void connect() {
-		props = new Properties();
+		if (store == null || !store.isConnected()) {
+			session = Session.getInstance(props);
+			try {
+				store = session.getStore(data.getInboxType().toLowerCase());
+				store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
+			} catch (@SuppressWarnings("unused") NoSuchProviderException e) {
+				postMessage("Provider Unknown");
+			} catch (AuthenticationFailedException e) {
+				postMessage("Authentication Failed: " +e.getMessage());
+			} catch (MessagingException e) {
+				postMessage("Something weird happened connecting to mail server");
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private Properties createSessionProperties() {
+		Properties props = new Properties();
 		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
 			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
 		}
 		props.put("mail.smtp.host", data.getSmtpHost()); //$NON-NLS-1$
 		props.setProperty("mail.smtp.starttls.enable", new Boolean(data.isTls()).toString()); //$NON-NLS-1$
-		session = Session.getInstance(props);
-		store = null;
-		try {
-			store = session.getStore(data.getInboxType().toLowerCase());
-			store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
-		} catch (@SuppressWarnings("unused") NoSuchProviderException e) {
-			mailModule.postMessage("Provider Unknown");
-		} catch (AuthenticationFailedException e) {
-			mailModule.postMessage("Authentication Failed: " +e.getMessage());
-		} catch (MessagingException e) {
-			mailModule.postMessage("Something weird happened connecting to mail server");
-		}
+		return props;
 	}
 	
 	
@@ -174,7 +184,9 @@ public class MailAccount /*implements MailTreeViewable*/{
 		return i18n.getString("info.settingsOK"); //$NON-NLS-1$
 	}		
 		
-	
+	/*private*/ void postMessage(String message) {
+		mailModule.postMessage(message);
+	}
 	/**
 	 * supplies a unique String of the account
 	 * @return the username
