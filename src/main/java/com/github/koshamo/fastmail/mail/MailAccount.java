@@ -43,8 +43,6 @@ import javax.mail.internet.MimeMultipart;
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
 /**
@@ -58,7 +56,8 @@ import javafx.concurrent.Task;
  * @author jochen
  *
  */
-public class MailAccount implements MailTreeViewable{
+// TODO:
+public class MailAccount /*implements MailTreeViewable*/{
 	// some fields needed to create connection
 	private final MailAccountData data;
 	private final MailModule mailModule;
@@ -330,49 +329,49 @@ public class MailAccount implements MailTreeViewable{
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#isAccount()
 	 */
-	@Override
-	public boolean isAccount() {
-		return true;
-	}
+//	@Override
+//	public boolean isAccount() {
+//		return true;
+//	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
-	@Override
-	public String toString() {
-		return data.getUsername();
-	}
+//	@Override
+//	public String toString() {
+//		return data.getUsername();
+//	}
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolderContent()
 	 */
-	@Override
-	public ObservableList<EmailTableData> getFolderContent() {
-		return FXCollections.observableArrayList();
-	}
+//	@Override
+//	public ObservableList<EmailTableData> getFolderContent() {
+//		return FXCollections.observableArrayList();
+//	}
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getParentFolder()
 	 */
-	@Override
-	public Folder getParentFolder() {
-		return parentFolder;
-	}
+//	@Override
+//	public Folder getParentFolder() {
+//		return parentFolder;
+//	}
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getName()
 	 */
-	@Override
-	public String getName() {
-		return getAccountName();
-	}
+//	@Override
+//	public String getName() {
+//		return getAccountName();
+//	}
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
 	 */
-	@Override
-	public Folder getFolder() {
-		return parentFolder;
-	}
+//	@Override
+//	public Folder getFolder() {
+//		return parentFolder;
+//	}
 	
 }
