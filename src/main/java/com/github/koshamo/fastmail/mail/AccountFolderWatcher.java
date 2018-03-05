@@ -23,9 +23,9 @@ import java.util.List;
 
 import javax.mail.Folder;
 
+import com.github.koshamo.fastmail.FastmailGlobals;
+
 import javafx.collections.ObservableList;
-import javafx.concurrent.ScheduledService;
-import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 
 /**
@@ -38,11 +38,10 @@ import javafx.scene.control.TreeItem;
  * @author jochen
  *
  */
-public class AccountFolderWatcher extends ScheduledService<Void> {
+public class AccountFolderWatcher implements Runnable {
 
 	MailAccount account;
-	TreeItem<MailTreeViewable> accountTreeItem;
-	boolean stop = false;
+	boolean run = true;
 	
 	/**
 	 * Basic constructor
@@ -50,55 +49,32 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	 * @param account the current account to check for new folders
 	 * @param accountTreeItem root item of the account
 	 */
-	public AccountFolderWatcher(final MailAccount account, 
-			final TreeItem<MailTreeViewable> accountTreeItem) {
+	public AccountFolderWatcher(final MailAccount account) {
 		this.account = account;
-		this.accountTreeItem = accountTreeItem;
 	}
 	
-	/**
-	 * Overrides superclass' cancel method to add functionality:
-	 * this account has to be removed from the treeview
-	 * 
-	 * @see javafx.concurrent.ScheduledService#cancel()
-	 */
-	@Override 
-	public boolean cancel() {
-		boolean ret = super.cancel();
-		stop = true;
-		return ret;
+	public void stop() {
+		run = false;
 	}
 
-	/* 
-	 * This task iterates over all folders within this account and
-	 * adds all folders to the tree view that aren't already there.
-	 * Excessive folders will be removed.
-	 * <p>
-	 * As we use an interface to produce the TreeItems, we would need
-	 * an equals method within the interface, which is not implementable.
-	 * Hence we need to manually check, if the items are there. The contains()
-	 * method of the collections framework will not work for this case.
-	 *   
-	 * @see javafx.concurrent.Service#createTask()
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
 	 */
 	@Override
-	protected Task<Void> createTask() {
-		return new Task<Void>() {
+	public void run() {
+		while (run) {
+			final Folder[] folders = account.getFolders();
+			if (folders != null)
+				buildFolderTree(folders);
 
-			@Override
-			protected Void call() {
-				if (stop) return null;	// thread needs to be stopped
-				
-				final Folder[] folders = account.getFolders();
-				if (folders == null)
-					return null;
-				
-				if (stop) return null;	// thread needs to be stopped
-				buildFolderTree(folders, accountTreeItem);
-
-				return null;
+			try {
+				Thread.sleep(FastmailGlobals.FOLDER_REFRESH_MS);
+			} catch (InterruptedException e) {
+				account.postMessage("Thread to update folders for account "
+						+ account.getAccountName()
+						+ " was interrupted while sleeping");
 			}
-		};
+		}
 	}
 
 	/**
@@ -111,7 +87,7 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 	 * @param root the current TreeItem, where subfolders can be added
 	 */
 	/*package private*/ 
-	void buildFolderTree(final Folder[] folders, final TreeItem<MailTreeViewable> root) {
+	void buildFolderTree(final Folder[] folders) {
 		final ObservableList<TreeItem<MailTreeViewable>> localList =
 				root.getChildren();
 		// add folders, if they aren't already in the tree view
@@ -139,7 +115,7 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 		}
 		
 		
-		if (stop) return;	// thread needs to be stopped
+		if (run) return;	// thread needs to be stopped
 		
 		// remove items from tree view, that aren't on the server anymore
 		// (e.g. because they are renamed)
@@ -169,4 +145,5 @@ public class AccountFolderWatcher extends ScheduledService<Void> {
 		MailTools.sortFolders(localList);
 		
 	}
+	
 }

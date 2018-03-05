@@ -24,13 +24,13 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
+import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
+import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
 import com.github.koshamo.fastmail.mail.AccountRootItem;
 import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccountData;
 import com.github.koshamo.fastmail.mail.MailTreeViewable;
-import com.github.koshamo.fastmail.util.DateCellComparator;
-import com.github.koshamo.fastmail.util.DateCellFactory;
 import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fiddler.Event;
