@@ -193,31 +193,55 @@ public class UnbalancedTree<T> {
 		return null;
 	}
 
-	public void print() {
-		print(root);
-		
-	}
-	
+	/**
+	 * Get the root of this Unbalanced Tree.
+	 * 
+	 * @return	the trees root
+	 */
 	public Knot<T> getRoot() {
 		return root;
 	}
 	
-	private void print(Knot<T> start) {
-		if (start == null) {
-			System.out.print("empty");
-			return;
-		}
-		Knot<T> cur = start;
-		if (cur.hasSubtree())
-			printSubtree(cur.getSubtree());
-		System.out.print(cur.getElem() + ", ");
-		print(cur.next());
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return treeToString(root, "UnbalancedTree: ");
 	}
 	
-	private void printSubtree(UnbalancedTree<T> subtree){
-		System.out.print("[");
-		subtree.print();
-		System.out.print("]: ");
+	/**
+	 * Construct a String representation of this Unbalanced Tree
+	 * (using recursion)
+	 * 
+	 * @param start		the start item for the current recursion 
+	 * @param curString	the start string for the current recursion
+	 * @return			the resulting string from this recursion
+	 */
+	private String treeToString(Knot<T> start, String curString) {
+		if (start == null) {
+			return curString + "empty";
+		}
+		String apString = curString + start.getElem();
+		if (start.hasSubtree()) {
+			apString = subtreeToString(start.getSubtree(), apString);
+		}
+		if (start.hasNext()) {
+			apString = apString + ", ";
+			apString = treeToString(start.next(), apString);
+		}
+		return apString;
+	}
+	
+	/**
+	 * Include the subtree to the String representation
+	 * 
+	 * @param subtree	the current element with subtree
+	 * @param curString	the current String representation
+	 * @return	the resulting String representation
+	 */
+	private String subtreeToString(UnbalancedTree<T> subtree, String curString){
+		return curString + " \\" + subtree.treeToString(subtree.getRoot(), "") + "/";
 	}
 }
 

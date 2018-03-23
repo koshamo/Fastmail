@@ -32,33 +32,33 @@ public class TreeTest {
 		tree.add("eins");
 		tree.add("zwei");
 		tree.add("drei");
-		tree.print();
+		System.out.println(tree);
 		System.out.println();
 
 		tree.add("zwei_eins", "zwei");
 		tree.add("zwei_zwei", "zwei");
-		tree.print();
+		System.out.println(tree);
 		System.out.println();
 
 		tree.add("vier");
-		tree.print();
+		System.out.println(tree);
 		System.out.println();
 		tree.remove("drei");
-		tree.print();
+		System.out.println(tree);
 		System.out.println();
 //		tree.remove("eins");
 		tree.remove("zwei_eins");
-		tree.print();
+		System.out.println(tree);
 		System.out.println();
 
 		tree.add("2.2.1", "zwei_zwei");
 		tree.add("2.2.2", "zwei_zwei");
 		tree.add("2.2.3", "zwei_zwei");
-		tree.print();
+		System.out.println(tree);
 		System.out.println();
 
 		tree.remove("2.2.1");
-		tree.print();
+		System.out.println(tree);
 		System.out.println();
 	}
 
