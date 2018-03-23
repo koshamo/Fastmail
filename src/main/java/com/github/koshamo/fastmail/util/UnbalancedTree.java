@@ -27,14 +27,27 @@ import java.util.NoSuchElementException;
 public class UnbalancedTree<T> {
 	private Knot<T> root;
 	
+	/**
+	 * Create a new empty Unbalanced Tree
+	 */
 	public UnbalancedTree() {
 		root = null;
 	}
 	
+	/**
+	 * Create a new Unbalaced Tree with the given element
+	 * 
+	 * @param elem	the element to be stored in the Tree
+	 */
 	public UnbalancedTree(T elem) {
 		root = new Knot<>(elem);
 	}
 	
+	/**
+	 * Add an element to the main tree
+	 * 
+	 * @param elem	the element to be added
+	 */
 	public void add(T elem) {
 		if (root == null) {
 			root = new Knot<>(elem);
@@ -47,6 +60,12 @@ public class UnbalancedTree<T> {
 		}
 	}
 	
+	/**
+	 * Add an element as a child to the element parent
+	 *  
+	 * @param elem	the element to be added
+	 * @param parent	the elements parent
+	 */
 	public void add(T elem, T parent) {
 		if (root == null)
 			throw new NoSuchElementException("No Element " + parent + " in Tree");
@@ -58,6 +77,12 @@ public class UnbalancedTree<T> {
 			throw new NoSuchElementException("No Element " + parent + " in Tree");
 	}
 
+	/**
+	 * Add an Unbalanced Tree as child tree to the element parent
+	 * 
+	 * @param tree	the Tree to be added
+	 * @param parent	the elements parent
+	 */
 	public void addSubtree(UnbalancedTree<T> tree, T parent) {
 		if (root == null)
 			throw new NoSuchElementException("No Element " + parent + " in Tree");
@@ -69,6 +94,14 @@ public class UnbalancedTree<T> {
 			throw new NoSuchElementException("No Element " + parent + " in Tree");
 	}
 	
+	/**
+	 * Remove the given element from the Unbalanced Tree.
+	 * 
+	 * Note: if the element to be removed has children, they will be
+	 * removed as well.
+	 * 
+	 * @param elem	the element to be removed
+	 */
 	public void remove(T elem) {
 		Knot<T> cur = getKnot(elem);
 		if (cur == null)
@@ -89,6 +122,12 @@ public class UnbalancedTree<T> {
 		}
 	}
 	
+	/**
+	 * Get the Knot of this element
+	 * 
+	 * @param elem	the element to be looked for
+	 * @return	the corresponding knot
+	 */
 	private Knot<T> getKnot(T elem) {
 		if (root == null)
 			return null;
@@ -105,6 +144,12 @@ public class UnbalancedTree<T> {
 		return null;
 	}
 	
+	/**
+	 * Find the predecessor of this element
+	 * 
+	 * @param knot	the current knot
+	 * @return	the knots predecessor
+	 */
 	private Knot<T> findPrev(Knot<T> knot) {
 		if (root == null)
 			return null;
@@ -121,6 +166,12 @@ public class UnbalancedTree<T> {
 		return null;
 	}
 	
+	/**
+	 * Find the knots parent
+	 * 
+	 * @param knot	the knot
+	 * @return	the knots parent
+	 */
 	private Knot<T> findParent(Knot<T> knot) {
 		if (root == null)
 			return null;
