@@ -21,6 +21,18 @@ package com.github.koshamo.fastmail.util;
 import java.util.NoSuchElementException;
 
 /**
+ * The UnbalancedTree is a simple tree representation of data, that needs
+ * to be in same order as added to tree.
+ * 
+ * Javas own trees are optimized, so that they perform a guaranteed maximum
+ * of log(n) while searching for a item at the cost of data rearrangement.
+ * In some cases (e.g. file system representation, mail folder representation)
+ * you need to save the data in a tree structure without an optimization of
+ * internal data arrangement, because you need to receive the data as is.
+ * This is not possible with Javas optimized tree structures. And therefore
+ * this class has been written, to be able to get the data as is at the cost 
+ * of low performance.
+ * 
  * @author Dr. Jochen Raßler
  *
  */
@@ -285,68 +297,5 @@ public class UnbalancedTree<T> {
 	 */
 	private String subtreeToString(UnbalancedTree<T> subtree, String curString){
 		return curString + " \\" + subtree.treeToString(subtree.getRoot(), "") + "/";
-	}
-}
-
-class Knot<T> {
-	private T elem;
-	private Knot<T> next;
-	private UnbalancedTree<T> subtree;
-	
-	public Knot(T elem) {
-		this.elem = elem;
-		next = null;
-		subtree = null;
-	}
-	
-	public boolean hasNext() {
-		return next != null;
-	}
-	
-	public Knot<T> next() {
-		return next;
-	}
-	
-	public void add(T elem) {
-		if (!hasNext())
-			next = new Knot<>(elem);
-	}
-		
-	public T getElem() {
-		return elem;
-	}
-	
-	public void addSubtree(T elem) {
-		if (subtree == null)
-			subtree = new UnbalancedTree<>(elem);
-		else {
-			Knot<T> cur = subtree.getRoot();
-			while (cur.hasNext())
-				cur = cur.next;
-			cur.setNext(new Knot<>(elem));
-		}
-	}
-		
-	public void addSubtree(UnbalancedTree<T> tree) {
-		if (subtree == null)
-			subtree = tree;
-		else
-			new IllegalStateException("Element " + elem + "already has subtree");
-	}
-	
-	public boolean hasSubtree() {
-		return subtree != null;
-	}
-	
-	public UnbalancedTree<T> getSubtree() {
-		return subtree;
-	}
-	
-	public void setNext(Knot<T> next) {
-		this.next = next;
-	}
-	
-	public void removeSubtree() {
-		subtree = null;
 	}
 }
