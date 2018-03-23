@@ -123,6 +123,66 @@ public class UnbalancedTree<T> {
 	}
 	
 	/**
+	 * Has this element a successor
+	 * 
+	 * @param elem	element to check
+	 * @return	true, if it has a successor
+	 */
+	public boolean hasNext(T elem) {
+		Knot<T> knot = getKnot(elem);
+		if (knot == null) 
+			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
+		return knot.hasNext();
+	}
+	
+	/**
+	 * Get the successor of this element
+	 * 
+	 * @param elem	element
+	 * @return	successor of element
+	 */
+	public T next(T elem) {
+		Knot<T> knot = getKnot(elem);
+		if (knot == null) 
+			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
+		return knot.next().getElem();
+	}
+	
+	/**
+	 * Has this element a subtree
+	 * 
+	 * @param elem	element to check
+	 * @return	true, if this element has a subtree
+	 */
+	public boolean hasSubtree(T elem) {
+		Knot<T> knot = getKnot(elem);
+		if (knot == null) 
+			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
+		return knot.hasSubtree();
+	}
+	
+	/**
+	 * Get the subtree of this element
+	 * @param elem	element
+	 * @return	subtree of element
+	 */
+	public UnbalancedTree<T> getSubtree(T elem) {
+		Knot<T> knot = getKnot(elem);
+		if (knot == null) 
+			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
+		return knot.getSubtree();
+	}
+	
+	/**
+	 * Get the root of this Unbalanced Tree.
+	 * 
+	 * @return	the trees root
+	 */
+	/*private*/ Knot<T> getRoot() {
+		return root;
+	}
+	
+	/**
 	 * Get the Knot of this element
 	 * 
 	 * @param elem	the element to be looked for
@@ -193,23 +253,6 @@ public class UnbalancedTree<T> {
 		return null;
 	}
 
-	/**
-	 * Get the root of this Unbalanced Tree.
-	 * 
-	 * @return	the trees root
-	 */
-	public Knot<T> getRoot() {
-		return root;
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return treeToString(root, "UnbalancedTree: ");
-	}
-	
 	/**
 	 * Construct a String representation of this Unbalanced Tree
 	 * (using recursion)
