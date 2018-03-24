@@ -30,7 +30,7 @@ public class UnbalancedTreeUtils {
 		// prevent this class from instantiation
 	}
 	
-	public static <T> TreeItem<T> unbalancedTreeToTreeItems(UnbalancedTree<T> tree) {
+	public static <T> TreeItem<T> unbalancedTreeToJfxTreeItems(UnbalancedTree<T> tree) {
 		if (tree == null)
 			return null;
 
@@ -42,7 +42,7 @@ public class UnbalancedTreeUtils {
 		boolean more = true;
 		do {
 			if (tree.hasSubtree(elem)) {
-				TreeItem<T> subtree = unbalancedTreeToTreeItems(tree.getSubtree(elem));
+				TreeItem<T> subtree = unbalancedTreeToJfxTreeItems(tree.getSubtree(elem));
 				treeItem.getChildren().addAll(subtree.getChildren());
 			}
 			root.getChildren().add(treeItem);

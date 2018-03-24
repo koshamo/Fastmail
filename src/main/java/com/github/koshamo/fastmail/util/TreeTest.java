@@ -48,7 +48,7 @@ public class TreeTest extends Application{
 //		test_Tree();
 		
 		TreeItem<String> item = 
-				UnbalancedTreeUtils.unbalancedTreeToTreeItems(createTree());
+				UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(createTree());
 		TreeView<String> treeView = new TreeView<>(item);
 		
 		pane.getChildren().add(treeView);
