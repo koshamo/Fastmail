@@ -33,6 +33,9 @@ import java.util.NoSuchElementException;
  * this class has been written, to be able to get the data as is at the cost 
  * of low performance.
  * 
+ * @param <T>	This is a container class so it is possible to store any
+ * data within this container.
+ * 
  * @author Dr. Jochen Raßler
  *
  */
@@ -185,6 +188,24 @@ public class UnbalancedTree<T> {
 		return knot.getSubtree();
 	}
 	
+	/**
+	 * Get the root element
+	 * 
+	 * @return	the root element
+	 */
+	public T getRootItem() {
+		if (root == null)
+			return null;
+		return root.getElem();
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return treeToString(root, "UnbalancedTree: ");
+	}
 	/**
 	 * Get the root of this Unbalanced Tree.
 	 * 

@@ -30,8 +30,30 @@ public class UnbalancedTreeUtils {
 		// prevent this class from instantiation
 	}
 	
-	public <T> TreeItem<T> unbalancedTreeToTreeItems(UnbalancedTree<T> tree) {
+	public static <T> TreeItem<T> unbalancedTreeToTreeItems(UnbalancedTree<T> tree) {
+		if (tree == null)
+			return null;
+
+		TreeItem<T> root = new TreeItem<>();
 		
-		return null;
+		T elem = tree.getRootItem();
+		TreeItem<T> treeItem = new TreeItem<>(elem);
+		
+		boolean more = true;
+		do {
+			if (tree.hasSubtree(elem)) {
+				TreeItem<T> subtree = unbalancedTreeToTreeItems(tree.getSubtree(elem));
+				treeItem.getChildren().addAll(subtree.getChildren());
+			}
+			root.getChildren().add(treeItem);
+			if (tree.hasNext(elem)) {
+				elem = tree.next(elem);
+				treeItem = new TreeItem<>(elem);
+			}
+			else
+				more = false;
+		} while (more);
+		
+		return root;
 	}
 }
