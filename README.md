@@ -18,3 +18,9 @@ please see HISTORY file
 
 Project roadmap:
 please see ROADMAP file
+
+Current status:
+I currently refactor the architecture of this mail client to get a better 
+basis for more features as the GUI code and mail code currently are coupled
+to strong. The development is done in branch 'refactoring', but not always
+runnable. So please be patient for the next release.
