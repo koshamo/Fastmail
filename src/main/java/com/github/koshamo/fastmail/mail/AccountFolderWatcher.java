@@ -18,15 +18,11 @@
 
 package com.github.koshamo.fastmail.mail;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.FastmailGlobals;
-
-import javafx.collections.ObservableList;
-import javafx.scene.control.TreeItem;
+import com.github.koshamo.fastmail.util.UnbalancedTree;
 
 /**
  * The class AccountFolderWatcher does its work in a separate thread.
@@ -62,10 +58,12 @@ public class AccountFolderWatcher implements Runnable {
 	 */
 	@Override
 	public void run() {
+		// Folder Tree to save the propagated folders
+		UnbalancedTree<Folder> currentFolderTree = null;
 		while (run) {
-			final Folder[] folders = account.getFolders();
-			if (folders != null)
-				buildFolderTree(folders);
+			final UnbalancedTree<Folder> newFolderTree = 
+					getSubFolderTree(account.getDefaultFolder());
+			currentFolderTree = compareAndPropagate(currentFolderTree, newFolderTree);
 
 			try {
 				Thread.sleep(FastmailGlobals.FOLDER_REFRESH_MS);
@@ -78,6 +76,75 @@ public class AccountFolderWatcher implements Runnable {
 	}
 
 	/**
+	 * @param currentFolderTree
+	 * @param newFolderTree
+	 * @return
+	 */
+	private UnbalancedTree<Folder> compareAndPropagate(
+			final UnbalancedTree<Folder> currentFolderTree,
+			final UnbalancedTree<Folder> newFolderTree) {
+		if (currentFolderTree == null || 
+				!currentFolderTree.equals(newFolderTree)) {
+			propagateFolderTree(newFolderTree);
+			return newFolderTree;
+		}
+		return currentFolderTree;
+	}
+
+	/**
+	 * @param newFolderTree
+	 */
+	private void propagateFolderTree(UnbalancedTree<Folder> newFolderTree) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Build a UnbalancedTree of folders with their subfolders
+	 * 
+	 * @param folders	the given folders of a folder
+	 *  
+	 * @return	the tree of folders
+	 */
+	private UnbalancedTree<Folder> getFolderTree(final Folder[] folders) {
+		UnbalancedTree<Folder> folderTree = new UnbalancedTree<>();
+		for (int i = 0; i < folders.length; ++i) {
+			folderTree.add(folders[i]);
+			try {
+				if ((folders[i].getType() & Folder.HOLDS_FOLDERS) != 0) {
+					UnbalancedTree<Folder> subFolderTree = getSubFolderTree(folders[i]);
+					if (subFolderTree != null)
+						folderTree.addSubtree(subFolderTree, folders[i]);
+				}
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return folderTree;
+	}
+
+	/**
+	 * Checks if a folder has subfolders and builds a UnbalancedTree of 
+	 * all subfolders
+	 * 
+	 * @param folder	the current folder
+	 * @return	the tree of subfolders
+	 */
+	private UnbalancedTree<Folder> getSubFolderTree(final Folder folder) {
+		try {
+			Folder[] subfolders = folder.list();
+			if (subfolders.length > 0) {
+				UnbalancedTree<Folder> subFolderTree = getFolderTree(subfolders);
+				return subFolderTree;
+			}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	/**
 	 * buildFolderTree is the actual working method for the task above.
 	 * It gets all the folders and subfolders of a mail account and
 	 * creates TreeItems for the TreeView in a recursive way and adds
@@ -87,7 +154,7 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param root the current TreeItem, where subfolders can be added
 	 */
 	/*package private*/ 
-	void buildFolderTree(final Folder[] folders) {
+/*	void buildFolderTree(final Folder[] folders) {
 		final ObservableList<TreeItem<MailTreeViewable>> localList =
 				root.getChildren();
 		// add folders, if they aren't already in the tree view
@@ -144,6 +211,6 @@ public class AccountFolderWatcher implements Runnable {
 		// sort the folder to represent items in a natural way
 		MailTools.sortFolders(localList);
 		
-	}
+	}*/
 	
 }

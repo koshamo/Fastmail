@@ -215,6 +215,25 @@ public class UnbalancedTree<T> {
 		return root;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (this == obj)
+			return true;
+		if (!(obj instanceof UnbalancedTree<?>))
+			return false;
+
+		UnbalancedTree<?> other = (UnbalancedTree<?>)obj;
+		
+		// TODO Auto-generated method stub
+		return super.equals(obj);
+	}
+	
+	
 	/**
 	 * Get the Knot of this element
 	 * 

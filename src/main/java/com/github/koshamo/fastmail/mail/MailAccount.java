@@ -201,16 +201,31 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * Get all folders of this mail account
 	 * @return	all folders as array
 	 */
-	public Folder[] getFolders() {
+//	public Folder[] getFolders() {
+//		try {
+//			parentFolder = store.getDefaultFolder();
+//			return parentFolder.list();
+//		} catch(MessagingException e) {
+//			mailModule.postMessage(i18n.getString("exception.mailaccess"));
+//		}
+//		return null;
+//	}
+
+	/**
+	 * Get the default folder of the account, which is the root of the account
+	 * 
+	 * @return	the root folder of the account
+	 */
+	public Folder getDefaultFolder() {
 		try {
-			parentFolder = store.getDefaultFolder();
-			return parentFolder.list();
-		} catch(MessagingException e) {
-			mailModule.postMessage(i18n.getString("exception.mailaccess"));
+			Folder folder = store.getDefaultFolder();
+			return folder;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
-	
 	/**
 	 * A new Folder will be added to this account with a default folder name.
 	 */

@@ -87,6 +87,7 @@ public class TreeTest extends Application{
 		tree.add("2.2.3", "zwei_zwei");
 		System.out.println(tree);
 		System.out.println();
+		System.out.println("===" + tree.getClass().getTypeName() + "===");
 		return tree;
 	}
 	
