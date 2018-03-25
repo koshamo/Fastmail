@@ -60,8 +60,6 @@ public class SerializeManager {
 	 * @return the one and only object of SerializeManager
 	 */
 	public static synchronized SerializeManager getInstance() {
-		if (manager == null)
-			manager = new SerializeManager();
 		return manager;
 	}
 
@@ -188,7 +186,7 @@ public class SerializeManager {
 	/**
 	 * Only one Instance of SerializeManager will exist in this application
 	 */
-	private static SerializeManager manager = null;
+	private static SerializeManager manager = new SerializeManager();
 	
 	private static ResourceBundle i18nTexts = null;
 	
