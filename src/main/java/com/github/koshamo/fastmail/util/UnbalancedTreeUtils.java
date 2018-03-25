@@ -30,11 +30,12 @@ public class UnbalancedTreeUtils {
 		// prevent this class from instantiation
 	}
 	
-	public static <T> TreeItem<T> unbalancedTreeToJfxTreeItems(UnbalancedTree<T> tree) {
+	public static <T> TreeItem<T> unbalancedTreeToJfxTreeItems(
+			final UnbalancedTree<T> tree) {
 		if (tree == null)
 			return null;
 
-		TreeItem<T> root = new TreeItem<>();
+		final TreeItem<T> root = new TreeItem<>();
 		
 		T elem = tree.getRootItem();
 		TreeItem<T> treeItem = new TreeItem<>(elem);

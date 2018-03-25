@@ -37,7 +37,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @param elem	the element to be stored in the knot
 	 */
-	public Knot(T elem) {
+	public Knot(final T elem) {
 		this.elem = elem;
 		next = null;
 		subtree = null;
@@ -66,7 +66,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @param elem	a element
 	 */
-	public void add(T elem) {
+	public void add(final T elem) {
 		if (!hasNext())
 			next = new Knot<>(elem);
 	}
@@ -85,7 +85,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @param elem
 	 */
-	public void addSubtree(T elem) {
+	public void addSubtree(final T elem) {
 		if (subtree == null)
 			subtree = new UnbalancedTree<>(elem);
 		else {
@@ -101,7 +101,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @param tree	the subtree to be added
 	 */
-	public void addSubtree(UnbalancedTree<T> tree) {
+	public void addSubtree(final UnbalancedTree<T> tree) {
 		if (subtree == null)
 			subtree = tree;
 		else
@@ -131,7 +131,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @param next	the next knot for this knot
 	 */
-	public void setNext(Knot<T> next) {
+	public void setNext(final Knot<T> next) {
 		this.next = next;
 	}
 	
