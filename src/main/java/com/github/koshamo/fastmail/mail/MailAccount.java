@@ -41,6 +41,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
+import com.github.koshamo.fastmail.events.MailAccountMeta;
+import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.concurrent.Task;
@@ -59,7 +61,7 @@ import javafx.concurrent.Task;
 // TODO:
 public class MailAccount /*implements MailTreeViewable*/{
 	// some fields needed to create connection
-	private final MailAccountData data;
+	private final MailAccountData mailAccountData;
 	private final MailModule mailModule;
 	private Properties props;
 	private Session session;
@@ -69,6 +71,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	private Folder parentFolder; 
 
 	private AccountFolderWatcher accountFolderWatcher;
+	private Thread folderWatcherThread;
 	
 //	private TreeItem<MailTreeViewable> accountTreeItem;
 	
@@ -84,7 +87,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * delivered
 	 */
 	public MailAccount(final MailAccountData data, final MailModule mailModule) {
-		this.data = data;
+		this.mailAccountData = data;
 		this.mailModule = mailModule;
 		this.store = null;
 		i18n = SerializeManager.getLocaleMessageBundle();
@@ -98,8 +101,8 @@ public class MailAccount /*implements MailTreeViewable*/{
 		if (store == null || !store.isConnected()) {
 			session = Session.getInstance(props);
 			try {
-				store = session.getStore(data.getInboxType().toLowerCase());
-				store.connect(data.getInboxHost(), data.getUsername(), data.getPassword());
+				store = session.getStore(mailAccountData.getInboxType().toLowerCase());
+				store.connect(mailAccountData.getInboxHost(), mailAccountData.getUsername(), mailAccountData.getPassword());
 			} catch (@SuppressWarnings("unused") NoSuchProviderException e) {
 				postMessage("Provider Unknown");
 			} catch (AuthenticationFailedException e) {
@@ -108,6 +111,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 				postMessage("Something weird happened connecting to mail server");
 			}
 		}
+		addFolderWatcher();
 	}
 
 	/**
@@ -115,11 +119,11 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 */
 	private Properties createSessionProperties() {
 		Properties props = new Properties();
-		if ("IMAP".equals(data.getInboxType())) { //$NON-NLS-1$
-			props.setProperty("mail.imap.ssl.enable", new Boolean(data.isSsl()).toString()); //$NON-NLS-1$
+		if ("IMAP".equals(mailAccountData.getInboxType())) { //$NON-NLS-1$
+			props.setProperty("mail.imap.ssl.enable", new Boolean(mailAccountData.isSsl()).toString()); //$NON-NLS-1$
 		}
-		props.put("mail.smtp.host", data.getSmtpHost()); //$NON-NLS-1$
-		props.setProperty("mail.smtp.starttls.enable", new Boolean(data.isTls()).toString()); //$NON-NLS-1$
+		props.put("mail.smtp.host", mailAccountData.getSmtpHost()); //$NON-NLS-1$
+		props.setProperty("mail.smtp.starttls.enable", new Boolean(mailAccountData.isTls()).toString()); //$NON-NLS-1$
 		return props;
 	}
 	
@@ -132,13 +136,16 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 *  
 	 * @param accountTreeItem
 	 */
-//	public void addFolderWatcher(final TreeItem<MailTreeViewable> accountTreeItem) {
-//		this.accountTreeItem = accountTreeItem;
-//		accountFolderWatcher = new AccountFolderWatcher(this, accountTreeItem);
-//		accountFolderWatcher.setPeriod(Duration.seconds(60));
-//		accountFolderWatcher.start();
-//	}
+	public void addFolderWatcher() {
+		accountFolderWatcher = new AccountFolderWatcher(this);
+		folderWatcherThread = new Thread(accountFolderWatcher);
+		folderWatcherThread.start();
+	}
 
+	/* private */ <T> void postDataEvent(MailAccountOrders order, T data) {
+		mailModule.postEvent(
+				new MailAccountMeta(mailAccountData.getUsername(), order), data);
+	}
 	/**
 	 * To delete this account from the tree view, use this method, as it also
 	 * stops the folder watcher.
@@ -192,7 +199,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @return the username
 	 */
 	public String getAccountName() {
-		return data.getUsername();
+		return mailAccountData.getUsername();
 	}
 	
 	
@@ -294,7 +301,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 			else
 				msg = new MimeMessage(session);
 			InternetAddress ia = new InternetAddress(
-					data.getUsername(), data.getDisplayName(), 
+					mailAccountData.getUsername(), mailAccountData.getDisplayName(), 
 					java.nio.charset.StandardCharsets.ISO_8859_1.toString());
 			msg.setFrom(ia);
 			msg.setRecipients(RecipientType.TO, MailTools.parseAddresses(to));
@@ -321,7 +328,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 			Thread t = new Thread(new Task<Void>(){
 				@Override
 				protected Void call() throws Exception {
-					Transport.send(msg, data.getUsername(), data.getPassword());
+					Transport.send(msg, mailAccountData.getUsername(), mailAccountData.getPassword());
 					mailModule.postMessage("Mail sent");
 					return null;
 				}
@@ -339,7 +346,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @return the settings data object for this account
 	 */
 	public MailAccountData getMailAccountData() {
-		return data;
+		return mailAccountData;
 	}
 
 	// TODO: delete this method -> if settings have changed, create a new

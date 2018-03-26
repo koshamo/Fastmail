@@ -96,7 +96,6 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param newFolderTree
 	 */
 	private void propagateFolderTree(UnbalancedTree<FolderWrapper> newFolderTree) {
-		// TODO Auto-generated method stub
 		
 	}
 

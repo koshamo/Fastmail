@@ -21,7 +21,11 @@ package com.github.koshamo.fastmail.mail;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.koshamo.fastmail.events.FolderTreeEvent;
+import com.github.koshamo.fastmail.events.MailAccountMeta;
+import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.SerializeManager;
+import com.github.koshamo.fastmail.util.UnbalancedTree;
 import com.github.koshamo.fiddler.Event;
 import com.github.koshamo.fiddler.EventHandler;
 import com.github.koshamo.fiddler.MessageBus;
@@ -59,6 +63,31 @@ public class MailModule implements EventHandler {
 		messageBus.postEvent(new MessageEvent(this, null, message));
 	}
 	
+	/*private*/ <T> void postEvent(MailAccountMeta meta, T data) {
+		Event event = null;
+		switch (meta.getOrder()) {
+		case FOLDERS: 
+			event = createFolderTreeEvent(meta, data);
+			break;
+		default:
+			break;
+		}
+		messageBus.postEvent(event);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> Event createFolderTreeEvent(MailAccountMeta meta, T data) {
+		UnbalancedTree<FolderWrapper> folders = null;
+		if (data instanceof UnbalancedTree) {
+			UnbalancedTree<?> test = (UnbalancedTree<?>) data;
+			if (test.getRootItem() instanceof FolderWrapper)
+				folders = (UnbalancedTree<FolderWrapper>) data;
+		}
+		if (folders == null)
+			throw new IllegalArgumentException("data must be of FolderWrapper");
+		return new FolderTreeEvent(this, null, meta, folders);
+		
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#handle(com.github.koshamo.fiddler.Event)
