@@ -227,10 +227,51 @@ public class UnbalancedTree<T> {
 		if (!(obj instanceof UnbalancedTree<?>))
 			return false;
 
-		UnbalancedTree<?> other = (UnbalancedTree<?>)obj;
+		UnbalancedTree<T> other = (UnbalancedTree<T>)obj;
+		if (getRootItem().getClass() != other.getRootItem().getClass())
+			return false;
 		
-		// TODO Auto-generated method stub
-		return super.equals(obj);
+		T here = getRootItem();
+		T there = other.getRootItem();
+		
+		boolean more = true;
+		
+		do {
+			if (!here.equals(there))
+				return false;
+			
+			// check subtree
+			if (this.hasSubtree(here)) {
+				if (!other.hasSubtree(there)) {
+					return false;
+				} else {
+					boolean same = 
+							this.getSubtree(here).equals(other.getSubtree(there));
+					if (!same)
+						return false;
+				}
+			} else {
+				if (other.hasSubtree(there)) {
+					return false;
+				}
+			}
+			
+			// check next item
+			if (this.hasNext(here)) {
+				if (!other.hasNext(there)) {
+					return false;
+				}
+				here = this.next(here);
+				there = other.next(there);
+			} else {
+				if (other.hasNext(there)) {
+					return false;
+				}
+				more = false;
+			}
+		
+		} while (more);
+		return true;
 	}
 	
 	

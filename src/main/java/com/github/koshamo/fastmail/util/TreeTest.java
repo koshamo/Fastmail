@@ -53,6 +53,12 @@ public class TreeTest extends Application{
 		
 		pane.getChildren().add(treeView);
 		
+		UnbalancedTree<String> tree1 = createTree();
+		UnbalancedTree<String> tree2 = createTree();
+		System.out.println(tree1.equals(tree2));
+		tree2.add("neues Element", "vier");
+		System.out.println(tree1.equals(tree2));
+		
 		primaryStage.setScene(new Scene(pane));
 		primaryStage.sizeToScene();
 		primaryStage.show();
