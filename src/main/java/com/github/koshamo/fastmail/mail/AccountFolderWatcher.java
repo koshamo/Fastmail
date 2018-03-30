@@ -24,6 +24,7 @@ import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.FastmailGlobals;
+import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
 
@@ -98,7 +99,7 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param newFolderTree
 	 */
 	private void propagateFolderTree(final UnbalancedTree<FolderWrapper> newFolderTree) {
-		
+		account.postDataEvent(MailAccountOrders.FOLDERS, newFolderTree);
 	}
 
 	/**

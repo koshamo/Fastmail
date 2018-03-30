@@ -58,4 +58,29 @@ public class FolderWrapper {
 	public String getFullName() {
 		return folder.getFullName();
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return folder.getName();
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (this == obj)
+			return true;
+		if (!(obj instanceof FolderWrapper))
+			return false;
+		
+		FolderWrapper other = (FolderWrapper) obj;
+		
+		return this.getFullName().equals(other.getFullName());
+	}
 }
