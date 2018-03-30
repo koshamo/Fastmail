@@ -38,6 +38,7 @@ import com.github.koshamo.fiddler.MessageEvent;
 public class MailModule implements EventHandler {
 
 	private final MessageBus messageBus;
+	private List<MailAccount> accounts;
 	
 	/**
 	 * @param messageBus
@@ -49,7 +50,7 @@ public class MailModule implements EventHandler {
 	public void start() {
 		List<MailAccountData> accountData = 
 				SerializeManager.getInstance().getMailAccounts();
-		List<MailAccount> accounts = new ArrayList<>();
+		accounts = new ArrayList<>();
 		
 		for (MailAccountData mad : accountData)
 			accounts.add(new MailAccount(mad, this));
@@ -103,8 +104,8 @@ public class MailModule implements EventHandler {
 	 */
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
-
+		for (MailAccount ma : accounts)
+			ma.shutdown();
 	}
 
 }

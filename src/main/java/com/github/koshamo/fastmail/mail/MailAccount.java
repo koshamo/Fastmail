@@ -71,7 +71,6 @@ public class MailAccount /*implements MailTreeViewable*/{
 	private Folder parentFolder; 
 
 	private AccountFolderWatcher accountFolderWatcher;
-	private Thread folderWatcherThread;
 	
 //	private TreeItem<MailTreeViewable> accountTreeItem;
 	
@@ -138,10 +137,22 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 */
 	public void addFolderWatcher() {
 		accountFolderWatcher = new AccountFolderWatcher(this);
-		folderWatcherThread = new Thread(accountFolderWatcher);
-		folderWatcherThread.start();
+		new Thread(accountFolderWatcher).start();;
 	}
 
+	/**
+	 * Cares for a clean shutdown process
+	 */
+	public void shutdown() {
+		accountFolderWatcher.stop();
+	}
+	
+	/**
+	 * Propagates the Data Events to the message bus
+	 * 
+	 * @param order	the order for the meta data
+	 * @param data	the actual data
+	 */
 	/* private */ <T> void postDataEvent(MailAccountOrders order, T data) {
 		mailModule.postEvent(
 				new MailAccountMeta(mailAccountData.getUsername(), order), data);
