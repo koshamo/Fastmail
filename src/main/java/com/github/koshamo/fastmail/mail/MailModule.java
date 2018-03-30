@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail.mail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.github.koshamo.fastmail.events.FolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
@@ -44,7 +45,8 @@ public class MailModule implements EventHandler {
 	 * @param messageBus
 	 */
 	public MailModule(MessageBus messageBus) {
-		this.messageBus = messageBus;
+		this.messageBus = 
+				Objects.requireNonNull(messageBus, "messageBus must not be null");
 	}
 
 	public void start() {

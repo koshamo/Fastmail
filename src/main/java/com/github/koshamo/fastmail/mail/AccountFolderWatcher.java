@@ -18,6 +18,8 @@
 
 package com.github.koshamo.fastmail.mail;
 
+import java.util.Objects;
+
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 
@@ -47,7 +49,7 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param accountTreeItem root item of the account
 	 */
 	public AccountFolderWatcher(final MailAccount account) {
-		this.account = account;
+		this.account = Objects.requireNonNull(account, "account must not be null");
 	}
 	
 	public void stop() {
@@ -95,7 +97,7 @@ public class AccountFolderWatcher implements Runnable {
 	/**
 	 * @param newFolderTree
 	 */
-	private void propagateFolderTree(UnbalancedTree<FolderWrapper> newFolderTree) {
+	private void propagateFolderTree(final UnbalancedTree<FolderWrapper> newFolderTree) {
 		
 	}
 

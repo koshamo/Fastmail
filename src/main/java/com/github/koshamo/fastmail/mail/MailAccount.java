@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -86,8 +87,8 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * delivered
 	 */
 	public MailAccount(final MailAccountData data, final MailModule mailModule) {
-		this.mailAccountData = data;
-		this.mailModule = mailModule;
+		this.mailAccountData = Objects.requireNonNull(data, "data must not be null");
+		this.mailModule = Objects.requireNonNull(mailModule, "mailModule must not be null");
 		this.store = null;
 		i18n = SerializeManager.getLocaleMessageBundle();
 		props = createSessionProperties();
@@ -153,7 +154,8 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @param order	the order for the meta data
 	 * @param data	the actual data
 	 */
-	/* private */ <T> void postDataEvent(MailAccountOrders order, T data) {
+	/* private */ <T> void postDataEvent(final MailAccountOrders order, 
+			final T data) {
 		mailModule.postEvent(
 				new MailAccountMeta(mailAccountData.getUsername(), order), data);
 	}
