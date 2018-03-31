@@ -39,6 +39,7 @@ import com.github.koshamo.fiddler.Event;
 import com.github.koshamo.fiddler.MessageBus.ListenerType;
 import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
 
+import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -693,7 +694,7 @@ public class FastGui extends FiddlerFxApp {
 			MailAccountOrders mao = fte.getMetaInformation().getOrder();
 			if (mao == MailAccountOrders.FOLDERS) {
 				TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(((FolderTreeEvent) event).getData());
-				rootItem.getChildren().add(item);
+				Platform.runLater(() -> rootItem.getChildren().addAll(item.getChildren()));
 			}
 		}
 	}
