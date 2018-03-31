@@ -18,46 +18,28 @@
 
 package com.github.koshamo.fastmail.util;
 
-import java.util.Objects;
-
-import javax.mail.Folder;
-
 /**
- * The FolderAdapter is a adapter class to get javax.mail-free
- * representation of a mail folder in the GUI module
- * 
  * @author Dr. Jochen Raßler
  *
  */
-public class FolderWrapper implements MailTreeViewable{
-	private final Folder folder;
+public class AccountWrapper implements MailTreeViewable {
+
+	private final String accountName;
 	
 	/**
-	 * Constructor needs a non-null folder
 	 * 
-	 * @param folder	the mail folder
 	 */
-	public FolderWrapper(final Folder folder) {
-		this.folder = Objects.requireNonNull(folder, "folder must not be null");
+	public AccountWrapper(final String accountName) {
+		this.accountName = accountName;
 	}
 	
-	/**
-	 * Get the name of the folder
-	 * 
-	 * @return	the folder's name
+	
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.util.MailTreeViewable#getName()
 	 */
 	@Override
 	public String getName() {
-		return folder.getName();
-	}
-	
-	/**
-	 * Get the full qualified name of the folder
-	 * 
-	 * @return the folder's full name
-	 */
-	public String getFullName() {
-		return folder.getFullName();
+		return accountName;
 	}
 	
 	/* (non-Javadoc)
@@ -65,7 +47,7 @@ public class FolderWrapper implements MailTreeViewable{
 	 */
 	@Override
 	public String toString() {
-		return folder.getName();
+		return getName();
 	}
 	
 	/* (non-Javadoc)
@@ -77,11 +59,12 @@ public class FolderWrapper implements MailTreeViewable{
 			return false;
 		if (this == obj)
 			return true;
-		if (!(obj instanceof FolderWrapper))
+		if (!(obj instanceof AccountWrapper))
 			return false;
 		
-		FolderWrapper other = (FolderWrapper) obj;
-		
-		return this.getFullName().equals(other.getFullName());
+		AccountWrapper other = (AccountWrapper) obj;
+		return this.getName().equals(other.getName());
 	}
+	
+
 }

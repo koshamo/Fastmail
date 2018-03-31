@@ -20,6 +20,8 @@ package com.github.koshamo.fastmail.mail;
 
 import javax.mail.Folder;
 
+import com.github.koshamo.fastmail.util.MailTreeViewable;
+
 import javafx.collections.ObservableList;
 
 /**

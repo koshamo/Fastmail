@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import com.github.koshamo.fastmail.events.FolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
-import com.github.koshamo.fastmail.util.FolderWrapper;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
 import com.github.koshamo.fiddler.Event;
@@ -80,14 +80,14 @@ public class MailModule implements EventHandler {
 	
 	@SuppressWarnings("unchecked")
 	private <T> Event createFolderTreeEvent(MailAccountMeta meta, T data) {
-		UnbalancedTree<FolderWrapper> folders = null;
+		UnbalancedTree<MailTreeViewable> folders = null;
 		if (data instanceof UnbalancedTree) {
 			UnbalancedTree<?> test = (UnbalancedTree<?>) data;
-			if (test.getRootItem() instanceof FolderWrapper)
-				folders = (UnbalancedTree<FolderWrapper>) data;
+			if (test.getRootItem() instanceof MailTreeViewable)
+				folders = (UnbalancedTree<MailTreeViewable>) data;
 		}
 		if (folders == null)
-			throw new IllegalArgumentException("data must be of FolderWrapper");
+			throw new IllegalArgumentException("data must be of MailTreeViewable");
 		return new FolderTreeEvent(this, null, meta, folders);
 		
 	}

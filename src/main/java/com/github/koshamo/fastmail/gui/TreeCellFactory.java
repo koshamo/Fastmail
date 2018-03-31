@@ -25,7 +25,7 @@ import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailTools;
-import com.github.koshamo.fastmail.mail.MailTreeViewable;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.MessageItem;
 import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;

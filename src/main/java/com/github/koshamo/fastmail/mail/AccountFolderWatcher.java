@@ -25,7 +25,9 @@ import javax.mail.MessagingException;
 
 import com.github.koshamo.fastmail.FastmailGlobals;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
+import com.github.koshamo.fastmail.util.AccountWrapper;
 import com.github.koshamo.fastmail.util.FolderWrapper;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
 
 /**
@@ -63,10 +65,13 @@ public class AccountFolderWatcher implements Runnable {
 	@Override
 	public void run() {
 		// Folder Tree to save the propagated folders
-		UnbalancedTree<FolderWrapper> currentFolderTree = null;
+		UnbalancedTree<MailTreeViewable> currentFolderTree = null;
 		while (run) {
-			final UnbalancedTree<FolderWrapper> newFolderTree = 
-					getSubFolderTree(account.getDefaultFolder());
+			MailTreeViewable root = new AccountWrapper(account.getAccountName());
+			final UnbalancedTree<MailTreeViewable> newFolderTree = 
+					new UnbalancedTree<>(root);
+			newFolderTree.addSubtree(
+					getSubFolderTree(account.getDefaultFolder()), root);
 			currentFolderTree = compareAndPropagate(currentFolderTree, newFolderTree);
 
 			try {
@@ -84,9 +89,9 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param newFolderTree
 	 * @return
 	 */
-	private UnbalancedTree<FolderWrapper> compareAndPropagate(
-			final UnbalancedTree<FolderWrapper> currentFolderTree,
-			final UnbalancedTree<FolderWrapper> newFolderTree) {
+	private UnbalancedTree<MailTreeViewable> compareAndPropagate(
+			final UnbalancedTree<MailTreeViewable> currentFolderTree,
+			final UnbalancedTree<MailTreeViewable> newFolderTree) {
 		if (currentFolderTree == null || 
 				!currentFolderTree.equals(newFolderTree)) {
 			propagateFolderTree(newFolderTree);
@@ -98,7 +103,7 @@ public class AccountFolderWatcher implements Runnable {
 	/**
 	 * @param newFolderTree
 	 */
-	private void propagateFolderTree(final UnbalancedTree<FolderWrapper> newFolderTree) {
+	private void propagateFolderTree(final UnbalancedTree<MailTreeViewable> newFolderTree) {
 		account.postDataEvent(MailAccountOrders.FOLDERS, newFolderTree);
 	}
 
@@ -109,14 +114,14 @@ public class AccountFolderWatcher implements Runnable {
 	 *  
 	 * @return	the tree of folders
 	 */
-	private UnbalancedTree<FolderWrapper> getFolderTree(final Folder[] folders) {
-		UnbalancedTree<FolderWrapper> folderTree = new UnbalancedTree<>();
+	private UnbalancedTree<MailTreeViewable> getFolderTree(final Folder[] folders) {
+		UnbalancedTree<MailTreeViewable> folderTree = new UnbalancedTree<>();
 		for (int i = 0; i < folders.length; ++i) {
 			FolderWrapper wrapper = new FolderWrapper(folders[i]);
 			folderTree.add(wrapper);
 			try {
 				if ((folders[i].getType() & Folder.HOLDS_FOLDERS) != 0) {
-					UnbalancedTree<FolderWrapper> subFolderTree = getSubFolderTree(folders[i]);
+					UnbalancedTree<MailTreeViewable> subFolderTree = getSubFolderTree(folders[i]);
 					if (subFolderTree != null)
 						folderTree.addSubtree(subFolderTree, wrapper);
 				}
@@ -135,11 +140,11 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param folder	the current folder
 	 * @return	the tree of subfolders
 	 */
-	private UnbalancedTree<FolderWrapper> getSubFolderTree(final Folder folder) {
+	private UnbalancedTree<MailTreeViewable> getSubFolderTree(final Folder folder) {
 		try {
 			Folder[] subfolders = folder.list();
 			if (subfolders.length > 0) {
-				UnbalancedTree<FolderWrapper> subFolderTree = getFolderTree(subfolders);
+				UnbalancedTree<MailTreeViewable> subFolderTree = getFolderTree(subfolders);
 				return subFolderTree;
 			}
 		} catch (MessagingException e) {

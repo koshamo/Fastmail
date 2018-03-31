@@ -18,7 +18,7 @@
 
 package com.github.koshamo.fastmail.events;
 
-import com.github.koshamo.fastmail.util.FolderWrapper;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
 import com.github.koshamo.fiddler.DataEvent;
 import com.github.koshamo.fiddler.EventHandler;
@@ -28,7 +28,7 @@ import com.github.koshamo.fiddler.EventHandler;
  *
  */
 public class FolderTreeEvent 
-	extends DataEvent<MailAccountMeta, UnbalancedTree<FolderWrapper>> {
+	extends DataEvent<MailAccountMeta, UnbalancedTree<MailTreeViewable>> {
 
 	/**
 	 * @param source
@@ -37,7 +37,7 @@ public class FolderTreeEvent
 	 * @param data
 	 */
 	public FolderTreeEvent(EventHandler source, EventHandler target, 
-			MailAccountMeta meta, UnbalancedTree<FolderWrapper> data) {
+			MailAccountMeta meta, UnbalancedTree<MailTreeViewable> data) {
 		super(source, target, meta, data);
 	}
 

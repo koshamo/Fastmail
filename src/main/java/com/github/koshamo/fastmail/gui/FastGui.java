@@ -30,7 +30,8 @@ import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
 import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccountData;
-import com.github.koshamo.fastmail.util.FolderWrapper;
+import com.github.koshamo.fastmail.util.AccountWrapper;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
@@ -102,10 +103,10 @@ public class FastGui extends FiddlerFxApp {
 	ContextMenu tableContextMenu;
 	
 	// fields for handling accounts and mails
-	private TreeItem<FolderWrapper> rootItem;
+	private TreeItem<MailTreeViewable> rootItem;
 	MailView mailBody;
 	TableView<EmailTableData> folderMailTable;
-	TreeView<FolderWrapper> accountTree;
+	TreeView<MailTreeViewable> accountTree;
 
 	
 
@@ -443,7 +444,7 @@ public class FastGui extends FiddlerFxApp {
 		 * do not need the root for any other function. So the root item
 		 * is hidden and provided with an empty interface implementation.
 		 */
-		rootItem = new TreeItem<>(null);
+		rootItem = new TreeItem<>(new AccountWrapper("Mail Accounts"));
 		rootItem.setExpanded(true);
 
 		accountTree = new TreeView<>(rootItem);
@@ -691,7 +692,7 @@ public class FastGui extends FiddlerFxApp {
 			FolderTreeEvent fte = (FolderTreeEvent) event;
 			MailAccountOrders mao = fte.getMetaInformation().getOrder();
 			if (mao == MailAccountOrders.FOLDERS) {
-				TreeItem<FolderWrapper> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(((FolderTreeEvent) event).getData());
+				TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(((FolderTreeEvent) event).getData());
 				rootItem.getChildren().add(item);
 			}
 		}
