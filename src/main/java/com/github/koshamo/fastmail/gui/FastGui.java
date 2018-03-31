@@ -40,6 +40,7 @@ import com.github.koshamo.fiddler.MessageBus.ListenerType;
 import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -694,7 +695,13 @@ public class FastGui extends FiddlerFxApp {
 			MailAccountOrders mao = fte.getMetaInformation().getOrder();
 			if (mao == MailAccountOrders.FOLDERS) {
 				TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(((FolderTreeEvent) event).getData());
-				Platform.runLater(() -> rootItem.getChildren().addAll(item.getChildren()));
+				ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
+				// TODO: setting of changed tree is untested
+				if (rootItem.getChildren().contains(accountItems.get(0))) {
+					int index = rootItem.getChildren().indexOf(accountItems.get(0));
+					Platform.runLater(() -> rootItem.getChildren().set(index, accountItems.get(0)));
+				} else
+					Platform.runLater(() -> rootItem.getChildren().addAll(item.getChildren()));
 			}
 		}
 	}
