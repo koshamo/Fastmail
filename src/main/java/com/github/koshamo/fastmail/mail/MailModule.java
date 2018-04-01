@@ -55,7 +55,7 @@ public class MailModule implements EventHandler {
 		List<MailAccountData> accountData = 
 				SerializeManager.getInstance().getMailAccounts();
 		accounts = new ArrayList<>();
-		
+
 		for (MailAccountData mad : accountData)
 			accounts.add(new MailAccount(mad, this));
 		

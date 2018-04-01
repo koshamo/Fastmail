@@ -369,41 +369,13 @@ public class FastGui extends FiddlerFxApp {
 				addReplyItem(), addReplyAllItem(), addDeleteItem(),
 				new SeparatorMenuItem(), moveTo);
 		folderMailTable.setContextMenu(tableContextMenu);
-		// SUBJECT column
-		final TableColumn<EmailTableData, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
-		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject")); //$NON-NLS-1$
-		subjectCol.setMinWidth(400);
-		// FROM column
-		final TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
-		fromCol.setCellValueFactory(new PropertyValueFactory<>("fromName")); //$NON-NLS-1$
-		fromCol.setMinWidth(250);
-		// DATE column
-		final TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
-		dateCol.setMinWidth(150);
-		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate")); //$NON-NLS-1$
-		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
-		dateCol.setComparator(new DateCellComparator());
-		// MESSAGE READ column
-		final TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
-		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
-		readCol.setCellFactory((TableColumn<EmailTableData, Boolean> p) -> new TableCellFactory(readCol));
-		readCol.setEditable(true);
-		readCol.setMaxWidth(30);
-		// ATTACHMENT column
-		final TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
-		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment")); //$NON-NLS-1$
-		attachmentCol.setCellFactory(CheckBoxTableCell.forTableColumn(attachmentCol));
-		attachmentCol.setEditable(false);
-		attachmentCol.setMaxWidth(30);
-		// MESSAGE MARKED column
-		final TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
-		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked")); //$NON-NLS-1$
-		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
-		markerCol.setEditable(true);
-		markerCol.setMaxWidth(30);
-		folderMailTable.getColumns().addAll(
-				Arrays.asList(subjectCol, fromCol, dateCol, readCol, 
-						attachmentCol, markerCol));
+		folderMailTable.getColumns().addAll(Arrays.asList(
+						buildSubjectTableCol(), 
+						buildFromTableCol(), 
+						buildDateTableCol(), 
+						buildReadTableCol(), 
+						buildAttachmentTableCol(), 
+						buildMarkerTableCol()));
 		// local field representing the mails in a folder, that should be shown
 //		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
 //				(obs, oldVal, newVal) -> {
@@ -435,6 +407,79 @@ public class FastGui extends FiddlerFxApp {
 		folderScroller.setFitToWidth(true);
 		
 		return folderScroller;
+	}
+
+	/**
+	 * @return
+	 */
+	public TableColumn<EmailTableData, String> buildSubjectTableCol() {
+		// SUBJECT column
+		final TableColumn<EmailTableData, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
+		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject")); //$NON-NLS-1$
+		subjectCol.setMinWidth(400);
+		return subjectCol;
+	}
+
+	/**
+	 * @return
+	 */
+	public TableColumn<EmailTableData, String> buildFromTableCol() {
+		// FROM column
+		final TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
+		fromCol.setCellValueFactory(new PropertyValueFactory<>("fromName")); //$NON-NLS-1$
+		fromCol.setMinWidth(250);
+		return fromCol;
+	}
+	/**
+	 * @return
+	 */
+	public TableColumn<EmailTableData, String> buildDateTableCol() {
+		// DATE column
+		final TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
+		dateCol.setMinWidth(150);
+		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate")); //$NON-NLS-1$
+		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
+		dateCol.setComparator(new DateCellComparator());
+		return dateCol;
+	}
+
+	/**
+	 * @return
+	 */
+	public TableColumn<EmailTableData, Boolean> buildReadTableCol() {
+		// MESSAGE READ column
+		final TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
+		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
+		readCol.setCellFactory((TableColumn<EmailTableData, Boolean> p) -> new TableCellFactory(readCol));
+		readCol.setEditable(true);
+		readCol.setMaxWidth(30);
+		return readCol;
+	}
+
+	/**
+	 * @return
+	 */
+	public TableColumn<EmailTableData, Boolean> buildAttachmentTableCol() {
+		// ATTACHMENT column
+		final TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
+		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment")); //$NON-NLS-1$
+		attachmentCol.setCellFactory(CheckBoxTableCell.forTableColumn(attachmentCol));
+		attachmentCol.setEditable(false);
+		attachmentCol.setMaxWidth(30);
+		return attachmentCol;
+	}
+
+	/**
+	 * @return
+	 */
+	public TableColumn<EmailTableData, Boolean> buildMarkerTableCol() {
+		// MESSAGE MARKED column
+		final TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
+		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked")); //$NON-NLS-1$
+		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
+		markerCol.setEditable(true);
+		markerCol.setMaxWidth(30);
+		return markerCol;
 	}
 	
 	

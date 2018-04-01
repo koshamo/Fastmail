@@ -28,8 +28,7 @@ import com.github.koshamo.fiddler.jfx.FiddlerFxAppRunner;
 public class Fastmail {
 
 	public static void main(String[] args) {
-		SerializeManager manager = SerializeManager.getInstance();
-		manager.deserialize();
+		SerializeManager.getInstance().deserialize();
 		
 		MessageBus messageBus = new MessageBus();
 		new Thread(new FiddlerFxAppRunner(FastGui.class, args)).start();
@@ -37,8 +36,6 @@ public class Fastmail {
 		MailModule mailModule = new MailModule(messageBus);
 		mailModule.start();
 
-//		manager.serialize();
-//		Platform.exit();
 	}
 
 }
