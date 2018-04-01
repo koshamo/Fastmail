@@ -36,6 +36,7 @@ import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
 import com.github.koshamo.fiddler.Event;
+import com.github.koshamo.fiddler.ExitEvent;
 import com.github.koshamo.fiddler.MessageBus.ListenerType;
 import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
 
@@ -144,6 +145,8 @@ public class FastGui extends FiddlerFxApp {
 
 		final Scene scene = new Scene(overallPane, 1300, 800);
 		primaryStage.setScene(scene);
+		primaryStage.setOnCloseRequest(
+				ev -> getMessageBus().postEvent(new ExitEvent(this, null)));
 	}
 
 	/**
@@ -717,8 +720,9 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
+		SerializeManager.getInstance().serialize();
 		
+		Platform.exit();
 	}
 
 }

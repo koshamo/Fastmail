@@ -30,6 +30,7 @@ import com.github.koshamo.fastmail.util.UnbalancedTree;
 import com.github.koshamo.fiddler.Event;
 import com.github.koshamo.fiddler.EventHandler;
 import com.github.koshamo.fiddler.MessageBus;
+import com.github.koshamo.fiddler.MessageBus.ListenerType;
 import com.github.koshamo.fiddler.MessageEvent;
 
 /**
@@ -47,6 +48,7 @@ public class MailModule implements EventHandler {
 	public MailModule(MessageBus messageBus) {
 		this.messageBus = 
 				Objects.requireNonNull(messageBus, "messageBus must not be null");
+		this.messageBus.registerRequestEvents(this, ListenerType.TARGET);
 	}
 
 	public void start() {
@@ -108,6 +110,7 @@ public class MailModule implements EventHandler {
 	public void shutdown() {
 		for (MailAccount ma : accounts)
 			ma.shutdown();
+		System.exit(0);
 	}
 
 }
