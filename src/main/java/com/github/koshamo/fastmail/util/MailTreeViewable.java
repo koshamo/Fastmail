@@ -35,7 +35,7 @@ public interface MailTreeViewable {
 	 * 
 	 * @return true if it is a account, false otherwise
 	 */
-//	boolean isAccount();
+	boolean isAccount();
 	
 	/**
 	 * As every folder should be aware of its content, this method is convenient 

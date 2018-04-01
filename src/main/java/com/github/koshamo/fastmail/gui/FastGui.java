@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
+import com.github.koshamo.fastmail.events.AddAccountEvent;
 import com.github.koshamo.fastmail.events.FolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
@@ -92,7 +93,7 @@ public class FastGui extends FiddlerFxApp {
 		SerializeManager.getLocaleMessageBundle();
 		i18n = SerializeManager.getLocaleMessageBundle();
 		
-		getMessageBus().registerAllEvents(this, ListenerType.TARGET);
+		getMessageBus().registerAllEvents(this, ListenerType.ANY);
 	}
 
 	// the resource bundle containing the internationalized strings
@@ -128,25 +129,14 @@ public class FastGui extends FiddlerFxApp {
 				buildBody(),
 				buildStatusLine());
 
-		
-		/*
-		 * if mail accounts had been added in a previous session,
-		 * load them from disk and initialize the tree view
-		 */
-		// TODO:
-//		final List<MailAccountData> mad = SerializeManager.getInstance().getMailAccounts();
-//		for (MailAccountData d : mad) {
-//			final TreeItem<MailTreeViewable> account = 
-//					new TreeItem<>(new MailAccount(d));
-//			((MailAccount) account.getValue()).addFolderWatcher(account);
-//			account.setExpanded(true);
-//			rootItem.getChildren().add(account);
-//		}
-
 		final Scene scene = new Scene(overallPane, 1300, 800);
 		primaryStage.setScene(scene);
+		// set on close operation
 		primaryStage.setOnCloseRequest(
-				ev -> getMessageBus().postEvent(new ExitEvent(this, null)));
+				ev -> {
+					SerializeManager.getInstance().serialize();
+					getMessageBus().postEvent(new ExitEvent(this, null));
+					});
 	}
 
 	/**
@@ -187,31 +177,25 @@ public class FastGui extends FiddlerFxApp {
 			final MailAccountData accountData = dialog.showAndWait();
 			if (accountData == null)
 				return;
-			// TODO:
-//			final TreeItem<MailTreeViewable> account = 
-//					new TreeItem<>(new MailAccount(accountData));
-//			((MailAccount) account.getValue()).addFolderWatcher(account);
-//			rootItem.getChildren().add(account);
-//			account.setExpanded(true);
-//			SerializeManager.getInstance().addMailAccount(accountData);
+			SerializeManager.getInstance().addMailAccount(accountData);
+			getMessageBus().postEvent(new AddAccountEvent(this, null, "AddAccount", accountData));
 		});
 		return addAccountItem;
 	}
 	
 	/*package private*/ MenuItem addEditAccountItem() {
 		final MenuItem editAccountItem = new MenuItem(i18n.getString("action.editaccount")); //$NON-NLS-1$
-//		editAccountItem.setOnAction(ev -> {
-//			if (accountTree.getSelectionModel().getSelectedItem() == null)
-//				return;
-//			final TreeItem<FolderWrapper> curItem = 
-//					accountTree.getSelectionModel().getSelectedItem(); 
-			// TODO:
-//			while (!curItem.getValue().isAccount())
-//				curItem.getParent();
-//			final MailAccountDialog dialog = new MailAccountDialog(
-//					((MailAccount) curItem.getValue()).getMailAccountData());
-//			dialog.showAndWait();
-//		});
+		editAccountItem.setOnAction(ev -> {
+			if (accountTree.getSelectionModel().getSelectedItem() == null)
+				return;
+			final TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem(); 
+			while (!curItem.getValue().isAccount())
+				curItem.getParent();
+			final MailAccountDialog dialog = new MailAccountDialog(
+					((AccountWrapper) curItem.getValue()).getMailAccountData());
+			dialog.showAndWait();
+		});
 		return editAccountItem;
 	}
 
@@ -494,7 +478,7 @@ public class FastGui extends FiddlerFxApp {
 		 * do not need the root for any other function. So the root item
 		 * is hidden and provided with an empty interface implementation.
 		 */
-		rootItem = new TreeItem<>(new AccountWrapper("Mail Accounts"));
+		rootItem = new TreeItem<>(null);
 		rootItem.setExpanded(true);
 
 		accountTree = new TreeView<>(rootItem);
@@ -765,8 +749,6 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	@Override
 	public void shutdown() {
-		SerializeManager.getInstance().serialize();
-		
 		Platform.exit();
 	}
 

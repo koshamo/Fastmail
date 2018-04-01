@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.github.koshamo.fastmail.events.AddAccountEvent;
 import com.github.koshamo.fastmail.events.FolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
@@ -48,7 +49,7 @@ public class MailModule implements EventHandler {
 	public MailModule(MessageBus messageBus) {
 		this.messageBus = 
 				Objects.requireNonNull(messageBus, "messageBus must not be null");
-		this.messageBus.registerRequestEvents(this, ListenerType.TARGET);
+		this.messageBus.registerAllEvents(this, ListenerType.TARGET);
 	}
 
 	public void start() {
@@ -58,7 +59,7 @@ public class MailModule implements EventHandler {
 
 		for (MailAccountData mad : accountData)
 			accounts.add(new MailAccount(mad, this));
-		
+ 
 		for (MailAccount ma : accounts)
 			ma.connect();
 		
@@ -99,10 +100,19 @@ public class MailModule implements EventHandler {
 	 */
 	@Override
 	public void handle(Event event) {
-		// TODO Auto-generated method stub
-
+		if (event instanceof AddAccountEvent)
+			handleAddAccountEvent((AddAccountEvent) event);
 	}
 
+	/**
+	 * @param aae
+	 */
+	private void handleAddAccountEvent(AddAccountEvent aae) {
+		MailAccount account = new MailAccount(aae.getData(), this);
+		account.connect();
+		accounts.add(account);
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#shutdown()
 	 */

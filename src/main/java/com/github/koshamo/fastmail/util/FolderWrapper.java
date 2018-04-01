@@ -84,4 +84,12 @@ public class FolderWrapper implements MailTreeViewable{
 		
 		return this.getFullName().equals(other.getFullName());
 	}
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.util.MailTreeViewable#isAccount()
+	 */
+	@Override
+	public boolean isAccount() {
+		return false;
+	}
 }

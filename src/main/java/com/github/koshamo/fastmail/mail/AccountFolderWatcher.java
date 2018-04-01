@@ -67,7 +67,7 @@ public class AccountFolderWatcher implements Runnable {
 		// Folder Tree to save the propagated folders
 		UnbalancedTree<MailTreeViewable> currentFolderTree = null;
 		while (run) {
-			MailTreeViewable root = new AccountWrapper(account.getAccountName());
+			MailTreeViewable root = new AccountWrapper(account.getMailAccountData());
 			final UnbalancedTree<MailTreeViewable> newFolderTree = 
 					new UnbalancedTree<>(root);
 			newFolderTree.addSubtree(

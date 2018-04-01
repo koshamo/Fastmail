@@ -18,19 +18,21 @@
 
 package com.github.koshamo.fastmail.util;
 
+import com.github.koshamo.fastmail.mail.MailAccountData;
+
 /**
  * @author Dr. Jochen Raßler
  *
  */
 public class AccountWrapper implements MailTreeViewable {
 
-	private final String accountName;
+	private final MailAccountData accountData;
 	
 	/**
 	 * 
 	 */
-	public AccountWrapper(final String accountName) {
-		this.accountName = accountName;
+	public AccountWrapper(final MailAccountData accountData) {
+		this.accountData = accountData;
 	}
 	
 	
@@ -39,7 +41,7 @@ public class AccountWrapper implements MailTreeViewable {
 	 */
 	@Override
 	public String getName() {
-		return accountName;
+		return accountData.getUsername();
 	}
 	
 	/* (non-Javadoc)
@@ -65,6 +67,17 @@ public class AccountWrapper implements MailTreeViewable {
 		AccountWrapper other = (AccountWrapper) obj;
 		return this.getName().equals(other.getName());
 	}
-	
 
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.util.MailTreeViewable#isAccount()
+	 */
+	@Override
+	public boolean isAccount() {
+		return true;
+	}
+	
+	public MailAccountData getMailAccountData() {
+		return accountData;
+	}
 }

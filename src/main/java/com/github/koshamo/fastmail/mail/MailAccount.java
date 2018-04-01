@@ -138,7 +138,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 */
 	public void addFolderWatcher() {
 		accountFolderWatcher = new AccountFolderWatcher(this);
-		new Thread(accountFolderWatcher).start();;
+		new Thread(accountFolderWatcher).start();
 	}
 
 	/**
@@ -199,6 +199,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 		} catch (@SuppressWarnings("unused") IllegalStateException e) {
 			return i18n.getString("error.connected"); //$NON-NLS-1$
 		} catch (MessagingException e) {
+			System.out.println(e.getMessage());
 			return i18n.getString("error.connected") + e.getMessage(); //$NON-NLS-1$
 		}
 		return i18n.getString("info.settingsOK"); //$NON-NLS-1$
