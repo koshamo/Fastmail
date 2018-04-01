@@ -691,18 +691,24 @@ public class FastGui extends FiddlerFxApp {
 	public void handle(Event event) {
 		System.out.println("Event incoming");
 		if (event instanceof FolderTreeEvent) {
-			FolderTreeEvent fte = (FolderTreeEvent) event;
-			MailAccountOrders mao = fte.getMetaInformation().getOrder();
-			if (mao == MailAccountOrders.FOLDERS) {
-				TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(((FolderTreeEvent) event).getData());
-				ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
-				// TODO: setting of changed tree is untested
-				if (rootItem.getChildren().contains(accountItems.get(0))) {
-					int index = rootItem.getChildren().indexOf(accountItems.get(0));
-					Platform.runLater(() -> rootItem.getChildren().set(index, accountItems.get(0)));
-				} else
-					Platform.runLater(() -> rootItem.getChildren().addAll(item.getChildren()));
-			}
+			handleFolderTreeEvent((FolderTreeEvent) event);
+		}
+	}
+
+	/**
+	 * @param fte
+	 */
+	public void handleFolderTreeEvent(FolderTreeEvent fte) {
+		MailAccountOrders mao = fte.getMetaInformation().getOrder();
+		if (mao == MailAccountOrders.FOLDERS) {
+			TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
+			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
+			// TODO: setting of changed tree is untested
+			if (rootItem.getChildren().contains(accountItems.get(0))) {
+				int index = rootItem.getChildren().indexOf(accountItems.get(0));
+				Platform.runLater(() -> rootItem.getChildren().set(index, accountItems.get(0)));
+			} else
+				Platform.runLater(() -> rootItem.getChildren().addAll(item.getChildren()));
 		}
 	}
 
