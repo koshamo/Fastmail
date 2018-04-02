@@ -150,6 +150,18 @@ public class SerializeManager {
 	}
 	
 	/**
+	 * Change the mail account data within the serialization process
+	 * @param oldData	data to be removed
+	 * @param newData	data to be added
+	 */
+	public void changeMailAccount(final MailAccountData oldData, final MailAccountData newData) {
+		int index = mailAccounts.indexOf(oldData);
+		if (index == -1)
+			throw new IllegalArgumentException("item not found!");
+		mailAccounts.set(index, newData);
+	}
+	
+	/**
 	 * Remove a mail account from serialization
 	 * @param data the MailAccountData object belonging to the mail account
 	 */

@@ -163,10 +163,10 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * To delete this account from the tree view, use this method, as it also
 	 * stops the folder watcher.
 	 */
-//	public void remove() {
-//		accountFolderWatcher.cancel();
-//		accountTreeItem.getParent().getChildren().remove(accountTreeItem);
-//	}
+	public void remove() {
+		accountFolderWatcher.stop();
+		accountFolderWatcher.propagateRemovefolderTree();
+	}
 	
 	/**
 	 * This method is to test a new account configuration and returns a message 

@@ -26,7 +26,7 @@ import com.github.koshamo.fiddler.EventHandler;
  * @author Dr. Jochen Raßler
  *
  */
-public class AddAccountEvent extends DataEvent<String, MailAccountData> {
+public class EditAccountEvent extends DataEvent<EditType, MailAccountData> {
 
 	/**
 	 * @param source
@@ -34,7 +34,7 @@ public class AddAccountEvent extends DataEvent<String, MailAccountData> {
 	 * @param meta
 	 * @param data
 	 */
-	public AddAccountEvent(EventHandler source, EventHandler target, String meta, MailAccountData data) {
+	public EditAccountEvent(EventHandler source, EventHandler target, EditType meta, MailAccountData data) {
 		super(source, target, meta, data);
 	}
 

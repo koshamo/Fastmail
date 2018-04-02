@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.github.koshamo.fastmail.events.AddAccountEvent;
+import com.github.koshamo.fastmail.events.EditAccountEvent;
+import com.github.koshamo.fastmail.events.EditType;
 import com.github.koshamo.fastmail.events.FolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
@@ -72,7 +73,8 @@ public class MailModule implements EventHandler {
 	/*private*/ <T> void postEvent(MailAccountMeta meta, T data) {
 		Event event = null;
 		switch (meta.getOrder()) {
-		case FOLDERS: 
+		case FOLDER_NEW: 
+		case FOLDER_REMOVE:
 			event = createFolderTreeEvent(meta, data);
 			break;
 		default:
@@ -100,17 +102,41 @@ public class MailModule implements EventHandler {
 	 */
 	@Override
 	public void handle(Event event) {
-		if (event instanceof AddAccountEvent)
-			handleAddAccountEvent((AddAccountEvent) event);
+		if (event instanceof EditAccountEvent)
+			handleEditAccountEvent((EditAccountEvent) event);
 	}
 
 	/**
 	 * @param aae
 	 */
-	private void handleAddAccountEvent(AddAccountEvent aae) {
-		MailAccount account = new MailAccount(aae.getData(), this);
+	private void handleEditAccountEvent(EditAccountEvent aae) {
+		if (aae.getMetaInformation() == EditType.ADD) {
+			addAccount(aae.getData());
+		}
+		else if (aae.getMetaInformation() == EditType.EDIT) {
+			removeAccount(aae.getData());
+			addAccount(aae.getData());
+		}
+		else if (aae.getMetaInformation() == EditType.REMOVE) {
+			removeAccount(aae.getData());
+		}
+	}
+	
+	private void addAccount(MailAccountData data) {
+		MailAccount account = new MailAccount(data, this);
 		account.connect();
 		accounts.add(account);
+	}
+	
+	private void removeAccount(MailAccountData data) {
+		for (MailAccount account : accounts) {
+			if (account.getAccountName().equals(data.getUsername()) || 
+					account.getMailAccountData().getDisplayName().equals(data.getDisplayName()) 
+					&& account.getMailAccountData().getInboxHost().equals(data.getInboxHost())) {
+				account.remove();
+				accounts.remove(account);
+			}
+		}
 	}
 	
 	/* (non-Javadoc)

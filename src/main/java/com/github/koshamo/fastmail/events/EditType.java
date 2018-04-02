@@ -18,10 +18,4 @@
 
 package com.github.koshamo.fastmail.events;
 
-/**
- * @author Dr. Jochen Raßler
- *
- */
-public enum MailAccountOrders {
-	FOLDER_NEW, FOLDER_REMOVE
-}
+public enum EditType {ADD, EDIT, REMOVE}

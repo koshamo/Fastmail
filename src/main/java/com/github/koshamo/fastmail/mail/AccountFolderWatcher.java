@@ -42,9 +42,11 @@ import com.github.koshamo.fastmail.util.UnbalancedTree;
  */
 public class AccountFolderWatcher implements Runnable {
 
-	MailAccount account;
-	boolean run = true;
-	
+	private MailAccount account;
+	private boolean run = true;
+	// Folder Tree to save the propagated folders
+	private UnbalancedTree<MailTreeViewable> currentFolderTree = null;
+
 	/**
 	 * Basic constructor
 	 * 
@@ -64,8 +66,6 @@ public class AccountFolderWatcher implements Runnable {
 	 */
 	@Override
 	public void run() {
-		// Folder Tree to save the propagated folders
-		UnbalancedTree<MailTreeViewable> currentFolderTree = null;
 		while (run) {
 			MailTreeViewable root = new AccountWrapper(account.getMailAccountData());
 			final UnbalancedTree<MailTreeViewable> newFolderTree = 
@@ -104,9 +104,17 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param newFolderTree
 	 */
 	private void propagateFolderTree(final UnbalancedTree<MailTreeViewable> newFolderTree) {
-		account.postDataEvent(MailAccountOrders.FOLDERS, newFolderTree);
+		account.postDataEvent(MailAccountOrders.FOLDER_NEW, newFolderTree);
 	}
 
+	/**
+	 * 
+	 */
+	public void propagateRemovefolderTree() {
+		account.postDataEvent(MailAccountOrders.FOLDER_REMOVE, currentFolderTree);
+	}
+	
+	
 	/**
 	 * Build a UnbalancedTree of folders with their subfolders
 	 * 

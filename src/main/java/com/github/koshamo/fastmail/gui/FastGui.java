@@ -20,10 +20,12 @@ package com.github.koshamo.fastmail.gui;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
-import com.github.koshamo.fastmail.events.AddAccountEvent;
+import com.github.koshamo.fastmail.events.EditAccountEvent;
+import com.github.koshamo.fastmail.events.EditType;
 import com.github.koshamo.fastmail.events.FolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
@@ -178,7 +180,7 @@ public class FastGui extends FiddlerFxApp {
 			if (accountData == null)
 				return;
 			SerializeManager.getInstance().addMailAccount(accountData);
-			getMessageBus().postEvent(new AddAccountEvent(this, null, "AddAccount", accountData));
+			getMessageBus().postEvent(new EditAccountEvent(this, null, EditType.ADD, accountData));
 		});
 		return addAccountItem;
 	}
@@ -194,39 +196,44 @@ public class FastGui extends FiddlerFxApp {
 				curItem.getParent();
 			final MailAccountDialog dialog = new MailAccountDialog(
 					((AccountWrapper) curItem.getValue()).getMailAccountData());
-			dialog.showAndWait();
+			final MailAccountData accountData = dialog.showAndWait();
+			if (accountData == null)
+				return;
+			SerializeManager.getInstance().changeMailAccount(
+					((AccountWrapper) curItem.getValue()).getMailAccountData(), 
+					accountData);
+			getMessageBus().postEvent(new EditAccountEvent(this, null, EditType.EDIT, accountData));
 		});
 		return editAccountItem;
 	}
 
 	private MenuItem addRemoveAccountItem() {
 		final MenuItem removeAccountItem = new MenuItem(i18n.getString("action.removeaccount")); //$NON-NLS-1$
-//		removeAccountItem.setOnAction(ev -> {
-//			if (accountTree.getSelectionModel().getSelectedItem() == null)
-//				return;
-//			final TreeItem<FolderWrapper> curItem = 
-//					accountTree.getSelectionModel().getSelectedItem(); 
-//			while (!curItem.getValue().isAccount())
-//				curItem.getParent();
-//			final Alert alert = new Alert(Alert.AlertType.WARNING,
-//					MessageFormat.format(i18n.getString("alert.message.removeaccount"),  //$NON-NLS-1$
-//							curItem.getValue().getName()), 
-//					ButtonType.YES, ButtonType.CANCEL);
-//			alert.setTitle(i18n.getString("alert.title.removeaccount")); //$NON-NLS-1$
-//			alert.setHeaderText(i18n.getString("alert.header.removeaccount")); //$NON-NLS-1$
-//			final Optional<ButtonType> opt = alert.showAndWait();
-//			if (opt.get().equals(ButtonType.CANCEL))
-//				return;
-			// TODO:
-//			if (opt.get().equals(ButtonType.YES)) {
-//				SerializeManager.getInstance().removeMailAccount(
-//						((MailAccount) curItem.getValue()).getMailAccountData());
-//				((MailAccount) curItem.getValue()).remove();
-//				folderMailTable.getItems().clear();
-//				mailBody.clear();
-//			}
-//			return;
-//		});
+		removeAccountItem.setOnAction(ev -> {
+			if (accountTree.getSelectionModel().getSelectedItem() == null)
+				return;
+			final TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem(); 
+			while (!curItem.getValue().isAccount())
+				curItem.getParent();
+			final Alert alert = new Alert(Alert.AlertType.WARNING,
+					MessageFormat.format(i18n.getString("alert.message.removeaccount"),  //$NON-NLS-1$
+							curItem.getValue().getName()), 
+					ButtonType.YES, ButtonType.CANCEL);
+			alert.setTitle(i18n.getString("alert.title.removeaccount")); //$NON-NLS-1$
+			alert.setHeaderText(i18n.getString("alert.header.removeaccount")); //$NON-NLS-1$
+			final Optional<ButtonType> opt = alert.showAndWait();
+			if (opt.get().equals(ButtonType.CANCEL))
+				return;
+			if (opt.get().equals(ButtonType.YES)) {
+				SerializeManager.getInstance().removeMailAccount(
+						((AccountWrapper) curItem.getValue()).getMailAccountData());
+				getMessageBus().postEvent(new EditAccountEvent(this, null, EditType.REMOVE, 
+						((AccountWrapper) curItem.getValue()).getMailAccountData()));
+				mailBody.clear();
+			}
+			return;
+		});
 		return removeAccountItem;
 	}
 
@@ -732,7 +739,7 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	public void handleFolderTreeEvent(FolderTreeEvent fte) {
 		MailAccountOrders mao = fte.getMetaInformation().getOrder();
-		if (mao == MailAccountOrders.FOLDERS) {
+		if (mao == MailAccountOrders.FOLDER_NEW) {
 			TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
 			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
 			// TODO: setting of changed tree is untested
@@ -741,6 +748,15 @@ public class FastGui extends FiddlerFxApp {
 				Platform.runLater(() -> rootItem.getChildren().set(index, accountItems.get(0)));
 			} else
 				Platform.runLater(() -> rootItem.getChildren().addAll(item.getChildren()));
+		}
+		if (mao == MailAccountOrders.FOLDER_REMOVE) {
+			TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
+			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
+			// TODO: setting of changed tree is untested
+			if (rootItem.getChildren().contains(accountItems.get(0))) {
+				int index = rootItem.getChildren().indexOf(accountItems.get(0));
+				Platform.runLater(() -> rootItem.getChildren().remove(index));
+			}
 		}
 	}
 
