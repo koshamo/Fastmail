@@ -540,34 +540,34 @@ public class FastGui extends FiddlerFxApp {
 	
 	private MenuItem addReplyItem() {
 		final MenuItem reply = new MenuItem(i18n.getString("action.reply")); //$NON-NLS-1$
-		reply.setOnAction(ev -> {
-			replyMail();
-		});
+//		reply.setOnAction(ev -> {
+//			replyMail();
+//		});
 		return reply;
 	}
 	
 	private MenuItem addReplyAllItem() {
 		final MenuItem replyAll = new MenuItem(i18n.getString("action.replyall")); //$NON-NLS-1$
-		replyAll.setOnAction(ev -> {
-			replyAllMail();
-		});
+//		replyAll.setOnAction(ev -> {
+//			replyAllMail();
+//		});
 		return replyAll;
 	}
 	
 	private MenuItem addDeleteItem() {
 		final MenuItem delete = new MenuItem(i18n.getString("action.delete")); //$NON-NLS-1$
-		delete.setOnAction(ev -> {
-			deleteMail();
-		});
+//		delete.setOnAction(ev -> {
+//			deleteMail();
+//		});
 		return delete;
 	}
 	
 	@SuppressWarnings("static-method")
 	private MenuItem addMoveToItem(EmailTableData mail, FolderWrapper target) {
 		final MenuItem move = new MenuItem(target.getName());
-		move.setOnAction(ev -> {
-			target.moveMessage(mail);
-		});
+//		move.setOnAction(ev -> {
+//			target.moveMessage(mail);
+//		});
 		return move;
 	}
 	

@@ -110,6 +110,7 @@ public class FolderWrapper implements MailTreeViewable{
 	}
 	
 	public boolean renameTo(FolderWrapper fw) {
+		// TODO: this currently is old code, move it to mail module
 		try {
 			if (folder.isOpen())
 				folder.close(true);
@@ -124,6 +125,7 @@ public class FolderWrapper implements MailTreeViewable{
 	}
 	
 	public void moveMessage(EmailTableData mail) {
+		// TODO: this currently is old code, move it to mail module
 		try {
 			// copy message to new folder
 			mail.getFolder().copyMessages(new Message[] {mail.getMessage()}, folder);
