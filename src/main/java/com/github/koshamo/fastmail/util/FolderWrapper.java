@@ -21,6 +21,7 @@ package com.github.koshamo.fastmail.util;
 import java.util.Objects;
 
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 
 /**
  * The FolderAdapter is a adapter class to get javax.mail-free
@@ -92,4 +93,30 @@ public class FolderWrapper implements MailTreeViewable{
 	public boolean isAccount() {
 		return false;
 	}
+	
+	public FolderWrapper createFolder(String name) {
+		try {
+			Folder f = folder.getParent().getFolder(name);
+			return new FolderWrapper(f);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public boolean renameTo(FolderWrapper fw) {
+		try {
+			if (folder.isOpen())
+				folder.close(true);
+			if (fw.folder.isOpen())
+				fw.folder.close(true);
+			return folder.renameTo(fw.folder);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 }

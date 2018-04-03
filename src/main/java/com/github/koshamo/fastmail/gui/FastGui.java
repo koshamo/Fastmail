@@ -493,7 +493,7 @@ public class FastGui extends FiddlerFxApp {
 		accountTree.setEditable(true);
 		treeContextMenu = new ContextMenu();
 		accountTree.setContextMenu(treeContextMenu);
-//		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory());
+		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory());
 //		accountTree.getSelectionModel().selectedItemProperty().addListener(
 //				new ChangeListener<TreeItem<MailTreeViewable>>() {
 //					@Override
