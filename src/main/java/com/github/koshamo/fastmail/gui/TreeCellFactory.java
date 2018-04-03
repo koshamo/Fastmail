@@ -23,8 +23,8 @@ import java.text.MessageFormat;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 
+import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
 import com.github.koshamo.fastmail.mail.FolderItem;
-import com.github.koshamo.fastmail.mail.MailTools;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.MessageItem;
 import com.github.koshamo.fastmail.util.MessageMarket;
@@ -141,7 +141,7 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 		TreeItem<MailTreeViewable> treeItem = getTreeItem();
 		while (!treeItem.getValue().isAccount())
 			treeItem = treeItem.getParent();
-		MailTools.sortFolders(treeItem.getChildren());
+		TreeViewUtils.sortFolders(treeItem.getChildren());
 	}
 	
 	/**
