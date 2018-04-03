@@ -30,6 +30,7 @@ import com.github.koshamo.fastmail.events.FolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
 import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
+import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
 import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccountData;
@@ -740,10 +741,16 @@ public class FastGui extends FiddlerFxApp {
 	public void handleFolderTreeEvent(FolderTreeEvent fte) {
 		MailAccountOrders mao = fte.getMetaInformation().getOrder();
 		if (mao == MailAccountOrders.FOLDER_NEW) {
-			TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
+			TreeItem<MailTreeViewable> item = 
+					UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
 			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
+			TreeViewUtils.sortFolders(accountItems.get(0).getChildren());
+		
 			// TODO: setting of changed tree is untested
-			Optional<TreeItem<MailTreeViewable>> optItem = rootItem.getChildren().stream().filter((it) -> it.getValue().getName().equals(accountItems.get(0).getValue().getName())).findFirst(); 
+			Optional<TreeItem<MailTreeViewable>> optItem = 
+					rootItem.getChildren().stream().filter((it) -> 
+					it.getValue().getName().equals(accountItems.get(0).getValue().getName())).
+					findFirst(); 
 			if (optItem.isPresent()) {
 				int index = rootItem.getChildren().indexOf(optItem.get());
 				Platform.runLater(() -> rootItem.getChildren().set(index, accountItems.get(0)));
@@ -751,10 +758,14 @@ public class FastGui extends FiddlerFxApp {
 				Platform.runLater(() -> rootItem.getChildren().addAll(accountItems));
 		}
 		if (mao == MailAccountOrders.FOLDER_REMOVE) {
-			TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
+			TreeItem<MailTreeViewable> item = 
+					UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
 			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
 
-			Optional<TreeItem<MailTreeViewable>> optItem = rootItem.getChildren().stream().filter((it) -> it.getValue().getName().equals(accountItems.get(0).getValue().getName())).findFirst(); 
+			Optional<TreeItem<MailTreeViewable>> optItem = 
+					rootItem.getChildren().stream().filter((it) -> 
+					it.getValue().getName().equals(accountItems.get(0).getValue().getName())).
+					findFirst(); 
 			if (optItem.isPresent()) 
 				Platform.runLater(() -> rootItem.getChildren().remove(optItem.get()));
 		}
