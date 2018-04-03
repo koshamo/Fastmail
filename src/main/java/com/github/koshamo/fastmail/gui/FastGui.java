@@ -32,9 +32,9 @@ import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
 import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
 import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
 import com.github.koshamo.fastmail.mail.EmailTableData;
-import com.github.koshamo.fastmail.mail.FolderItem;
 import com.github.koshamo.fastmail.mail.MailAccountData;
 import com.github.koshamo.fastmail.util.AccountWrapper;
+import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
@@ -563,7 +563,7 @@ public class FastGui extends FiddlerFxApp {
 	}
 	
 	@SuppressWarnings("static-method")
-	private MenuItem addMoveToItem(EmailTableData mail, FolderItem target) {
+	private MenuItem addMoveToItem(EmailTableData mail, FolderWrapper target) {
 		final MenuItem move = new MenuItem(target.getName());
 		move.setOnAction(ev -> {
 			target.moveMessage(mail);
