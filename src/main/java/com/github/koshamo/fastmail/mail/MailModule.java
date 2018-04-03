@@ -21,6 +21,7 @@ package com.github.koshamo.fastmail.mail;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.github.koshamo.fastmail.events.EditAccountEvent;
 import com.github.koshamo.fastmail.events.EditType;
@@ -114,8 +115,7 @@ public class MailModule implements EventHandler {
 			addAccount(aae.getData());
 		}
 		else if (aae.getMetaInformation() == EditType.EDIT) {
-			removeAccount(aae.getData());
-			addAccount(aae.getData());
+			// Nothing needs to be done!
 		}
 		else if (aae.getMetaInformation() == EditType.REMOVE) {
 			removeAccount(aae.getData());
@@ -129,13 +129,15 @@ public class MailModule implements EventHandler {
 	}
 	
 	private void removeAccount(MailAccountData data) {
-		for (MailAccount account : accounts) {
-			if (account.getAccountName().equals(data.getUsername()) || 
-					account.getMailAccountData().getDisplayName().equals(data.getDisplayName()) 
-					&& account.getMailAccountData().getInboxHost().equals(data.getInboxHost())) {
-				account.remove();
-				accounts.remove(account);
-			}
+		Optional<MailAccount> optAccount = accounts.stream().filter(
+				(acc) -> 
+				acc.getAccountName().equals(data.getUsername()) 
+				|| acc.getMailAccountData().getDisplayName().equals(data.getDisplayName()) 
+				&& acc.getMailAccountData().getInboxHost().equals(data.getInboxHost()))
+		.findFirst();
+		if (optAccount.isPresent()) {
+			optAccount.get().remove();
+			accounts.remove(optAccount.get());
 		}
 	}
 	

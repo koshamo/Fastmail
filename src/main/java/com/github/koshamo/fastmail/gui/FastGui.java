@@ -743,20 +743,20 @@ public class FastGui extends FiddlerFxApp {
 			TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
 			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
 			// TODO: setting of changed tree is untested
-			if (rootItem.getChildren().contains(accountItems.get(0))) {
-				int index = rootItem.getChildren().indexOf(accountItems.get(0));
+			Optional<TreeItem<MailTreeViewable>> optItem = rootItem.getChildren().stream().filter((it) -> it.getValue().getName().equals(accountItems.get(0).getValue().getName())).findFirst(); 
+			if (optItem.isPresent()) {
+				int index = rootItem.getChildren().indexOf(optItem.get());
 				Platform.runLater(() -> rootItem.getChildren().set(index, accountItems.get(0)));
 			} else
-				Platform.runLater(() -> rootItem.getChildren().addAll(item.getChildren()));
+				Platform.runLater(() -> rootItem.getChildren().addAll(accountItems));
 		}
 		if (mao == MailAccountOrders.FOLDER_REMOVE) {
 			TreeItem<MailTreeViewable> item = UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
 			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
-			// TODO: setting of changed tree is untested
-			if (rootItem.getChildren().contains(accountItems.get(0))) {
-				int index = rootItem.getChildren().indexOf(accountItems.get(0));
-				Platform.runLater(() -> rootItem.getChildren().remove(index));
-			}
+
+			Optional<TreeItem<MailTreeViewable>> optItem = rootItem.getChildren().stream().filter((it) -> it.getValue().getName().equals(accountItems.get(0).getValue().getName())).findFirst(); 
+			if (optItem.isPresent()) 
+				Platform.runLater(() -> rootItem.getChildren().remove(optItem.get()));
 		}
 	}
 
