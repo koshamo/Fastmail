@@ -18,6 +18,9 @@
 
 package com.github.koshamo.fastmail.gui;
 
+import com.github.koshamo.fastmail.events.EditFolderItemEvent;
+import com.github.koshamo.fastmail.events.FolderItemMeta;
+import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
 import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
@@ -40,11 +43,13 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 
 	private TextField textField;
 	private MailTreeViewable editItem;
+	private final FastGui handler;
 	
 	/**
 	 * The class constructor builds the context menu
 	 */
-	public TreeCellFactory() {
+	public TreeCellFactory(FastGui handler) {
+		this.handler = handler;
 	}
 	
 	/* 
@@ -126,13 +131,19 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 */
 	@Override 
 	public void commitEdit(final MailTreeViewable newValue) {
-		FolderWrapper fw = (FolderWrapper) editItem;
-		fw.renameTo((FolderWrapper)newValue);
-		super.commitEdit(newValue);
-		// resort tree view after renaming
 		TreeItem<MailTreeViewable> treeItem = getTreeItem();
+		String originalFolder = getItem().getName();
+		
 		while (!treeItem.getValue().isAccount())
 			treeItem = treeItem.getParent();
+		String account = treeItem.getValue().getName();
+		
+		FolderItemMeta meta = 
+				new FolderItemMeta(account, originalFolder, FolderItemOrders.RENAME);
+		handler.propagateEvent(new EditFolderItemEvent(handler, null, meta, newValue.getName()));
+		
+		super.commitEdit(newValue);
+		// resort tree view after renaming
 		TreeViewUtils.sortFolders(treeItem.getChildren());
 	}
 	

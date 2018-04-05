@@ -72,5 +72,7 @@ public interface MailTreeViewable {
 	 * @return the name of the implementing objects data
 	 */
 	String getName();
+	
+	String getFullName();
 
 }

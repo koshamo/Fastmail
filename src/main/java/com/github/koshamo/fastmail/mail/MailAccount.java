@@ -363,6 +363,23 @@ public class MailAccount /*implements MailTreeViewable*/{
 		return mailAccountData;
 	}
 
+	/**
+	 * @param originalFolder
+	 * @param data
+	 */
+	public void renameFolder(String originalFolder, String data) {
+		try {
+			Folder orig = getDefaultFolder().getFolder(originalFolder);
+			if (orig.isOpen())
+				orig.close(true);
+			Folder newFolder = orig.getParent().getFolder(data);
+			orig.renameTo(newFolder);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	// TODO: delete this method -> if settings have changed, create a new
 	// MailAccount
 	/**

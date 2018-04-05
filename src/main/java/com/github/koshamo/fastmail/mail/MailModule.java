@@ -24,9 +24,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.github.koshamo.fastmail.events.EditAccountEvent;
+import com.github.koshamo.fastmail.events.EditFolderItemEvent;
 import com.github.koshamo.fastmail.events.EditType;
-import com.github.koshamo.fastmail.events.FolderTreeEvent;
+import com.github.koshamo.fastmail.events.FolderItemMeta;
+import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
+import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
@@ -94,7 +97,7 @@ public class MailModule implements EventHandler {
 		}
 		if (folders == null)
 			throw new IllegalArgumentException("data must be of MailTreeViewable");
-		return new FolderTreeEvent(this, null, meta, folders);
+		return new PropagateFolderTreeEvent(this, null, meta, folders);
 		
 	}
 	
@@ -105,20 +108,23 @@ public class MailModule implements EventHandler {
 	public void handle(Event event) {
 		if (event instanceof EditAccountEvent)
 			handleEditAccountEvent((EditAccountEvent) event);
+		if (event instanceof EditFolderItemEvent)
+			handleEditFolderItemEvent((EditFolderItemEvent) event);
 	}
 
+
 	/**
-	 * @param aae
+	 * @param event
 	 */
-	private void handleEditAccountEvent(EditAccountEvent aae) {
-		if (aae.getMetaInformation() == EditType.ADD) {
-			addAccount(aae.getData());
+	private void handleEditAccountEvent(EditAccountEvent event) {
+		if (event.getMetaInformation() == EditType.ADD) {
+			addAccount(event.getData());
 		}
-		else if (aae.getMetaInformation() == EditType.EDIT) {
+		else if (event.getMetaInformation() == EditType.EDIT) {
 			// Nothing needs to be done!
 		}
-		else if (aae.getMetaInformation() == EditType.REMOVE) {
-			removeAccount(aae.getData());
+		else if (event.getMetaInformation() == EditType.REMOVE) {
+			removeAccount(event.getData());
 		}
 	}
 	
@@ -141,6 +147,20 @@ public class MailModule implements EventHandler {
 		}
 	}
 	
+	/**
+	 * @param event
+	 */
+	private void handleEditFolderItemEvent(EditFolderItemEvent event) {
+		FolderItemMeta meta = event.getMetaInformation();
+		if (meta.getOrder() == FolderItemOrders.RENAME) {
+			for (MailAccount ma : accounts) {
+				if (ma.getAccountName().equals(meta.getAccount()))
+					ma.renameFolder(meta.getOriginalFolder(), event.getData());
+			}
+		}
+		
+	}
+
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#shutdown()
 	 */

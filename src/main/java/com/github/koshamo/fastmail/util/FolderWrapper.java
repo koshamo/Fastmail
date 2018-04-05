@@ -61,6 +61,7 @@ public class FolderWrapper implements MailTreeViewable{
 	 * 
 	 * @return the folder's full name
 	 */
+	@Override
 	public String getFullName() {
 		return folder.getFullName();
 	}
@@ -99,6 +100,7 @@ public class FolderWrapper implements MailTreeViewable{
 	}
 	
 	public FolderWrapper createFolder(String name) {
+		// TODO: this currently is old code, move it to mail module
 		try {
 			Folder f = folder.getParent().getFolder(name);
 			return new FolderWrapper(f);
@@ -109,20 +111,6 @@ public class FolderWrapper implements MailTreeViewable{
 		return null;
 	}
 	
-	public boolean renameTo(FolderWrapper fw) {
-		// TODO: this currently is old code, move it to mail module
-		try {
-			if (folder.isOpen())
-				folder.close(true);
-			if (fw.folder.isOpen())
-				fw.folder.close(true);
-			return folder.renameTo(fw.folder);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
 	
 	public void moveMessage(EmailTableData mail) {
 		// TODO: this currently is old code, move it to mail module

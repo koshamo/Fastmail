@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.events.EditAccountEvent;
 import com.github.koshamo.fastmail.events.EditType;
-import com.github.koshamo.fastmail.events.FolderTreeEvent;
+import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
 import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
@@ -493,7 +493,7 @@ public class FastGui extends FiddlerFxApp {
 		accountTree.setEditable(true);
 		treeContextMenu = new ContextMenu();
 		accountTree.setContextMenu(treeContextMenu);
-		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory());
+		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory(this));
 //		accountTree.getSelectionModel().selectedItemProperty().addListener(
 //				new ChangeListener<TreeItem<MailTreeViewable>>() {
 //					@Override
@@ -724,21 +724,25 @@ public class FastGui extends FiddlerFxApp {
 		return anchor;
 	}
 
+	/*private*/ void propagateEvent(Event ev) {
+		getMessageBus().postEvent(ev);
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#handle(com.github.koshamo.fiddler.Event)
 	 */
 	@Override
 	public void handle(Event event) {
 		System.out.println("Event incoming");
-		if (event instanceof FolderTreeEvent) {
-			handleFolderTreeEvent((FolderTreeEvent) event);
+		if (event instanceof PropagateFolderTreeEvent) {
+			handleFolderTreeEvent((PropagateFolderTreeEvent) event);
 		}
 	}
 
 	/**
 	 * @param fte
 	 */
-	public void handleFolderTreeEvent(FolderTreeEvent fte) {
+	public void handleFolderTreeEvent(PropagateFolderTreeEvent fte) {
 		MailAccountOrders mao = fte.getMetaInformation().getOrder();
 		if (mao == MailAccountOrders.FOLDER_NEW) {
 			TreeItem<MailTreeViewable> item = 

@@ -18,27 +18,50 @@
 
 package com.github.koshamo.fastmail.events;
 
-import com.github.koshamo.fastmail.util.MailTreeViewable;
-import com.github.koshamo.fastmail.util.UnbalancedTree;
-import com.github.koshamo.fiddler.DataEvent;
-import com.github.koshamo.fiddler.EventHandler;
+import java.util.Objects;
 
 /**
  * @author Dr. Jochen Raßler
  *
  */
-public class FolderTreeEvent 
-	extends DataEvent<MailAccountMeta, UnbalancedTree<MailTreeViewable>> {
+public class FolderItemMeta {
 
+	private String account;
+	private String originalFolder;
+	private FolderItemOrders order;
+	
 	/**
-	 * @param source
-	 * @param target
-	 * @param meta
-	 * @param data
+	 * @param account
+	 * @param oldFolder
+	 * @param order
 	 */
-	public FolderTreeEvent(EventHandler source, EventHandler target, 
-			MailAccountMeta meta, UnbalancedTree<MailTreeViewable> data) {
-		super(source, target, meta, data);
+	public FolderItemMeta(String account, String oldFolder, FolderItemOrders order) {
+		super();
+		this.account = Objects.requireNonNull(account, "account must not be null");
+		this.originalFolder = oldFolder;
+		this.order = order;
 	}
-
+	
+	/**
+	 * @return the account
+	 */
+	public String getAccount() {
+		return account;
+	}
+	
+	/**
+	 * @return the oldFolder
+	 */
+	public String getOriginalFolder() {
+		return originalFolder;
+	}
+	
+	/**
+	 * @return the order
+	 */
+	public FolderItemOrders getOrder() {
+		return order;
+	}
+	
+	
 }

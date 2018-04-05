@@ -43,7 +43,15 @@ public class AccountWrapper implements MailTreeViewable {
 	public String getName() {
 		return accountData.getUsername();
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fastmail.util.MailTreeViewable#getFullName()
+	 */
+	@Override
+	public String getFullName() {
+		return getName();
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -80,4 +88,5 @@ public class AccountWrapper implements MailTreeViewable {
 	public MailAccountData getMailAccountData() {
 		return accountData;
 	}
+
 }
