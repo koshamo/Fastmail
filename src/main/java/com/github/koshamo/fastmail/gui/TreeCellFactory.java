@@ -41,7 +41,7 @@ import javafx.scene.input.KeyEvent;
  * @author jochen
  *
  */
-public class TreeCellFactory extends TreeCell<MailTreeViewable> {
+/*private*/ class TreeCellFactory extends TreeCell<MailTreeViewable> {
 
 	private TextField textField;
 	private MailTreeViewable editItem;
@@ -50,7 +50,7 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	/**
 	 * The class constructor builds the context menu
 	 */
-	public TreeCellFactory(FastGui handler) {
+	/*private*/ TreeCellFactory(FastGui handler) {
 		this.handler = Objects.requireNonNull(handler, "handler must not be null");
 	}
 	

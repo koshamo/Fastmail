@@ -31,11 +31,11 @@ import javafx.scene.control.TreeItem;
  * @author Dr. Jochen Raßler
  *
  */
-public class TreeViewChangeListener implements ChangeListener<TreeItem<MailTreeViewable>> {
+/*private*/ class TreeViewChangeListener implements ChangeListener<TreeItem<MailTreeViewable>> {
 
 	private final FastGui gui;
 	
-	public TreeViewChangeListener(FastGui gui) {
+	/*private*/ TreeViewChangeListener(FastGui gui) {
 		this.gui = Objects.requireNonNull(gui, "gui must not be null");
 	}
 	
