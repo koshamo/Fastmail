@@ -162,6 +162,8 @@ public class MailModule implements EventHandler {
 			ma.get().renameFolder(meta.getOriginalFolder(), event.getData());
 		if (meta.getOrder() == FolderItemOrders.NEW)
 			ma.get().addFolder(meta.getOriginalFolder());
+		if (meta.getOrder() == FolderItemOrders.REMOVE)
+			ma.get().removeFolder(meta.getOriginalFolder());
 	}
 
 	/* (non-Javadoc)

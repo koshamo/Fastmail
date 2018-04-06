@@ -255,11 +255,23 @@ public class MailAccount /*implements MailTreeViewable*/{
 			Folder folder = parentFolder.getFolder(i18n.getString("entry.newfolder")); //$NON-NLS-1$
 			if (!folder.exists())
 				folder.create(Folder.HOLDS_MESSAGES);
-			// trigger the addition of the new folder to the tree view
-//			postDataEvent(MailAccountOrders.FOLDER_NEW, data);
 		} catch (MessagingException e) {
 			mailModule.postMessage(i18n.getString("exception.mailaccess"));
 		}
+	}
+
+	/**
+	 * @param folderName
+	 */
+	public void removeFolder(String folderName) {
+		try {
+			Folder folder = getDefaultFolder().getFolder(folderName);
+			if (folder.exists())
+				folder.delete(true);
+		} catch (MessagingException e) {
+			mailModule.postMessage(i18n.getString("exception.mailaccess"));
+		}
+		
 	}
 	
 	/**

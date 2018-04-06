@@ -574,27 +574,28 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	MenuItem addDeleteFolderItem() {
 		final MenuItem delete = new MenuItem(i18n.getString("action.deletefolder")); //$NON-NLS-1$
-//		delete.setOnAction(p -> {
-//			TreeItem<MailTreeViewable> curItem = 
-//					accountTree.getSelectionModel().getSelectedItem();
-//			final Alert alert = new Alert(Alert.AlertType.WARNING,
-//					MessageFormat.format(i18n.getString("alert.message.removefolder"), //$NON-NLS-1$
-//							curItem.getValue().getName()), 
-//					ButtonType.YES, ButtonType.CANCEL);
-//			alert.setTitle(i18n.getString("alert.title.removefolder")); //$NON-NLS-1$
-//			alert.setHeaderText(i18n.getString("alert.header.removefolder")); //$NON-NLS-1$
-//			final Optional<ButtonType> opt = alert.showAndWait();
-//			if (opt.get().equals(ButtonType.CANCEL))
-//				return;
-			// TODO:
-//			if (opt.get().equals(ButtonType.YES)) {
-//				((FolderItem)curItem.getValue()).removeFolder();
-//				// force update of tree view after folder deletion
-//				while (!curItem.getValue().isAccount())
-//					curItem = curItem.getParent();
-//				((MailAccount)curItem.getValue()).forceFolderUpdate();
-//			}
-//		});
+		delete.setOnAction(p -> {
+			TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem();
+			final Alert alert = new Alert(Alert.AlertType.WARNING,
+					MessageFormat.format(i18n.getString("alert.message.removefolder"), //$NON-NLS-1$
+							curItem.getValue().getName()), 
+					ButtonType.YES, ButtonType.CANCEL);
+			alert.setTitle(i18n.getString("alert.title.removefolder")); //$NON-NLS-1$
+			alert.setHeaderText(i18n.getString("alert.header.removefolder")); //$NON-NLS-1$
+			final Optional<ButtonType> opt = alert.showAndWait();
+			if (opt.get().equals(ButtonType.CANCEL))
+				return;
+
+			if (opt.get().equals(ButtonType.YES)) {
+				String curFolder = curItem.getValue().getFullName();
+				while (!curItem.getValue().isAccount())
+					curItem = curItem.getParent();
+				String account = curItem.getValue().getFullName();
+				FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.REMOVE);
+				propagateEvent(new EditFolderItemEvent(this, null, meta, "remove Folder"));
+			}
+		});
 		return delete;
 	}
 	
