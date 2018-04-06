@@ -494,38 +494,9 @@ public class FastGui extends FiddlerFxApp {
 		treeContextMenu = new ContextMenu();
 		accountTree.setContextMenu(treeContextMenu);
 		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory(this));
-//		accountTree.getSelectionModel().selectedItemProperty().addListener(
-//				new ChangeListener<TreeItem<MailTreeViewable>>() {
-//					@Override
-//					public void changed(
-//							ObservableValue<? extends TreeItem<MailTreeViewable>> observedItem, 
-//							TreeItem<MailTreeViewable> oldVal,
-//							TreeItem<MailTreeViewable> newVal) {
-//						// this should only be the case if a account has been removed
-//						if (newVal == null) {
-//							return;	
-//						}
-//						// context Menu
-//						treeContextMenu.getItems().clear();
-//						treeContextMenu.getItems().add(addAddFolderItem());
-//						if (!newVal.getValue().isAccount() && 
-//								!newVal.getValue().getName().equals("INBOX") && //$NON-NLS-1$
-//								!newVal.getValue().getName().equals("Drafts") && //$NON-NLS-1$
-//								!newVal.getValue().getName().equals("Sent") && //$NON-NLS-1$
-//								!newVal.getValue().getName().equals("Trash")) //$NON-NLS-1$
-//							treeContextMenu.getItems().add(addDeleteFolderItem());
-//						if (newVal.getValue().isAccount()) {
-//							treeContextMenu.getItems().add(new SeparatorMenuItem());
-//							treeContextMenu.getItems().add(addEditAccountItem());
-//						}
-//						// buttons and table view
-//						mailBody.clear();
-//						btnReply.setDisable(true);
-//						btnReplyAll.setDisable(true);
-//						btnDelete.setDisable(true);
-//						folderMailTable.setItems(newVal.getValue().getFolderContent().sorted());
-//					}
-//				});
+		accountTree.getSelectionModel().selectedItemProperty().addListener(
+				new TreeViewChangeListener(this) {
+				});
 		// we do not want to see the root item: simulate the Accounts as 
 		// multiple roots
 		accountTree.setShowRoot(false);
@@ -780,6 +751,23 @@ public class FastGui extends FiddlerFxApp {
 	@Override
 	public void shutdown() {
 		Platform.exit();
+	}
+
+	/**
+	 * 
+	 */
+	void setComponentsForNoMailSelected() {
+		mailBody.clear();
+		btnReply.setDisable(true);
+		btnReplyAll.setDisable(true);
+		btnDelete.setDisable(true);
+	}
+
+	/**
+	 * @return
+	 */
+	ObservableList<MenuItem> getTreeContextMenuItems() {
+		return treeContextMenu.getItems();
 	}
 
 }
