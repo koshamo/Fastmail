@@ -83,7 +83,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @param messageBus	the MessageBus, to which error messages can be 
 	 * delivered
 	 */
-	public MailAccount(final MailAccountData data, final MailModule mailModule) {
+	/*private*/ MailAccount(final MailAccountData data, final MailModule mailModule) {
 		this.mailAccountData = Objects.requireNonNull(data, "data must not be null");
 		this.mailModule = Objects.requireNonNull(mailModule, "mailModule must not be null");
 		this.store = null;
@@ -94,7 +94,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	/**
 	 * this method does the actual work for the constructor
 	 */
-	public void connect() {
+	/*private*/ void connect() {
 		if (store == null || !store.isConnected()) {
 			session = Session.getInstance(props);
 			try {
@@ -133,7 +133,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 *  
 	 * @param accountTreeItem
 	 */
-	public void addFolderWatcher() {
+	/*private*/ void addFolderWatcher() {
 		accountFolderWatcher = new AccountFolderWatcher(this);
 		new Thread(accountFolderWatcher).start();
 	}
@@ -141,7 +141,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	/**
 	 * Cares for a clean shutdown process
 	 */
-	public void shutdown() {
+	/*private*/ void shutdown() {
 		accountFolderWatcher.stop();
 	}
 	
@@ -160,7 +160,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * To delete this account from the tree view, use this method, as it also
 	 * stops the folder watcher.
 	 */
-	public void remove() {
+	/*private*/ void remove() {
 		accountFolderWatcher.stop();
 		accountFolderWatcher.propagateRemovefolderTree();
 	}
@@ -209,7 +209,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * supplies a unique String of the account
 	 * @return the username
 	 */
-	public String getAccountName() {
+	/*private*/ String getAccountName() {
 		return mailAccountData.getUsername();
 	}
 	
@@ -234,7 +234,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * 
 	 * @return	the root folder of the account
 	 */
-	public Folder getDefaultFolder() {
+	/*private*/ Folder getDefaultFolder() {
 		try {
 			Folder folder = store.getDefaultFolder();
 			return folder;
@@ -247,7 +247,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	/**
 	 * A new Folder will be added to this account with a default folder name.
 	 */
-	public void addFolder(String parent) {
+	/*private*/ void addFolder(String parent) {
 		try {
 			Folder parentFolder = getDefaultFolder().getFolder(parent);
 			if (parentFolder.getFullName().equals(mailAccountData.getUsername()))
@@ -263,7 +263,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	/**
 	 * @param folderName
 	 */
-	public void removeFolder(String folderName) {
+	/*private*/ void removeFolder(String folderName) {
 		try {
 			Folder folder = getDefaultFolder().getFolder(folderName);
 			if (folder.exists())
@@ -309,7 +309,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @param text		the email text
 	 * @param message	the message object to reply to
 	 */
-	public void sendMail(final String to, final String cc, 
+	/*private*/ void sendMail(final String to, final String cc, 
 			final String subject, final String text, 
 			final List<File> attachments, final Message message) {
 		MimeMessage msg;
@@ -371,7 +371,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * Get the settings data of this mail account as a summarized object
 	 * @return the settings data object for this account
 	 */
-	public MailAccountData getMailAccountData() {
+	/*private*/ MailAccountData getMailAccountData() {
 		return mailAccountData;
 	}
 
@@ -379,7 +379,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @param originalFolder
 	 * @param data
 	 */
-	public void renameFolder(String originalFolder, String data) {
+	/*private*/ void renameFolder(String originalFolder, String data) {
 		try {
 			Folder orig = getDefaultFolder().getFolder(originalFolder);
 			if (orig.isOpen())
