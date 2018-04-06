@@ -40,7 +40,7 @@ import com.github.koshamo.fastmail.util.UnbalancedTree;
  * @author jochen
  *
  */
-public class AccountFolderWatcher implements Runnable {
+/*private*/ class AccountFolderWatcher implements Runnable {
 
 	private MailAccount account;
 	private boolean run = true;
@@ -53,11 +53,11 @@ public class AccountFolderWatcher implements Runnable {
 	 * @param account the current account to check for new folders
 	 * @param accountTreeItem root item of the account
 	 */
-	public AccountFolderWatcher(final MailAccount account) {
+	/*private*/ AccountFolderWatcher(final MailAccount account) {
 		this.account = Objects.requireNonNull(account, "account must not be null");
 	}
 	
-	public void stop() {
+	/*private*/ void stop() {
 		run = false;
 	}
 
@@ -110,7 +110,7 @@ public class AccountFolderWatcher implements Runnable {
 	/**
 	 * 
 	 */
-	public void propagateRemovefolderTree() {
+	/*private*/ void propagateRemovefolderTree() {
 		account.postDataEvent(MailAccountOrders.FOLDER_REMOVE, currentFolderTree);
 	}
 	
