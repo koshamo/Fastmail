@@ -18,6 +18,8 @@
 
 package com.github.koshamo.fastmail.gui;
 
+import java.util.Objects;
+
 import com.github.koshamo.fastmail.events.EditFolderItemEvent;
 import com.github.koshamo.fastmail.events.FolderItemMeta;
 import com.github.koshamo.fastmail.events.FolderItemOrders;
@@ -49,7 +51,7 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 * The class constructor builds the context menu
 	 */
 	public TreeCellFactory(FastGui handler) {
-		this.handler = handler;
+		this.handler = Objects.requireNonNull(handler, "handler must not be null");
 	}
 	
 	/* 
