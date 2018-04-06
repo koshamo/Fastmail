@@ -26,8 +26,8 @@ import java.util.ResourceBundle;
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.events.EditAccountEvent;
 import com.github.koshamo.fastmail.events.EditType;
-import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
+import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
 import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
 import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
@@ -404,7 +404,7 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	public TableColumn<EmailTableData, String> buildSubjectTableCol() {
+	private TableColumn<EmailTableData, String> buildSubjectTableCol() {
 		// SUBJECT column
 		final TableColumn<EmailTableData, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
 		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject")); //$NON-NLS-1$
@@ -415,7 +415,7 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	public TableColumn<EmailTableData, String> buildFromTableCol() {
+	private TableColumn<EmailTableData, String> buildFromTableCol() {
 		// FROM column
 		final TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
 		fromCol.setCellValueFactory(new PropertyValueFactory<>("fromName")); //$NON-NLS-1$
@@ -425,7 +425,7 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	public TableColumn<EmailTableData, String> buildDateTableCol() {
+	private TableColumn<EmailTableData, String> buildDateTableCol() {
 		// DATE column
 		final TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
 		dateCol.setMinWidth(150);
@@ -438,7 +438,7 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	public TableColumn<EmailTableData, Boolean> buildReadTableCol() {
+	private TableColumn<EmailTableData, Boolean> buildReadTableCol() {
 		// MESSAGE READ column
 		final TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
 		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
@@ -451,7 +451,7 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	public TableColumn<EmailTableData, Boolean> buildAttachmentTableCol() {
+	private TableColumn<EmailTableData, Boolean> buildAttachmentTableCol() {
 		// ATTACHMENT column
 		final TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
 		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment")); //$NON-NLS-1$
@@ -464,7 +464,7 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	public TableColumn<EmailTableData, Boolean> buildMarkerTableCol() {
+	private TableColumn<EmailTableData, Boolean> buildMarkerTableCol() {
 		// MESSAGE MARKED column
 		final TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
 		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked")); //$NON-NLS-1$
@@ -733,7 +733,6 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	@Override
 	public void handle(Event event) {
-		System.out.println("Event incoming");
 		if (event instanceof PropagateFolderTreeEvent) {
 			handleFolderTreeEvent((PropagateFolderTreeEvent) event);
 		}
