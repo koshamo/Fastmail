@@ -35,10 +35,10 @@ public class FolderItemMeta {
 	 * @param oldFolder
 	 * @param order
 	 */
-	public FolderItemMeta(String account, String oldFolder, FolderItemOrders order) {
+	public FolderItemMeta(String account, String originalFolder, FolderItemOrders order) {
 		super();
 		this.account = Objects.requireNonNull(account, "account must not be null");
-		this.originalFolder = oldFolder;
+		this.originalFolder = originalFolder;
 		this.order = order;
 	}
 	

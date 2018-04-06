@@ -68,9 +68,6 @@ public class MailAccount /*implements MailTreeViewable*/{
 	private Session session;
 	private Store store;
 	
-	// stores the parent folder within the mail account
-	private Folder parentFolder; 
-
 	private AccountFolderWatcher accountFolderWatcher;
 	
 //	private TreeItem<MailTreeViewable> accountTreeItem;
@@ -250,13 +247,16 @@ public class MailAccount /*implements MailTreeViewable*/{
 	/**
 	 * A new Folder will be added to this account with a default folder name.
 	 */
-	public void addFolder() {
+	public void addFolder(String parent) {
 		try {
+			Folder parentFolder = getDefaultFolder().getFolder(parent);
+			if (parentFolder.getFullName().equals(mailAccountData.getUsername()))
+				parentFolder = getDefaultFolder();
 			Folder folder = parentFolder.getFolder(i18n.getString("entry.newfolder")); //$NON-NLS-1$
 			if (!folder.exists())
 				folder.create(Folder.HOLDS_MESSAGES);
 			// trigger the addition of the new folder to the tree view
-//			forceFolderUpdate();
+//			postDataEvent(MailAccountOrders.FOLDER_NEW, data);
 		} catch (MessagingException e) {
 			mailModule.postMessage(i18n.getString("exception.mailaccess"));
 		}

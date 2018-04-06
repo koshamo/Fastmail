@@ -25,7 +25,10 @@ import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.events.EditAccountEvent;
+import com.github.koshamo.fastmail.events.EditFolderItemEvent;
 import com.github.koshamo.fastmail.events.EditType;
+import com.github.koshamo.fastmail.events.FolderItemMeta;
+import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
@@ -549,14 +552,16 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	MenuItem addAddFolderItem() {
 		final MenuItem add = new MenuItem(i18n.getString("action.addfolder")); //$NON-NLS-1$
-//		add.setOnAction(p -> {
-//			TreeItem<MailTreeViewable> curItem = 
-//					accountTree.getSelectionModel().getSelectedItem();
-			// TODO:
-//			while (!curItem.getValue().isAccount())
-//				curItem = curItem.getParent();
-//			((MailAccount)curItem.getValue()).addFolder();
-//		});
+		add.setOnAction(p -> {
+			TreeItem<MailTreeViewable> curItem = 
+					accountTree.getSelectionModel().getSelectedItem();
+			String curFolder = curItem.getValue().getFullName();
+			while (!curItem.getValue().isAccount())
+				curItem = curItem.getParent();
+			String account = curItem.getValue().getFullName();
+			FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.NEW);
+			propagateEvent(new EditFolderItemEvent(this, null, meta, "new Folder"));
+		});
 		return add;
 	}
 

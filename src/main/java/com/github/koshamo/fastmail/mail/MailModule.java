@@ -152,13 +152,16 @@ public class MailModule implements EventHandler {
 	 */
 	private void handleEditFolderItemEvent(EditFolderItemEvent event) {
 		FolderItemMeta meta = event.getMetaInformation();
-		if (meta.getOrder() == FolderItemOrders.RENAME) {
-			for (MailAccount ma : accounts) {
-				if (ma.getAccountName().equals(meta.getAccount()))
-					ma.renameFolder(meta.getOriginalFolder(), event.getData());
-			}
-		}
-		
+		Optional<MailAccount> ma = accounts.stream().
+				filter(acc -> acc.getAccountName().equals(meta.getAccount())).
+				findFirst();
+		// TODO: throw Exception?
+		if (!ma.isPresent())
+			return;
+		if (meta.getOrder() == FolderItemOrders.RENAME) 
+			ma.get().renameFolder(meta.getOriginalFolder(), event.getData());
+		if (meta.getOrder() == FolderItemOrders.NEW)
+			ma.get().addFolder(meta.getOriginalFolder());
 	}
 
 	/* (non-Javadoc)
