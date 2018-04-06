@@ -498,8 +498,7 @@ public class FastGui extends FiddlerFxApp {
 		accountTree.setContextMenu(treeContextMenu);
 		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory(this));
 		accountTree.getSelectionModel().selectedItemProperty().addListener(
-				new TreeViewChangeListener(this) {
-				});
+				new TreeViewChangeListener(this));
 		// we do not want to see the root item: simulate the Accounts as 
 		// multiple roots
 		accountTree.setShowRoot(false);
