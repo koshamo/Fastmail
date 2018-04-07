@@ -63,6 +63,6 @@ import javafx.scene.control.TreeItem;
 		}
 		// buttons and table view
 		gui.setComponentsForNoMailSelected();
-//		folderMailTable.setItems(newVal.getValue().getFolderContent().sorted());
+		gui.propagateFolderSelected();
 	}
 }

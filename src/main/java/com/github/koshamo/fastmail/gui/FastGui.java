@@ -487,7 +487,7 @@ public class FastGui extends FiddlerFxApp {
 		 * we need to define the one and only root item, which has only
 		 * one function: be the root of all mail accounts. Actually we
 		 * do not need the root for any other function. So the root item
-		 * is hidden and provided with an empty interface implementation.
+		 * is hidden (and provided with an empty interface implementation).
 		 */
 		rootItem = new TreeItem<>(null);
 		rootItem.setExpanded(true);
@@ -555,9 +555,7 @@ public class FastGui extends FiddlerFxApp {
 			TreeItem<MailTreeViewable> curItem = 
 					accountTree.getSelectionModel().getSelectedItem();
 			String curFolder = curItem.getValue().getFullName();
-			while (!curItem.getValue().isAccount())
-				curItem = curItem.getParent();
-			String account = curItem.getValue().getFullName();
+			String account = getAccountName(curItem);
 			FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.NEW);
 			propagateEvent(new EditFolderItemEvent(this, null, meta, "new Folder"));
 		});
@@ -589,9 +587,7 @@ public class FastGui extends FiddlerFxApp {
 
 			if (opt.get().equals(ButtonType.YES)) {
 				String curFolder = curItem.getValue().getFullName();
-				while (!curItem.getValue().isAccount())
-					curItem = curItem.getParent();
-				String account = curItem.getValue().getFullName();
+				String account = getAccountName(curItem);
 				FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.REMOVE);
 				propagateEvent(new EditFolderItemEvent(this, null, meta, "remove Folder"));
 			}
@@ -602,7 +598,6 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * Reply Mail functionality, used for button and context menu
 	 */
-	@SuppressWarnings("unused")
 	private void replyMail() {
 		// TODO:
 /*		TreeItem<MailTreeViewable> treeItem = 
@@ -629,7 +624,6 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * Reply All functionality, used by button and context menu
 	 */
-	@SuppressWarnings("unused")
 	private void replyAllMail() {
 		// TODO:
 		/*
@@ -700,7 +694,7 @@ public class FastGui extends FiddlerFxApp {
 		return anchor;
 	}
 
-	/*private*/ void propagateEvent(Event ev) {
+	/*private*/ static void propagateEvent(Event ev) {
 		getMessageBus().postEvent(ev);
 	}
 	
@@ -773,6 +767,26 @@ public class FastGui extends FiddlerFxApp {
 	 */
 	ObservableList<MenuItem> getTreeContextMenuItems() {
 		return treeContextMenu.getItems();
+	}
+	
+	/**
+	 * 
+	 */
+	void propagateFolderSelected() {
+		TreeItem<MailTreeViewable> curItem = 
+				accountTree.getSelectionModel().getSelectedItem();
+		String curFolder = curItem.getValue().getFullName();
+		String account = getAccountName(curItem);
+		FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.SHOW);
+		propagateEvent(new EditFolderItemEvent(this, null, meta, "show Folder"));
+
+	}
+	
+	private static String getAccountName(TreeItem<MailTreeViewable> item) {
+		TreeItem<MailTreeViewable> curItem = item;
+		while (!curItem.getValue().isAccount())
+			curItem = curItem.getParent();
+		return curItem.getValue().getFullName();
 	}
 
 }

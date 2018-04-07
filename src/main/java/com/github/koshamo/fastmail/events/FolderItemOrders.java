@@ -23,5 +23,5 @@ package com.github.koshamo.fastmail.events;
  *
  */
 public enum FolderItemOrders {
-	NEW, RENAME, REMOVE
+	NEW, RENAME, REMOVE, SHOW
 }
