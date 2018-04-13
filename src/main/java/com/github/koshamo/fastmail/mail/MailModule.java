@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail.mail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -30,6 +31,7 @@ import com.github.koshamo.fastmail.events.FolderItemMeta;
 import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
+import com.github.koshamo.fastmail.events.RequestFolderItemEvent;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
@@ -110,6 +112,8 @@ public class MailModule implements EventHandler {
 			handleEditAccountEvent((EditAccountEvent) event);
 		if (event instanceof EditFolderItemEvent)
 			handleEditFolderItemEvent((EditFolderItemEvent) event);
+		if (event instanceof RequestFolderItemEvent)
+			handleRequestFolderItemEvent((RequestFolderItemEvent) event);
 	}
 
 
@@ -152,22 +156,42 @@ public class MailModule implements EventHandler {
 	 */
 	private void handleEditFolderItemEvent(EditFolderItemEvent event) {
 		FolderItemMeta meta = event.getMetaInformation();
+		MailAccount ma = findAccount(meta);
+		
+		if (meta.getOrder() == FolderItemOrders.RENAME) 
+			ma.renameFolder(meta.getOriginalFolder(), event.getData());
+	}
+
+	/**
+	 * @param event
+	 */
+	private void handleRequestFolderItemEvent(RequestFolderItemEvent event) {
+		FolderItemMeta meta = event.getMetaInformation();
+		MailAccount ma = findAccount(meta);
+
+		if (meta.getOrder() == FolderItemOrders.NEW)
+			ma.addFolder(meta.getOriginalFolder());
+		if (meta.getOrder() == FolderItemOrders.REMOVE)
+			ma.removeFolder(meta.getOriginalFolder());
+		if (meta.getOrder() == FolderItemOrders.SHOW)
+			;
+		
+	}
+
+	/**
+	 * @param meta
+	 * @return
+	 */
+	MailAccount findAccount(FolderItemMeta meta) {
 		Optional<MailAccount> ma = accounts.stream().
 				filter(acc -> acc.getAccountName().equals(meta.getAccount())).
 				findFirst();
 		// TODO: throw Exception?
 		if (!ma.isPresent())
-			return;
-		
-		if (meta.getOrder() == FolderItemOrders.RENAME) 
-			ma.get().renameFolder(meta.getOriginalFolder(), event.getData());
-		if (meta.getOrder() == FolderItemOrders.NEW)
-			ma.get().addFolder(meta.getOriginalFolder());
-		if (meta.getOrder() == FolderItemOrders.REMOVE)
-			ma.get().removeFolder(meta.getOriginalFolder());
-		if (meta.getOrder() == FolderItemOrders.SHOW)
-			;
+			throw new NoSuchElementException("no proper account found");
+		return ma.get();
 	}
+
 
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#shutdown()

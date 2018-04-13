@@ -25,12 +25,12 @@ import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.events.EditAccountEvent;
-import com.github.koshamo.fastmail.events.EditFolderItemEvent;
 import com.github.koshamo.fastmail.events.EditType;
 import com.github.koshamo.fastmail.events.FolderItemMeta;
 import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
+import com.github.koshamo.fastmail.events.RequestFolderItemEvent;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
 import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
 import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
@@ -557,7 +557,7 @@ public class FastGui extends FiddlerFxApp {
 			String curFolder = curItem.getValue().getFullName();
 			String account = getAccountName(curItem);
 			FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.NEW);
-			propagateEvent(new EditFolderItemEvent(this, null, meta, "new Folder"));
+			propagateEvent(new RequestFolderItemEvent(this, null, meta));
 		});
 		return add;
 	}
@@ -589,7 +589,7 @@ public class FastGui extends FiddlerFxApp {
 				String curFolder = curItem.getValue().getFullName();
 				String account = getAccountName(curItem);
 				FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.REMOVE);
-				propagateEvent(new EditFolderItemEvent(this, null, meta, "remove Folder"));
+				propagateEvent(new RequestFolderItemEvent(this, null, meta));
 			}
 		});
 		return delete;
@@ -778,7 +778,7 @@ public class FastGui extends FiddlerFxApp {
 		String curFolder = curItem.getValue().getFullName();
 		String account = getAccountName(curItem);
 		FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.SHOW);
-		propagateEvent(new EditFolderItemEvent(this, null, meta, "show Folder"));
+		propagateEvent(new RequestFolderItemEvent(this, null, meta));
 
 	}
 	
