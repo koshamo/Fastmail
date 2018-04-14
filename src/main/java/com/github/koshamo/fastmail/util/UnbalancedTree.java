@@ -40,7 +40,7 @@ import java.util.NoSuchElementException;
  *
  */
 public class UnbalancedTree<T> {
-	private Knot<T> root;
+	private Node<T> root;
 	
 	/**
 	 * Create a new empty Unbalanced Tree
@@ -55,7 +55,7 @@ public class UnbalancedTree<T> {
 	 * @param elem	the element to be stored in the Tree
 	 */
 	public UnbalancedTree(final T elem) {
-		root = new Knot<>(elem);
+		root = new Node<>(elem);
 	}
 	
 	/**
@@ -65,10 +65,10 @@ public class UnbalancedTree<T> {
 	 */
 	public void add(final T elem) {
 		if (root == null) {
-			root = new Knot<>(elem);
+			root = new Node<>(elem);
 		}
 		else {
-			Knot<T> cur = root;
+			Node<T> cur = root;
 			while (cur.hasNext())
 				cur = cur.next();
 			cur.add(elem);
@@ -85,7 +85,7 @@ public class UnbalancedTree<T> {
 		if (root == null)
 			throw new NoSuchElementException("No Element " + parent + " in Tree");
 		
-		final Knot<T> cur = getKnot(parent);
+		final Node<T> cur = getKnot(parent);
 		if (cur != null)
 			cur.addSubtree(elem);
 		else
@@ -102,7 +102,7 @@ public class UnbalancedTree<T> {
 		if (root == null)
 			throw new NoSuchElementException("No Element " + parent + " in Tree");
 		
-		final Knot<T> cur = getKnot(parent);
+		final Node<T> cur = getKnot(parent);
 		if (cur != null)
 			cur.addSubtree(tree);
 		else
@@ -118,18 +118,18 @@ public class UnbalancedTree<T> {
 	 * @param elem	the element to be removed
 	 */
 	public void remove(final T elem) {
-		final Knot<T> cur = getKnot(elem);
+		final Node<T> cur = getKnot(elem);
 		if (cur == null)
 			throw new NoSuchElementException("No Element " + elem + " in Tree");
 		
 		if (cur == root)
 			root = cur.next();
 		else {
-			final Knot<T> prev = findPrev(cur);
+			final Node<T> prev = findPrev(cur);
 			if (prev != null)
 				prev.setNext(cur.next());
 			else {
-				final Knot<T> parent = findParent(cur);
+				final Node<T> parent = findParent(cur);
 				if (parent != null) {
 					parent.getSubtree().remove(elem);
 				}
@@ -144,7 +144,7 @@ public class UnbalancedTree<T> {
 	 * @return	true, if it has a successor
 	 */
 	public boolean hasNext(final T elem) {
-		final Knot<T> knot = getKnot(elem);
+		final Node<T> knot = getKnot(elem);
 		if (knot == null) 
 			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
 		return knot.hasNext();
@@ -157,7 +157,7 @@ public class UnbalancedTree<T> {
 	 * @return	successor of element
 	 */
 	public T next(final T elem) {
-		final Knot<T> knot = getKnot(elem);
+		final Node<T> knot = getKnot(elem);
 		if (knot == null) 
 			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
 		return knot.next().getElem();
@@ -170,7 +170,7 @@ public class UnbalancedTree<T> {
 	 * @return	true, if this element has a subtree
 	 */
 	public boolean hasSubtree(final T elem) {
-		final Knot<T> knot = getKnot(elem);
+		final Node<T> knot = getKnot(elem);
 		if (knot == null) 
 			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
 		return knot.hasSubtree();
@@ -182,7 +182,7 @@ public class UnbalancedTree<T> {
 	 * @return	subtree of element
 	 */
 	public UnbalancedTree<T> getSubtree(final T elem) {
-		final Knot<T> knot = getKnot(elem);
+		final Node<T> knot = getKnot(elem);
 		if (knot == null) 
 			throw new NoSuchElementException("Element " + elem + " not in this Unbalanced Tree");
 		return knot.getSubtree();
@@ -211,7 +211,7 @@ public class UnbalancedTree<T> {
 	 * 
 	 * @return	the trees root
 	 */
-	/*private*/ Knot<T> getRoot() {
+	/*private*/ Node<T> getRoot() {
 		return root;
 	}
 	
@@ -281,15 +281,15 @@ public class UnbalancedTree<T> {
 	 * @param elem	the element to be looked for
 	 * @return	the corresponding knot
 	 */
-	private Knot<T> getKnot(final T elem) {
+	private Node<T> getKnot(final T elem) {
 		if (root == null)
 			return null;
-		Knot<T> cur = root;
+		Node<T> cur = root;
 		do {
 			if (cur.getElem().equals(elem))
 				return cur;
 			if (cur.hasSubtree()) {
-				final Knot<T> sub = cur.getSubtree().getKnot(elem); 
+				final Node<T> sub = cur.getSubtree().getKnot(elem); 
 				if (sub != null)
 					return sub;
 			}
@@ -303,15 +303,15 @@ public class UnbalancedTree<T> {
 	 * @param knot	the current knot
 	 * @return	the knots predecessor
 	 */
-	private Knot<T> findPrev(final Knot<T> knot) {
+	private Node<T> findPrev(final Node<T> knot) {
 		if (root == null)
 			return null;
-		Knot<T> cur = root;
+		Node<T> cur = root;
 		do {
 			if (cur.next() == knot)
 				return cur;
 			if (cur.hasSubtree()) {
-				Knot<T> sub = cur.getSubtree().findPrev(knot); 
+				Node<T> sub = cur.getSubtree().findPrev(knot); 
 				if (sub != null)
 					return sub;
 			}
@@ -325,13 +325,13 @@ public class UnbalancedTree<T> {
 	 * @param knot	the knot
 	 * @return	the knots parent
 	 */
-	private Knot<T> findParent(final Knot<T> knot) {
+	private Node<T> findParent(final Node<T> knot) {
 		if (root == null)
 			return null;
-		Knot<T> cur = root;
+		Node<T> cur = root;
 		do {
 			if (cur.hasSubtree()) {
-				Knot<T> sub = cur.getSubtree().getRoot();
+				Node<T> sub = cur.getSubtree().getRoot();
 				if (sub == knot)
 					return cur;
 				else { 
@@ -354,7 +354,7 @@ public class UnbalancedTree<T> {
 	 * @param curString	the start string for the current recursion
 	 * @return			the resulting string from this recursion
 	 */
-	private String treeToString(final Knot<T> start, final String curString) {
+	private String treeToString(final Node<T> start, final String curString) {
 		if (start == null) {
 			return curString + "empty";
 		}

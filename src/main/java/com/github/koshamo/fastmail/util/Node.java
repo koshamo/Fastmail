@@ -27,9 +27,9 @@ package com.github.koshamo.fastmail.util;
  * @param <T>	UnbalancedTree is a container class, so you are able to store
  * any data in this container
  */
-/*private*/ class Knot<T> {
+/*private*/ class Node<T> {
 	private T elem;
-	private Knot<T> next;
+	private Node<T> next;
 	private UnbalancedTree<T> subtree;
 	
 	/**
@@ -37,7 +37,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @param elem	the element to be stored in the knot
 	 */
-	public Knot(final T elem) {
+	public Node(final T elem) {
 		this.elem = elem;
 		next = null;
 		subtree = null;
@@ -57,7 +57,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @return	the knots successor
 	 */
-	public Knot<T> next() {
+	public Node<T> next() {
 		return next;
 	}
 	
@@ -68,7 +68,7 @@ package com.github.koshamo.fastmail.util;
 	 */
 	public void add(final T elem) {
 		if (!hasNext())
-			next = new Knot<>(elem);
+			next = new Node<>(elem);
 	}
 		
 	/**
@@ -89,10 +89,10 @@ package com.github.koshamo.fastmail.util;
 		if (subtree == null)
 			subtree = new UnbalancedTree<>(elem);
 		else {
-			Knot<T> cur = subtree.getRoot();
+			Node<T> cur = subtree.getRoot();
 			while (cur.hasNext())
 				cur = cur.next;
-			cur.setNext(new Knot<>(elem));
+			cur.setNext(new Node<>(elem));
 		}
 	}
 		
@@ -131,7 +131,7 @@ package com.github.koshamo.fastmail.util;
 	 * 
 	 * @param next	the next knot for this knot
 	 */
-	public void setNext(final Knot<T> next) {
+	public void setNext(final Node<T> next) {
 		this.next = next;
 	}
 	
