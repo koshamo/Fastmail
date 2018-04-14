@@ -44,6 +44,7 @@ import javax.mail.internet.MimeMultipart;
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.concurrent.Task;
@@ -144,6 +145,13 @@ public class MailAccount /*implements MailTreeViewable*/{
 	}
 	
 	/**
+	 * @param list
+	 */
+	/*private*/ void propagateFolderChanges(List<MailTreeViewable> list) {
+		
+	}
+	
+	/**
 	 * Propagates the Data Events to the message bus
 	 * 
 	 * @param order	the order for the meta data
@@ -207,7 +215,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * supplies a unique String of the account
 	 * @return the username
 	 */
-	/*private*/ String getAccountName() {
+	public String getAccountName() {
 		return mailAccountData.getUsername();
 	}
 	
@@ -307,7 +315,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @param text		the email text
 	 * @param message	the message object to reply to
 	 */
-	/*private*/ void sendMail(final String to, final String cc, 
+	public void sendMail(final String to, final String cc, 
 			final String subject, final String text, 
 			final List<File> attachments, final Message message) {
 		MimeMessage msg;

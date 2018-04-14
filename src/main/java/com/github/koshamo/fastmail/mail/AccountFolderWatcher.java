@@ -29,6 +29,7 @@ import com.github.koshamo.fastmail.util.AccountWrapper;
 import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
+import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
 
 /**
  * The class AccountFolderWatcher does its work in a separate thread.
@@ -105,6 +106,8 @@ import com.github.koshamo.fastmail.util.UnbalancedTree;
 	 */
 	private void propagateFolderTree(final UnbalancedTree<MailTreeViewable> newFolderTree) {
 		account.postDataEvent(MailAccountOrders.FOLDER_NEW, newFolderTree);
+		account.propagateFolderChanges(
+				UnbalancedTreeUtils.unbalancedTreeToList(newFolderTree));
 	}
 
 	/**
