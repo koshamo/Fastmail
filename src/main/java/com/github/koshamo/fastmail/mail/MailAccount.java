@@ -70,8 +70,6 @@ public class MailAccount /*implements MailTreeViewable*/{
 	
 	private AccountFolderWatcher accountFolderWatcher;
 	
-//	private TreeItem<MailTreeViewable> accountTreeItem;
-	
 	private static ResourceBundle i18n;
 	
 
@@ -392,63 +390,4 @@ public class MailAccount /*implements MailTreeViewable*/{
 		}
 	}
 
-	// TODO: delete this method -> if settings have changed, create a new
-	// MailAccount
-	/**
-	 * Set the settings data of this mail account
-	 * 
-	 * @param data a MailAccountData object
-	 */
-//	public void setMailAccountData(final MailAccountData data) {
-//		this.data = data;
-//	}
-
-	/* (non-Javadoc)
-	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#isAccount()
-	 */
-//	@Override
-//	public boolean isAccount() {
-//		return true;
-//	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-//	@Override
-//	public String toString() {
-//		return data.getUsername();
-//	}
-
-	/* (non-Javadoc)
-	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolderContent()
-	 */
-//	@Override
-//	public ObservableList<EmailTableData> getFolderContent() {
-//		return FXCollections.observableArrayList();
-//	}
-
-	/* (non-Javadoc)
-	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getParentFolder()
-	 */
-//	@Override
-//	public Folder getParentFolder() {
-//		return parentFolder;
-//	}
-
-	/* (non-Javadoc)
-	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getName()
-	 */
-//	@Override
-//	public String getName() {
-//		return getAccountName();
-//	}
-
-	/* (non-Javadoc)
-	 * @see com.github.koshamo.fastmail.mail.MailTreeViewable#getFolder()
-	 */
-//	@Override
-//	public Folder getFolder() {
-//		return parentFolder;
-//	}
-	
 }
