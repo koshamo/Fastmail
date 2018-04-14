@@ -18,6 +18,9 @@
 
 package com.github.koshamo.fastmail.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.scene.control.TreeItem;
 
 /**
@@ -50,11 +53,34 @@ public class UnbalancedTreeUtils {
 			if (tree.hasNext(elem)) {
 				elem = tree.next(elem);
 				treeItem = new TreeItem<>(elem);
-			}
-			else
+			} else
 				more = false;
 		} while (more);
 		
 		return root;
+	}
+	
+	public static <T> List<T> unbalancedTreeToList(final UnbalancedTree<T> tree) {
+		if (tree == null)
+			return null;
+		
+		List<T> list = new ArrayList<>();
+		T elem = tree.getRootItem();
+		list.add(elem);
+		
+		boolean more = true;
+		do {
+			if (tree.hasSubtree(elem)) {
+				List<T> subtree = unbalancedTreeToList(tree.getSubtree(elem));
+				list.addAll(subtree);
+			}
+			if (tree.hasNext(elem)) {
+				elem = tree.next(elem);
+				list.add(elem);
+			} else
+				more = false;
+		} while (more);
+		
+		return list;
 	}
 }
