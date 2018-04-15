@@ -714,6 +714,7 @@ public class FastGui extends FiddlerFxApp {
 			ObservableList<EmailTableData_NEW> mailList = 
 					FXCollections.observableArrayList(smle.getData());
 			// TODO: sort mailList?
+			mailList.sort(null);
 			folderMailTable.setItems(mailList);
 		}
 	}

@@ -20,19 +20,24 @@ package com.github.koshamo.fastmail.util;
 
 import java.time.Instant;
 
+import javafx.beans.property.SimpleBooleanProperty;
+
 /**
  * @author Dr. Jochen Raßler
  *
  */
-public class EmailTableData_NEW {
+public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 
 	private final String from;
 	private final String fromName;
 	private final String subject;
 	private final Instant sentDate;
-	private final boolean attached;
-	private boolean read;
-	private boolean marked;
+//	private final boolean attached;
+//	private boolean read;
+//	private boolean marked;
+	private final SimpleBooleanProperty attachment;
+	private SimpleBooleanProperty read;
+	private SimpleBooleanProperty marked;
 	private final byte[] md5;
 
 	/**
@@ -50,10 +55,27 @@ public class EmailTableData_NEW {
 		this.fromName = fromName;
 		this.subject = subject;
 		this.sentDate = sentDate;
-		this.attached = attached;
-		this.read = read;
-		this.marked = marked;
+//		this.attached = attached;
+//		this.read = read;
+//		this.marked = marked;
+		this.attachment = new SimpleBooleanProperty(attached);
+		this.read = new SimpleBooleanProperty(read);
+		this.marked = new SimpleBooleanProperty(marked);
 		this.md5 = md5;
+	}
+
+	/* The natural order of Emails should be date based
+	 * 
+	 * (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(EmailTableData_NEW other) {
+		/* 
+		 * negate the Instant compareTo method, as we want to have the
+		 * latest mails on top of the list
+		 */
+		return -this.sentDate.compareTo(other.sentDate);
 	}
 
 	/**
@@ -94,22 +116,43 @@ public class EmailTableData_NEW {
 	/**
 	 * @return the attached
 	 */
-	public boolean isAttached() {
-		return attached;
+	public boolean isAttachment() {
+		return attachment.get();
 	}
 
 	/**
 	 * @return the read
 	 */
 	public boolean isRead() {
-		return read;
+		return read.get();
 	}
 
 	/**
 	 * @return the marked
 	 */
 	public boolean isMarked() {
+		return marked.get();
+	}
+
+	/**
+	 * @return the read
+	 */
+	public SimpleBooleanProperty readProperty() {
+		return read;
+	}
+
+	/**
+	 * @return the marked
+	 */
+	public SimpleBooleanProperty markedProperty() {
 		return marked;
+	}
+
+	/**
+	 * @return the attached
+	 */
+	public SimpleBooleanProperty attachmentProperty() {
+		return attachment;
 	}
 
 	/**
