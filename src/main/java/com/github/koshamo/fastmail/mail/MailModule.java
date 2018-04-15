@@ -32,6 +32,7 @@ import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.events.RequestFolderItemEvent;
+import com.github.koshamo.fastmail.util.EmailTableData_NEW;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.github.koshamo.fastmail.util.UnbalancedTree;
@@ -173,9 +174,10 @@ public class MailModule implements EventHandler {
 			ma.addFolder(meta.getOriginalFolder());
 		if (meta.getOrder() == FolderItemOrders.REMOVE)
 			ma.removeFolder(meta.getOriginalFolder());
-		if (meta.getOrder() == FolderItemOrders.SHOW)
-			;
-		
+		if (meta.getOrder() == FolderItemOrders.SHOW) {
+			EmailTableData_NEW[] etdList = ma.getMails(meta.getOriginalFolder());
+			messageBus.postEvent(new ShowMailListEvent(this, event.getSource(), meta, etdList));
+		}
 	}
 
 	/**

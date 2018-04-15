@@ -44,6 +44,8 @@ import javax.mail.internet.MimeMultipart;
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
+import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
@@ -70,6 +72,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	private Store store;
 	
 	private AccountFolderWatcher accountFolderWatcher;
+	private FolderContent inbox;
 	
 	private static ResourceBundle i18n;
 	
@@ -148,7 +151,26 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @param list
 	 */
 	/*private*/ void propagateFolderChanges(List<MailTreeViewable> list) {
-		
+		// TODO: currently only INBOX
+		for (MailTreeViewable mtv : list) {
+			if (mtv instanceof FolderWrapper) {
+				FolderWrapper wrapper = (FolderWrapper) mtv;
+				if (wrapper.getName().toLowerCase().equals("INBOX".toLowerCase())) {
+					if (inbox == null)
+						inbox = new FolderContent(wrapper.getFolder());
+				} else {
+					// fill array list or something with 
+				}
+			}
+		}
+	}
+	
+	public EmailTableData_NEW[] getMails(String folderName) {
+		if (folderName.toLowerCase().equals("INBOX".toLowerCase()))
+			return inbox.getMailList();
+		else
+			return null;
+		// TODO: do not return null values. Implement other folders
 	}
 	
 	/**

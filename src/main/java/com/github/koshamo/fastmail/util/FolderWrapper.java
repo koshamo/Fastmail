@@ -47,6 +47,13 @@ public class FolderWrapper implements MailTreeViewable{
 	}
 	
 	/**
+	 * @return	the mail folder
+	 */
+	public Folder getFolder() {
+		return folder;
+	}
+	
+	/**
 	 * Get the name of the folder
 	 * 
 	 * @return	the folder's name
