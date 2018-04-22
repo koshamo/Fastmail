@@ -156,8 +156,10 @@ public class MailAccount /*implements MailTreeViewable*/{
 			if (mtv instanceof FolderWrapper) {
 				FolderWrapper wrapper = (FolderWrapper) mtv;
 				if (wrapper.getName().toLowerCase().equals("INBOX".toLowerCase())) {
-					if (inbox == null)
+					if (inbox == null) {
 						inbox = new FolderContent(wrapper.getFolder());
+						inbox.syncMailList();
+					}
 				} else {
 					// fill array list or something with 
 				}

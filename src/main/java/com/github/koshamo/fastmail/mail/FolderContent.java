@@ -34,6 +34,9 @@ public class FolderContent {
 	public FolderContent(final Folder folder) {
 		this.folder = folder;
 		fcl = new FolderContentLister(folder);
+	}
+	
+	public void syncMailList() {
 		new Thread(fcl).start();
 	}
 	
