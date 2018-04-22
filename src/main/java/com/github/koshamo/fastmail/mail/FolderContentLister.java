@@ -50,7 +50,6 @@ public class FolderContentLister implements Runnable {
 	 */
 	public FolderContentLister(Folder folder) {
 		this.folder = folder;
-		// TODO: No Exceptions in constructor....!
 	}
 
 	public void stop() {
