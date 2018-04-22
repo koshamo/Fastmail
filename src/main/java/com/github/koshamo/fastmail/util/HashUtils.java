@@ -50,6 +50,6 @@ public class HashUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		throw new IllegalStateException("can not calculate MD5 hash");
 	}
 }
