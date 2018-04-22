@@ -81,7 +81,7 @@ public class FolderContentLister implements Runnable {
 				if (msg instanceof IMAPMessage) 
 					((IMAPMessage) msg).setPeek(true);
 				EmailTableData_NEW etd = getEmailTableData(msg);
-				mailList.putIfAbsent(etd.getMd5(), etd);
+				mailList.putIfAbsent(etd.getUniqueID(), etd);
 			}
 			done = true;
 		} catch (MessagingException e) {
@@ -116,8 +116,8 @@ public class FolderContentLister implements Runnable {
 		boolean read = msg.isSet(Flag.SEEN);
 		boolean marked = msg.isSet(Flag.FLAGGED);
 		String hashText = from + fromName + subject + sentDate.toString();
-		byte[] md5 = HashUtils.calcMD5Hash(hashText);
+		byte[] uniqueID = HashUtils.calcMD5Hash(hashText);
 
-		return new EmailTableData_NEW(from, fromName, subject, sentDate, attached, read, marked, md5);
+		return new EmailTableData_NEW(from, fromName, subject, sentDate, attached, read, marked, uniqueID);
 	}
 }

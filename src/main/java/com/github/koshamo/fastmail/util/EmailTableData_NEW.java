@@ -38,7 +38,7 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	private final SimpleBooleanProperty attachment;
 	private SimpleBooleanProperty read;
 	private SimpleBooleanProperty marked;
-	private final byte[] md5;
+	private final byte[] uniqueID;
 
 	/**
 	 * @param from
@@ -48,20 +48,18 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	 * @param attached
 	 * @param read
 	 * @param marked
+	 * @param uniqueID
 	 */
 	public EmailTableData_NEW(String from, String fromName, String subject, Instant sentDate, boolean attached,
-			boolean read, boolean marked, byte[] md5) {
+			boolean read, boolean marked, byte[] uniqueID) {
 		this.from = from;
 		this.fromName = fromName;
 		this.subject = subject;
 		this.sentDate = sentDate;
-//		this.attached = attached;
-//		this.read = read;
-//		this.marked = marked;
 		this.attachment = new SimpleBooleanProperty(attached);
 		this.read = new SimpleBooleanProperty(read);
 		this.marked = new SimpleBooleanProperty(marked);
-		this.md5 = md5;
+		this.uniqueID = uniqueID;
 	}
 
 	/* The natural order of Emails should be date based
@@ -156,10 +154,10 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	}
 
 	/**
-	 * @return the md5
+	 * @return the uniqueID
 	 */
-	public byte[] getMd5() {
-		return md5;
+	public byte[] getUniqueID() {
+		return uniqueID;
 	}
 	
 }
