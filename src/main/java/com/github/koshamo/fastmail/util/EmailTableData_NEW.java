@@ -38,7 +38,7 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	private final SimpleBooleanProperty attachment;
 	private SimpleBooleanProperty read;
 	private SimpleBooleanProperty marked;
-	private final byte[] uniqueID;
+	private final String uniqueID;
 
 	/**
 	 * @param from
@@ -51,7 +51,7 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	 * @param uniqueID
 	 */
 	public EmailTableData_NEW(String from, String fromName, String subject, Instant sentDate, boolean attached,
-			boolean read, boolean marked, byte[] uniqueID) {
+			boolean read, boolean marked, String uniqueID) {
 		this.from = from;
 		this.fromName = fromName;
 		this.subject = subject;
@@ -156,7 +156,7 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	/**
 	 * @return the uniqueID
 	 */
-	public byte[] getUniqueID() {
+	public String getUniqueID() {
 		return uniqueID;
 	}
 	

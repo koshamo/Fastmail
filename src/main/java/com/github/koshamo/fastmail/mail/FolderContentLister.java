@@ -41,7 +41,7 @@ import com.sun.mail.imap.IMAPMessage;
 public class FolderContentLister implements Runnable {
 
 	private final Folder folder;
-	private Map<byte[], EmailTableData_NEW> mailList;
+	private Map<String, EmailTableData_NEW> mailList;
 	private boolean stop = false;
 	private boolean done = false;
 	
@@ -116,7 +116,7 @@ public class FolderContentLister implements Runnable {
 		boolean read = msg.isSet(Flag.SEEN);
 		boolean marked = msg.isSet(Flag.FLAGGED);
 		String hashText = from + fromName + subject + sentDate.toString();
-		byte[] uniqueID = HashUtils.calcMD5Hash(hashText);
+		String uniqueID = HashUtils.calcMD5Hash(hashText);
 
 		return new EmailTableData_NEW(from, fromName, subject, sentDate, attached, read, marked, uniqueID);
 	}

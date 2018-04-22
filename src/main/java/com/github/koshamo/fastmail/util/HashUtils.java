@@ -37,12 +37,12 @@ public class HashUtils {
 	 * @param text	the text to be hashed
 	 * @return	the hash code
 	 */
-	public synchronized static byte[] calcMD5Hash(String text) {
+	public synchronized static String calcMD5Hash(String text) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.reset();
 			md.update(text.getBytes("UTF-8"));
-			return md.digest();
+			return new String(md.digest(), "UTF-8");
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
