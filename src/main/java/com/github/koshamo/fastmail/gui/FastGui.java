@@ -758,10 +758,15 @@ public class FastGui extends FiddlerFxApp {
 				accountTree.getSelectionModel().getSelectedItem().getValue();
 		// check, if folder still selected
 		if (mtv.getFullName().endsWith(smle.getMetaInformation().getOriginalFolder())) {
-			ObservableList<EmailTableData_NEW> mailList = 
-					FXCollections.observableArrayList(smle.getData());
-			mailList.sort(null);
-			folderMailTable.setItems(mailList);
+			if (smle.getData() == null) {
+				Platform.runLater(
+						() -> folderMailTable.setPlaceholder(new Label("Mails still loading")));
+			} else {
+				ObservableList<EmailTableData_NEW> mailList = 
+						FXCollections.observableArrayList(smle.getData());
+				mailList.sort(null);
+				folderMailTable.setItems(mailList);
+			}
 		}
 	}
 	
