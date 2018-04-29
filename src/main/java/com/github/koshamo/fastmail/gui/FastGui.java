@@ -710,19 +710,14 @@ public class FastGui extends FiddlerFxApp {
 			handleFolderTreeEvent((PropagateFolderTreeEvent) event);
 		}
 		if (event instanceof ShowMailListEvent) {
-			ShowMailListEvent smle = (ShowMailListEvent) event;
-			ObservableList<EmailTableData_NEW> mailList = 
-					FXCollections.observableArrayList(smle.getData());
-			// TODO: sort mailList?
-			mailList.sort(null);
-			folderMailTable.setItems(mailList);
+			handleShowMailListEvent((ShowMailListEvent) event);
 		}
 	}
 
 	/**
 	 * @param fte
 	 */
-	public void handleFolderTreeEvent(PropagateFolderTreeEvent fte) {
+	private void handleFolderTreeEvent(PropagateFolderTreeEvent fte) {
 		MailAccountOrders mao = fte.getMetaInformation().getOrder();
 		if (mao == MailAccountOrders.FOLDER_NEW) {
 			TreeItem<MailTreeViewable> item = 
@@ -755,6 +750,21 @@ public class FastGui extends FiddlerFxApp {
 		}
 	}
 
+	/**
+	 * @param smle
+	 */
+	private void handleShowMailListEvent(ShowMailListEvent smle) {
+		MailTreeViewable mtv = 
+				accountTree.getSelectionModel().getSelectedItem().getValue();
+		// check, if folder still selected
+		if (mtv.getFullName().endsWith(smle.getMetaInformation().getOriginalFolder())) {
+			ObservableList<EmailTableData_NEW> mailList = 
+					FXCollections.observableArrayList(smle.getData());
+			mailList.sort(null);
+			folderMailTable.setItems(mailList);
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#shutdown()
 	 */
