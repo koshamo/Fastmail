@@ -18,42 +18,42 @@
 
 package com.github.koshamo.fastmail.mail;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.mail.Folder;
-
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import javax.mail.Message;
 
 /**
  * @author Dr. Jochen Raßler
  *
  */
-/*private*/ class FolderContent {
+/* private */ class MailReference {
+	private final Message message;
+	private String uniqueId;
 	
-	private final Folder folder;
-	private final List<MailReference> mailRefs;
-	private List<EmailTableData_NEW> mailData;
-	private final MailListFetcher fetcher;
-	
-	public FolderContent(final Folder folder) {
-		this.folder = folder;
-		mailRefs = new ArrayList<>();
-		mailData = new ArrayList<>();
-		fetcher = new MailListFetcher(folder, mailRefs);
+	/**
+	 * @param message
+	 */
+	public MailReference(Message message) {
+		this.message = message;
+	}
+
+	/**
+	 * @return the uniqueId
+	 */
+	public String getUniqueId() {
+		return uniqueId;
+	}
+
+	/**
+	 * @param uniqueId the uniqueId to set
+	 */
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
+	}
+
+	/**
+	 * @return the message
+	 */
+	public Message getMessage() {
+		return message;
 	}
 	
-	public void syncMailList() {
-		fetcher.updateMailList();
-		// TODO
-	}
-	
-	public void fetchMails() {
-		fetcher.updateMailList();
-		// TODO
-	}
-	
-	public EmailTableData_NEW[] getMailList() {
-		return mailData.toArray(new EmailTableData_NEW[0]);
-	}
 }

@@ -152,13 +152,14 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 */
 	/*private*/ void propagateFolderChanges(List<MailTreeViewable> list) {
 		// TODO: currently only INBOX
+		// FIXME: probably needs new logic
 		for (MailTreeViewable mtv : list) {
 			if (mtv instanceof FolderWrapper) {
 				FolderWrapper wrapper = (FolderWrapper) mtv;
 				if (wrapper.getName().toLowerCase().equals("INBOX".toLowerCase())) {
 					if (inbox == null) {
 						inbox = new FolderContent(wrapper.getFolder());
-						inbox.syncMailList();
+						inbox.fetchMails();
 					}
 				} else {
 					// fill array list or something with 

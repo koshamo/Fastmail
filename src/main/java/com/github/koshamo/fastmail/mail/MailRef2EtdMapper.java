@@ -20,11 +20,10 @@ package com.github.koshamo.fastmail.mail;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.mail.Flags.Flag;
-import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -38,18 +37,18 @@ import com.sun.mail.imap.IMAPMessage;
  * @author Dr. Jochen Raßler
  *
  */
-public class FolderContentLister implements Runnable {
+/*private*/ class MailRef2EtdMapper implements Runnable {
 
-	private final Folder folder;
-	private Map<String, EmailTableData_NEW> mailList;
+	private List<EmailTableData_NEW> mailList;
+	private final List<MailReference> messages;
 	private boolean stop = false;
 	private boolean done = false;
 	
 	/**
 	 * @param folder
 	 */
-	public FolderContentLister(Folder folder) {
-		this.folder = folder;
+	public MailRef2EtdMapper(final List<MailReference> messages) {
+		this.messages = messages;
 	}
 
 	public void stop() {
@@ -61,7 +60,7 @@ public class FolderContentLister implements Runnable {
 	}
 	
 	public EmailTableData_NEW[] getMailList() {
-		return mailList.values().toArray(new EmailTableData_NEW[0]);
+		return mailList.toArray(new EmailTableData_NEW[0]);
 	}
 	
 	/* (non-Javadoc)
@@ -69,19 +68,16 @@ public class FolderContentLister implements Runnable {
 	 */
 	@Override
 	public void run() {
+		mailList = new ArrayList<>();
 		try {
-			if (!folder.isOpen())
-				folder.open(Folder.READ_WRITE);
-			Message[] messages = folder.getMessages();
-			mailList = new HashMap<>(messages.length);
-
-			for (Message msg : messages) {
+			for (MailReference ref : messages) {
 				if (stop) return;
 				
-				if (msg instanceof IMAPMessage) 
-					((IMAPMessage) msg).setPeek(true);
-				EmailTableData_NEW etd = getEmailTableData(msg);
-				mailList.putIfAbsent(etd.getUniqueID(), etd);
+				if (ref.getMessage() instanceof IMAPMessage) 
+					((IMAPMessage) ref.getMessage()).setPeek(true);
+				EmailTableData_NEW etd = getEmailTableData(ref.getMessage());
+				ref.setUniqueId(etd.getUniqueID());
+				mailList.add(etd);
 			}
 			done = true;
 		} catch (MessagingException e) {
