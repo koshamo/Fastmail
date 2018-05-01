@@ -87,7 +87,8 @@ import com.sun.mail.imap.IMAPMessage;
 				mailList.add(etd);
 			}
 			done = true;
-			folder.close(false);
+			if (folder.isOpen())
+				folder.close(false);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

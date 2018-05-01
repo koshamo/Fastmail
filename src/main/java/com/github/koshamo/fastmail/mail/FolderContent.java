@@ -79,4 +79,8 @@ import com.github.koshamo.fastmail.util.EmailTableData;
 		FolderContent other = (FolderContent) obj;
 		return this.folder.equals(other.folder);
 	}
+	
+	public String getFolderName() {
+		return folder.getFullName();
+	}
 }

@@ -206,9 +206,13 @@ import javafx.concurrent.Task;
 	public EmailTableData[] getMails(String folderName) {
 		if (folderName.toLowerCase().equals("INBOX".toLowerCase()))
 			return inbox.getMailList();
-		else
-			return null;
-		// TODO: do not return null values. Implement other folders
+		else {
+			for (int i = 0; i < mailFolders.size(); ++i) {
+				if (folderName.equals(mailFolders.get(i).getFolderName()))
+					return mailFolders.get(i).getMailList();
+			}
+		}
+		return null;
 	}
 	
 	/**
