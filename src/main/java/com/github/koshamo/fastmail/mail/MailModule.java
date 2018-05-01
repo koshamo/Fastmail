@@ -92,7 +92,6 @@ public class MailModule implements EventHandler {
 		case FOLDER_NEW: 
 		case FOLDER_REMOVE:
 			event = createFolderTreeEvent(meta, data);
-			System.out.println("in postEvent: " + meta.getOrder() + " data " + data);
 			break;
 		default:
 			break;
