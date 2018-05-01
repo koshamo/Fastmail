@@ -61,6 +61,8 @@ import com.github.koshamo.fastmail.util.EmailTableData;
 //	}
 	
 	public EmailTableData[] getMailList() {
+		if (mailData == null)
+			return null;
 		return mailData.toArray(new EmailTableData[0]);
 	}
 	

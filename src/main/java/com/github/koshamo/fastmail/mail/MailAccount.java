@@ -48,7 +48,7 @@ import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.util.EmailTableData;
 import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
-import com.github.koshamo.fastmail.util.SerialThread;
+import com.github.koshamo.fastmail.util.SerialRunnerThread;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.concurrent.Task;
@@ -76,6 +76,7 @@ import javafx.concurrent.Task;
 	private AccountFolderWatcher accountFolderWatcher;
 	private FolderContent inbox;
 	private List<FolderContent> mailFolders;
+	private List<FolderContent> currentlyAdded;
 	
 	private static ResourceBundle i18n;
 	
@@ -93,6 +94,7 @@ import javafx.concurrent.Task;
 		this.mailModule = Objects.requireNonNull(mailModule, "mailModule must not be null");
 		this.store = null;
 		mailFolders = new ArrayList<>();
+		currentlyAdded = new ArrayList<>();
 		i18n = SerializeManager.getLocaleMessageBundle();
 		props = createSessionProperties();
 	}
@@ -155,7 +157,12 @@ import javafx.concurrent.Task;
 	 * @param list
 	 */
 	/*private*/ void propagateFolderChanges(List<MailTreeViewable> list) {
-		List<FolderContent> currentlyAdded = new ArrayList<>();
+		if (list == null) {
+			System.out.println("yes, we are finally done!");
+			generateLocalMailRepresentation(currentlyAdded);
+			currentlyAdded.clear();
+			return;
+		}
 		for (MailTreeViewable mtv : list) {
 			if (mtv instanceof FolderWrapper) {
 				FolderWrapper wrapper = (FolderWrapper) mtv;
@@ -176,19 +183,19 @@ import javafx.concurrent.Task;
 				}
 			}
 		}
-		generateLocalMailRepresentation(currentlyAdded);
 	}
 
 	/**
 	 * @param currentlyAdded
 	 */
-	private static void generateLocalMailRepresentation(List<FolderContent> currentlyAdded) {
+	private void generateLocalMailRepresentation(List<FolderContent> currentlyAdded) {
 		List<MailRef2EtdMapper> runners = new ArrayList<>();
 		// TODO: sort that list, so folders with fewest mails will be processed first
-		for (FolderContent fc : currentlyAdded) {
+		for (FolderContent fc : currentlyAdded) 
 			runners.add(fc.generateMail2EtdRunner());
-			new SerialThread(runners.toArray(new Runnable[0])).start();
-		}
+		System.out.println(mailAccountData.getUsername() + " " + runners.size() + " folders");
+		if (runners.size() > 0)
+			new SerialRunnerThread(runners.toArray(new Runnable[0])).start();
 	}
 	
 	private static boolean canHoldMessages(Folder folder) {

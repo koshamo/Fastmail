@@ -719,6 +719,8 @@ public class FastGui extends FiddlerFxApp {
 	private void handleFolderTreeEvent(PropagateFolderTreeEvent fte) {
 		MailAccountOrders mao = fte.getMetaInformation().getOrder();
 		if (mao == MailAccountOrders.FOLDER_NEW) {
+			if (fte.getData() == null)
+				return;
 			TreeItem<MailTreeViewable> item = 
 					UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
 			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();

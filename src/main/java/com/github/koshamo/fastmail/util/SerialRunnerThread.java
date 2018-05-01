@@ -24,11 +24,11 @@ import java.util.Objects;
  * @author Dr. Jochen Raßler
  *
  */
-public class SerialThread extends Thread {
+public class SerialRunnerThread extends Thread {
 
 	private final Runnable[] runners;
 	
-	public SerialThread(Runnable[] runners) {
+	public SerialRunnerThread(Runnable[] runners) {
 		this.runners = Objects.requireNonNull(runners, "array runners must not be null");
 	}
 	
@@ -37,6 +37,7 @@ public class SerialThread extends Thread {
 	 */
 	@Override
 	public void run() {
+		System.out.println("Runners in here: " + runners.length);
 		for (Runnable runner : runners)
 			runner.run();
 	}

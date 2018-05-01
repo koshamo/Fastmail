@@ -75,6 +75,10 @@ import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
 					getSubFolderTree(account.getDefaultFolder()), root);
 			currentFolderTree = compareAndPropagate(currentFolderTree, newFolderTree);
 
+			// we are done!
+			System.out.println("we propagate that we are done");
+			propagateFolderTree(null);
+
 			try {
 				Thread.sleep(FastmailGlobals.FOLDER_REFRESH_MS);
 			} catch (InterruptedException e) {
@@ -105,7 +109,8 @@ import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
 	 * @param newFolderTree
 	 */
 	private void propagateFolderTree(final UnbalancedTree<MailTreeViewable> newFolderTree) {
-		account.postDataEvent(MailAccountOrders.FOLDER_NEW, newFolderTree);
+		if (newFolderTree != null)
+			account.postDataEvent(MailAccountOrders.FOLDER_NEW, newFolderTree);
 		account.propagateFolderChanges(
 				UnbalancedTreeUtils.unbalancedTreeToList(newFolderTree));
 	}

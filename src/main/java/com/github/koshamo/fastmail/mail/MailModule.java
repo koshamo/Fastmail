@@ -92,6 +92,7 @@ public class MailModule implements EventHandler {
 		case FOLDER_NEW: 
 		case FOLDER_REMOVE:
 			event = createFolderTreeEvent(meta, data);
+			System.out.println("in postEvent: " + meta.getOrder() + " data " + data);
 			break;
 		default:
 			break;
@@ -102,6 +103,8 @@ public class MailModule implements EventHandler {
 	@SuppressWarnings("unchecked")
 	private <T> Event createFolderTreeEvent(MailAccountMeta meta, T data) {
 		UnbalancedTree<MailTreeViewable> folders = null;
+		if (data == null)
+			return new PropagateFolderTreeEvent(this, null, meta, null);
 		if (data instanceof UnbalancedTree) {
 			UnbalancedTree<?> test = (UnbalancedTree<?>) data;
 			if (test.getRootItem() instanceof MailTreeViewable)

@@ -73,6 +73,8 @@ import com.sun.mail.imap.IMAPMessage;
 	public void run() {
 		if (mailList == null)
 			mailList = new ArrayList<>();
+		if (messages.size() == 0)
+			return;
 		Folder folder = messages.get(0).getMessage().getFolder();
 		try {
 			if (!folder.isOpen())
