@@ -187,7 +187,7 @@ import javafx.concurrent.Task;
 	/**
 	 * @param currentlyAdded
 	 */
-	private void generateLocalMailRepresentation(List<FolderContent> currentlyAdded) {
+	private static void generateLocalMailRepresentation(List<FolderContent> currentlyAdded) {
 		List<MailRef2EtdMapper> runners = new ArrayList<>();
 		// TODO: sort that list, so folders with fewest mails will be processed first
 		for (FolderContent fc : currentlyAdded) 
