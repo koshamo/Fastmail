@@ -164,6 +164,9 @@ import javafx.concurrent.Task;
 						inbox.generateMailList();
 					}
 				} else {
+					if (!canHoldMessages(wrapper.getFolder()))
+						// cannot hold message, of with next iteration!
+						continue;
 					FolderContent fc = new FolderContent(wrapper.getFolder());
 					if (!mailFolders.contains(fc)) {
 						mailFolders.add(fc);
@@ -176,6 +179,18 @@ import javafx.concurrent.Task;
 			// TODO: sort that list, so folders with fewest mails will be processed first
 			fc.generateMailList();
 		}
+	}
+	
+	private static boolean canHoldMessages(Folder folder) {
+		boolean result = false;
+		try {
+			result = (folder.getType() & Folder.HOLDS_MESSAGES) == 1;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// TODO: return value may be wrong, if exception occurs
+		return result;	
 	}
 	
 	public EmailTableData_NEW[] getMails(String folderName) {
