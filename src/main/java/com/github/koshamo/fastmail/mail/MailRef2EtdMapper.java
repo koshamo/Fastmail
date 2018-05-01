@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.Flags.Flag;
+import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -72,7 +73,10 @@ import com.sun.mail.imap.IMAPMessage;
 	public void run() {
 		if (mailList == null)
 			mailList = new ArrayList<>();
+		Folder folder = messages.get(0).getMessage().getFolder();
 		try {
+			if (!folder.isOpen())
+				folder.open(Folder.READ_ONLY);
 			for (MailReference ref : messages) {
 				if (stop) return;
 				
@@ -83,6 +87,7 @@ import com.sun.mail.imap.IMAPMessage;
 				mailList.add(etd);
 			}
 			done = true;
+			folder.close(false);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

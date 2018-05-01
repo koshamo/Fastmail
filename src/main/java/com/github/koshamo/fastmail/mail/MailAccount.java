@@ -48,6 +48,7 @@ import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.util.EmailTableData;
 import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
+import com.github.koshamo.fastmail.util.SerialThread;
 import com.github.koshamo.fastmail.util.SerializeManager;
 
 import javafx.concurrent.Task;
@@ -175,9 +176,18 @@ import javafx.concurrent.Task;
 				}
 			}
 		}
+		generateLocalMailRepresentation(currentlyAdded);
+	}
+
+	/**
+	 * @param currentlyAdded
+	 */
+	private static void generateLocalMailRepresentation(List<FolderContent> currentlyAdded) {
+		List<MailRef2EtdMapper> runners = new ArrayList<>();
+		// TODO: sort that list, so folders with fewest mails will be processed first
 		for (FolderContent fc : currentlyAdded) {
-			// TODO: sort that list, so folders with fewest mails will be processed first
-			fc.generateMailList();
+			runners.add(fc.generateMail2EtdRunner());
+			new SerialThread(runners.toArray(new Runnable[0])).start();
 		}
 	}
 	

@@ -46,14 +46,19 @@ import com.github.koshamo.fastmail.util.EmailTableData;
 	}
 	
 	public void generateMailList() {
-		mailRefs = fetcher.getMailRefs();
-		mailData = new ArrayList<>();
-		new Thread(new MailRef2EtdMapper(mailRefs, mailData)).start();
+		MailRef2EtdMapper etdMapper = generateMail2EtdRunner();
+		new Thread(etdMapper).start();
 	}
 	
-	public void fetchMails() {
-		fetcher.updateMailList();
+	public MailRef2EtdMapper generateMail2EtdRunner() {
+		mailRefs = fetcher.getMailRefs();
+		mailData = new ArrayList<>();
+		return new MailRef2EtdMapper(mailRefs, mailData);
 	}
+	
+//	public void fetchMails() {
+//		fetcher.updateMailList();
+//	}
 	
 	public EmailTableData[] getMailList() {
 		return mailData.toArray(new EmailTableData[0]);
