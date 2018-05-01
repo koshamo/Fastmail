@@ -16,9 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail.mail;
+package com.github.koshamo.fastmail.events;
 
-import com.github.koshamo.fastmail.events.FolderItemMeta;
 import com.github.koshamo.fastmail.util.EmailTableData_NEW;
 import com.github.koshamo.fiddler.DataEvent;
 import com.github.koshamo.fiddler.EventHandler;

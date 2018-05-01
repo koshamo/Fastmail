@@ -64,7 +64,7 @@ import javafx.concurrent.Task;
  *
  */
 // TODO:
-public class MailAccount /*implements MailTreeViewable*/{
+/*private*/ class MailAccount /*implements MailTreeViewable*/{
 	// some fields needed to create connection
 	private final MailAccountData mailAccountData;
 	private final MailModule mailModule;

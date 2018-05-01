@@ -32,6 +32,7 @@ import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.events.RequestFolderItemEvent;
+import com.github.koshamo.fastmail.events.ShowMailListEvent;
 import com.github.koshamo.fastmail.util.EmailTableData_NEW;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
