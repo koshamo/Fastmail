@@ -27,9 +27,14 @@ import java.util.Objects;
 public class SerialRunnerThread extends Thread {
 
 	private final Runnable[] runners;
+	private boolean run = true;
 	
 	public SerialRunnerThread(Runnable[] runners) {
 		this.runners = Objects.requireNonNull(runners, "array runners must not be null");
+	}
+	
+	public void shutdown() {
+		run = false;
 	}
 	
 	/* (non-Javadoc)
@@ -38,7 +43,9 @@ public class SerialRunnerThread extends Thread {
 	@Override
 	public void run() {
 		System.out.println("Runners in here: " + runners.length);
-		for (Runnable runner : runners)
-			runner.run();
+		for (Runnable runner : runners) {
+			if (run)
+				runner.run();
+		}
 	}
 }

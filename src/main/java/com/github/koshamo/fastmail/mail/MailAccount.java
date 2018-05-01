@@ -77,6 +77,7 @@ import javafx.concurrent.Task;
 	private FolderContent inbox;
 	private List<FolderContent> mailFolders;
 	private List<FolderContent> currentlyAdded;
+	private SerialRunnerThread serialRunnerThread;
 	
 	private static ResourceBundle i18n;
 	
@@ -151,6 +152,8 @@ import javafx.concurrent.Task;
 	 */
 	/*private*/ void shutdown() {
 		accountFolderWatcher.stop();
+		if (serialRunnerThread != null)
+			serialRunnerThread.shutdown();
 	}
 	
 	/**
@@ -187,13 +190,15 @@ import javafx.concurrent.Task;
 	/**
 	 * @param currentlyAdded
 	 */
-	private static void generateLocalMailRepresentation(List<FolderContent> currentlyAdded) {
+	private void generateLocalMailRepresentation(List<FolderContent> currentlyAdded) {
 		List<MailRef2EtdMapper> runners = new ArrayList<>();
 		// TODO: sort that list, so folders with fewest mails will be processed first
 		for (FolderContent fc : currentlyAdded) 
 			runners.add(fc.generateMail2EtdRunner());
-		if (runners.size() > 0)
-			new SerialRunnerThread(runners.toArray(new Runnable[0])).start();
+		if (runners.size() > 0) {
+			serialRunnerThread = new SerialRunnerThread(runners.toArray(new Runnable[0]));
+			serialRunnerThread.start();
+		}
 	}
 	
 	private static boolean canHoldMessages(Folder folder) {
