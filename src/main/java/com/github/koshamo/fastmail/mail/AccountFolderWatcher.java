@@ -76,7 +76,6 @@ import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
 			currentFolderTree = compareAndPropagate(currentFolderTree, newFolderTree);
 
 			// we are done!
-			System.out.println("we propagate that we are done");
 			propagateFolderTree(null);
 
 			try {

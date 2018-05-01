@@ -158,7 +158,6 @@ import javafx.concurrent.Task;
 	 */
 	/*private*/ void propagateFolderChanges(List<MailTreeViewable> list) {
 		if (list == null) {
-			System.out.println("yes, we are finally done!");
 			generateLocalMailRepresentation(currentlyAdded);
 			currentlyAdded.clear();
 			return;
@@ -193,7 +192,6 @@ import javafx.concurrent.Task;
 		// TODO: sort that list, so folders with fewest mails will be processed first
 		for (FolderContent fc : currentlyAdded) 
 			runners.add(fc.generateMail2EtdRunner());
-		System.out.println(mailAccountData.getUsername() + " " + runners.size() + " folders");
 		if (runners.size() > 0)
 			new SerialRunnerThread(runners.toArray(new Runnable[0])).start();
 	}
