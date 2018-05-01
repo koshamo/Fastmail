@@ -20,7 +20,6 @@ package com.github.koshamo.fastmail.mail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.mail.Folder;
@@ -33,16 +32,17 @@ import javax.mail.MessagingException;
  */
 /*private*/ class MailListFetcher {
 
-	private final List<MailReference> localMails;
-	private final List<MailReference> toDelete;
-	private final List<MailReference> toAdd;
+	private List<MailReference> localMails;
+	private List<MailReference> toDelete;
+	private List<MailReference> toAdd;
 	private final Folder folder;
+	
 	/**
 	 * 
 	 */
-	public MailListFetcher(final Folder folder, final List<MailReference> localMails) {
+	public MailListFetcher(final Folder folder) {
 		this.folder = folder;
-		this.localMails = localMails;
+//		this.localMails = localMails;
 		toDelete = new ArrayList<>();
 		toAdd = new ArrayList<>();
 	}
@@ -50,23 +50,23 @@ import javax.mail.MessagingException;
 	/**
 	 * @return the localMails
 	 */
-	public List<MailReference> getLocalMails() {
-		return localMails;
-	}
+//	public List<MailReference> getLocalMails() {
+//		return localMails;
+//	}
 
 	/**
 	 * @return the toDelete
 	 */
-	public List<MailReference> getToDelete() {
-		return toDelete;
-	}
+//	public List<MailReference> getToDelete() {
+//		return toDelete;
+//	}
 
 	/**
 	 * @return the toAdd
 	 */
-	public List<MailReference> getToAdd() {
-		return toAdd;
-	}
+//	public List<MailReference> getToAdd() {
+//		return toAdd;
+//	}
 
 	public void updateMailList() {
 		List<Message> msgs = getMailsFromServer();
@@ -74,11 +74,19 @@ import javax.mail.MessagingException;
 		checkForNewMailsOnServer(msgs);
 	}
 
+	public List<MailReference> getMailRefs() {
+		localMails = new ArrayList<>();
+		List<Message> msgs = getMailsFromServer();
+		for (Message msg : msgs)
+			localMails.add(new MailReference(msg));
+		return localMails;
+	}
+	
 	/**
 	 * @return
 	 */
 	private List<Message> getMailsFromServer() {
-		List<Message> serverMails = Collections.emptyList();
+		List<Message> serverMails = new ArrayList<>();
 		try {
 			if (!folder.isOpen())
 				folder.open(Folder.READ_WRITE);
@@ -95,7 +103,7 @@ import javax.mail.MessagingException;
 	 * @param msgs
 	 */
 	private void checkForDeletedMailsOnServer(List<Message> msgs) {
-		toDelete.clear();
+		toDelete = new ArrayList<>();
 		for (MailReference ref : localMails) {
 			if (!msgs.contains(ref.getMessage()))
 				toDelete.add(ref);
@@ -107,7 +115,7 @@ import javax.mail.MessagingException;
 	 * @param msgs
 	 */
 	private void checkForNewMailsOnServer(List<Message> msgs) {
-		toAdd.clear();
+		toAdd = new ArrayList<>();
 		
 		List<Message> localRefs = new ArrayList<>();
 		for (MailReference ref : localMails) {

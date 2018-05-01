@@ -21,6 +21,7 @@ package com.github.koshamo.fastmail.mail;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -73,6 +74,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	
 	private AccountFolderWatcher accountFolderWatcher;
 	private FolderContent inbox;
+	private List<FolderContent> mailFolders;
 	
 	private static ResourceBundle i18n;
 	
@@ -89,6 +91,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 		this.mailAccountData = Objects.requireNonNull(data, "data must not be null");
 		this.mailModule = Objects.requireNonNull(mailModule, "mailModule must not be null");
 		this.store = null;
+		mailFolders = new ArrayList<>();
 		i18n = SerializeManager.getLocaleMessageBundle();
 		props = createSessionProperties();
 	}
@@ -159,10 +162,13 @@ public class MailAccount /*implements MailTreeViewable*/{
 				if (wrapper.getName().toLowerCase().equals("INBOX".toLowerCase())) {
 					if (inbox == null) {
 						inbox = new FolderContent(wrapper.getFolder());
-						inbox.fetchMails();
+						inbox.generateMailList();
 					}
 				} else {
-					// fill array list or something with 
+					FolderContent fc = new FolderContent(wrapper.getFolder());
+					if (!mailFolders.contains(fc))
+						mailFolders.add(fc);
+					// TODO: fetch new folders....
 				}
 			}
 		}

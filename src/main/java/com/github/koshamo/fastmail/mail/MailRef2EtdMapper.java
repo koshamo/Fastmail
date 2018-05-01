@@ -47,8 +47,10 @@ import com.sun.mail.imap.IMAPMessage;
 	/**
 	 * @param folder
 	 */
-	public MailRef2EtdMapper(final List<MailReference> messages) {
+	public MailRef2EtdMapper(final List<MailReference> messages, List<EmailTableData_NEW> mailList) {
 		this.messages = messages;
+		if (mailList != null)
+			this.mailList = mailList;
 	}
 
 	public void stop() {
@@ -59,8 +61,8 @@ import com.sun.mail.imap.IMAPMessage;
 		return done;
 	}
 	
-	public EmailTableData_NEW[] getMailList() {
-		return mailList.toArray(new EmailTableData_NEW[0]);
+	public List<EmailTableData_NEW> getMailList() {
+		return mailList;
 	}
 	
 	/* (non-Javadoc)
@@ -68,7 +70,8 @@ import com.sun.mail.imap.IMAPMessage;
 	 */
 	@Override
 	public void run() {
-		mailList = new ArrayList<>();
+		if (mailList == null)
+			mailList = new ArrayList<>();
 		try {
 			for (MailReference ref : messages) {
 				if (stop) return;

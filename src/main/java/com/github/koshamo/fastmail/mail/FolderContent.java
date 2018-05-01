@@ -32,28 +32,44 @@ import com.github.koshamo.fastmail.util.EmailTableData_NEW;
 /*private*/ class FolderContent {
 	
 	private final Folder folder;
-	private final List<MailReference> mailRefs;
+	private List<MailReference> mailRefs;
 	private List<EmailTableData_NEW> mailData;
 	private final MailListFetcher fetcher;
 	
 	public FolderContent(final Folder folder) {
 		this.folder = folder;
-		mailRefs = new ArrayList<>();
-		mailData = new ArrayList<>();
-		fetcher = new MailListFetcher(folder, mailRefs);
+//		mailRefs = new ArrayList<>();
+//		mailData = new ArrayList<>();
+		fetcher = new MailListFetcher(folder);
 	}
 	
-	public void syncMailList() {
-		fetcher.updateMailList();
-		// TODO
+	public void generateMailList() {
+		mailRefs = fetcher.getMailRefs();
+		mailData = new ArrayList<>();
+		new Thread(new MailRef2EtdMapper(mailRefs, mailData)).start();
 	}
 	
 	public void fetchMails() {
 		fetcher.updateMailList();
-		// TODO
 	}
 	
 	public EmailTableData_NEW[] getMailList() {
 		return mailData.toArray(new EmailTableData_NEW[0]);
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (this == obj)
+			return true;
+		if (!(obj instanceof FolderContent))
+			return false;
+		
+		FolderContent other = (FolderContent) obj;
+		return this.folder.equals(other.folder);
 	}
 }
