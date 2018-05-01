@@ -45,7 +45,7 @@ import javax.mail.internet.MimeMultipart;
 import com.github.koshamo.fastmail.FastMailGenerals;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.EmailTableData;
 import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.SerializeManager;
@@ -193,7 +193,7 @@ import javafx.concurrent.Task;
 		return result;	
 	}
 	
-	public EmailTableData_NEW[] getMails(String folderName) {
+	public EmailTableData[] getMails(String folderName) {
 		if (folderName.toLowerCase().equals("INBOX".toLowerCase()))
 			return inbox.getMailList();
 		else

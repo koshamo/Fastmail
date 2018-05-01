@@ -26,7 +26,7 @@ import javafx.beans.property.SimpleBooleanProperty;
  * @author Dr. Jochen Raßler
  *
  */
-public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
+public class EmailTableData implements Comparable<EmailTableData>{
 
 	private final String from;
 	private final String fromName;
@@ -50,7 +50,7 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	 * @param marked
 	 * @param uniqueID
 	 */
-	public EmailTableData_NEW(String from, String fromName, String subject, Instant sentDate, boolean attached,
+	public EmailTableData(String from, String fromName, String subject, Instant sentDate, boolean attached,
 			boolean read, boolean marked, String uniqueID) {
 		this.from = from;
 		this.fromName = fromName;
@@ -68,7 +68,7 @@ public class EmailTableData_NEW implements Comparable<EmailTableData_NEW>{
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
-	public int compareTo(EmailTableData_NEW other) {
+	public int compareTo(EmailTableData other) {
 		/* 
 		 * negate the Instant compareTo method, as we want to have the
 		 * latest mails on top of the list

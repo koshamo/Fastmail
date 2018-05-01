@@ -35,10 +35,9 @@ import com.github.koshamo.fastmail.events.ShowMailListEvent;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
 import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
 import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
-import com.github.koshamo.fastmail.mail.EmailTableData;
 import com.github.koshamo.fastmail.mail.MailAccountData;
 import com.github.koshamo.fastmail.util.AccountWrapper;
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.EmailTableData;
 import com.github.koshamo.fastmail.util.FolderWrapper;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.MessageConsumer;
@@ -118,7 +117,7 @@ public class FastGui extends FiddlerFxApp {
 	// fields for handling accounts and mails
 	private TreeItem<MailTreeViewable> rootItem;
 	MailView mailBody;
-	TableView<EmailTableData_NEW> folderMailTable;
+	TableView<EmailTableData> folderMailTable;
 	TreeView<MailTreeViewable> accountTree;
 
 	
@@ -410,9 +409,9 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	private TableColumn<EmailTableData_NEW, String> buildSubjectTableCol() {
+	private TableColumn<EmailTableData, String> buildSubjectTableCol() {
 		// SUBJECT column
-		final TableColumn<EmailTableData_NEW, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
+		final TableColumn<EmailTableData, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
 		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject")); //$NON-NLS-1$
 		subjectCol.setMinWidth(400);
 		return subjectCol;
@@ -421,9 +420,9 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	private TableColumn<EmailTableData_NEW, String> buildFromTableCol() {
+	private TableColumn<EmailTableData, String> buildFromTableCol() {
 		// FROM column
-		final TableColumn<EmailTableData_NEW, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
+		final TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
 		fromCol.setCellValueFactory(new PropertyValueFactory<>("fromName")); //$NON-NLS-1$
 		fromCol.setMinWidth(250);
 		return fromCol;
@@ -431,12 +430,12 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	private TableColumn<EmailTableData_NEW, String> buildDateTableCol() {
+	private TableColumn<EmailTableData, String> buildDateTableCol() {
 		// DATE column
-		final TableColumn<EmailTableData_NEW, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
+		final TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
 		dateCol.setMinWidth(150);
 		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate")); //$NON-NLS-1$
-		dateCol.setCellFactory((TableColumn<EmailTableData_NEW, String> p) -> new DateCellFactory());
+		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
 		dateCol.setComparator(new DateCellComparator());
 		return dateCol;
 	}
@@ -444,11 +443,11 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	private TableColumn<EmailTableData_NEW, Boolean> buildReadTableCol() {
+	private TableColumn<EmailTableData, Boolean> buildReadTableCol() {
 		// MESSAGE READ column
-		final TableColumn<EmailTableData_NEW, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
-		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData_NEW,Boolean>("read")); //$NON-NLS-1$
-		readCol.setCellFactory((TableColumn<EmailTableData_NEW, Boolean> p) -> new TableCellFactory(readCol));
+		final TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
+		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
+		readCol.setCellFactory((TableColumn<EmailTableData, Boolean> p) -> new TableCellFactory(readCol));
 		readCol.setEditable(true);
 		readCol.setMaxWidth(30);
 		return readCol;
@@ -457,10 +456,10 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	private TableColumn<EmailTableData_NEW, Boolean> buildAttachmentTableCol() {
+	private TableColumn<EmailTableData, Boolean> buildAttachmentTableCol() {
 		// ATTACHMENT column
-		final TableColumn<EmailTableData_NEW, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
-		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData_NEW,Boolean>("attachment")); //$NON-NLS-1$
+		final TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
+		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment")); //$NON-NLS-1$
 		attachmentCol.setCellFactory(CheckBoxTableCell.forTableColumn(attachmentCol));
 		attachmentCol.setEditable(false);
 		attachmentCol.setMaxWidth(30);
@@ -470,10 +469,10 @@ public class FastGui extends FiddlerFxApp {
 	/**
 	 * @return
 	 */
-	private TableColumn<EmailTableData_NEW, Boolean> buildMarkerTableCol() {
+	private TableColumn<EmailTableData, Boolean> buildMarkerTableCol() {
 		// MESSAGE MARKED column
-		final TableColumn<EmailTableData_NEW, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
-		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData_NEW,Boolean>("marked")); //$NON-NLS-1$
+		final TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
+		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked")); //$NON-NLS-1$
 		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
 		markerCol.setEditable(true);
 		markerCol.setMaxWidth(30);
@@ -762,7 +761,7 @@ public class FastGui extends FiddlerFxApp {
 				Platform.runLater(
 						() -> folderMailTable.setPlaceholder(new Label("Mails still loading")));
 			} else {
-				ObservableList<EmailTableData_NEW> mailList = 
+				ObservableList<EmailTableData> mailList = 
 						FXCollections.observableArrayList(smle.getData());
 				mailList.sort(null);
 				folderMailTable.setItems(mailList);

@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.mail.Folder;
 
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.EmailTableData;
 
 /**
  * @author Dr. Jochen Raßler
@@ -35,7 +35,7 @@ import com.github.koshamo.fastmail.util.EmailTableData_NEW;
 	
 	private final Folder folder;
 	private List<MailReference> mailRefs;
-	private List<EmailTableData_NEW> mailData;
+	private List<EmailTableData> mailData;
 	private final MailListFetcher fetcher;
 	
 	public FolderContent(final Folder folder) {
@@ -55,8 +55,8 @@ import com.github.koshamo.fastmail.util.EmailTableData_NEW;
 		fetcher.updateMailList();
 	}
 	
-	public EmailTableData_NEW[] getMailList() {
-		return mailData.toArray(new EmailTableData_NEW[0]);
+	public EmailTableData[] getMailList() {
+		return mailData.toArray(new EmailTableData[0]);
 	}
 	
 	/* (non-Javadoc)

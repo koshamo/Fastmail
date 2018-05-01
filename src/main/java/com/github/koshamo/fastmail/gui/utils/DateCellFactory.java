@@ -23,7 +23,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.EmailTableData;
 
 import javafx.scene.control.TableCell;
 
@@ -43,7 +43,7 @@ import javafx.scene.control.TableCell;
  * @author jochen
  *
  */
-public class DateCellFactory extends TableCell<EmailTableData_NEW, String> {
+public class DateCellFactory extends TableCell<EmailTableData, String> {
 
 	@Override
 	protected void updateItem(final String item, final boolean empty) {

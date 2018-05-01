@@ -18,7 +18,7 @@
 
 package com.github.koshamo.fastmail.gui;
 
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.EmailTableData;
 
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
@@ -36,7 +36,7 @@ import javafx.scene.paint.Color;
  * @author jochen
  *
  */
-public class TableCellFactory extends CheckBoxTableCell<EmailTableData_NEW, Boolean> {
+public class TableCellFactory extends CheckBoxTableCell<EmailTableData, Boolean> {
 	
 	/**
 	 * Constructor for this class.
@@ -45,7 +45,7 @@ public class TableCellFactory extends CheckBoxTableCell<EmailTableData_NEW, Bool
 	 * as parameter, because this is the argument the formatting is based
 	 * on.
 	 */
-	public TableCellFactory(final TableColumn<EmailTableData_NEW, Boolean> col) {
+	public TableCellFactory(final TableColumn<EmailTableData, Boolean> col) {
 		forTableColumn(col);
 	}
 	
@@ -58,7 +58,7 @@ public class TableCellFactory extends CheckBoxTableCell<EmailTableData_NEW, Bool
 	@Override
 	public void updateItem(final Boolean item, final boolean empty) {
 		super.updateItem(item, empty);
-		TableRow<EmailTableData_NEW> row = getTableRow();
+		TableRow<EmailTableData> row = getTableRow();
 		
 		if (item == null || empty) {
 			setText(null);

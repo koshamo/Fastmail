@@ -18,7 +18,7 @@
 
 package com.github.koshamo.fastmail.events;
 
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.EmailTableData;
 import com.github.koshamo.fiddler.DataEvent;
 import com.github.koshamo.fiddler.EventHandler;
 
@@ -26,7 +26,7 @@ import com.github.koshamo.fiddler.EventHandler;
  * @author Dr. Jochen Raßler
  *
  */
-public class ShowMailListEvent extends DataEvent<FolderItemMeta, EmailTableData_NEW[]> {
+public class ShowMailListEvent extends DataEvent<FolderItemMeta, EmailTableData[]> {
 
 	/**
 	 * @param source
@@ -34,7 +34,7 @@ public class ShowMailListEvent extends DataEvent<FolderItemMeta, EmailTableData_
 	 * @param meta
 	 * @param data
 	 */
-	public ShowMailListEvent(EventHandler source, EventHandler target, FolderItemMeta meta, EmailTableData_NEW[] data) {
+	public ShowMailListEvent(EventHandler source, EventHandler target, FolderItemMeta meta, EmailTableData[] data) {
 		super(source, target, meta, data);
 	}
 

@@ -20,12 +20,8 @@ package com.github.koshamo.fastmail.util;
 
 import java.util.Objects;
 
-import javax.mail.Flags.Flag;
 import javax.mail.Folder;
-import javax.mail.Message;
 import javax.mail.MessagingException;
-
-import com.github.koshamo.fastmail.mail.EmailTableData;
 
 /**
  * The FolderAdapter is a adapter class to get javax.mail-free
@@ -121,15 +117,15 @@ public class FolderWrapper implements MailTreeViewable{
 	
 	public void moveMessage(EmailTableData mail) {
 		// TODO: this currently is old code, move it to mail module
-		try {
-			// copy message to new folder
-			mail.getFolder().copyMessages(new Message[] {mail.getMessage()}, folder);
-			// delete message in original folder
-			mail.setFlag(Flag.DELETED, true);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			// copy message to new folder
+//			mail.getFolder().copyMessages(new Message[] {mail.getMessage()}, folder);
+//			// delete message in original folder
+//			mail.setFlag(Flag.DELETED, true);
+//		} catch (MessagingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 }

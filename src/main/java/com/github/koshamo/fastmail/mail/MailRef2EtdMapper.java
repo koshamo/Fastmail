@@ -29,7 +29,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
 
-import com.github.koshamo.fastmail.util.EmailTableData_NEW;
+import com.github.koshamo.fastmail.util.EmailTableData;
 import com.github.koshamo.fastmail.util.HashUtils;
 import com.sun.mail.imap.IMAPMessage;
 
@@ -39,7 +39,7 @@ import com.sun.mail.imap.IMAPMessage;
  */
 /*private*/ class MailRef2EtdMapper implements Runnable {
 
-	private List<EmailTableData_NEW> mailList;
+	private List<EmailTableData> mailList;
 	private final List<MailReference> messages;
 	private boolean stop = false;
 	private boolean done = false;
@@ -47,7 +47,7 @@ import com.sun.mail.imap.IMAPMessage;
 	/**
 	 * @param folder
 	 */
-	public MailRef2EtdMapper(final List<MailReference> messages, List<EmailTableData_NEW> mailList) {
+	public MailRef2EtdMapper(final List<MailReference> messages, List<EmailTableData> mailList) {
 		this.messages = messages;
 		if (mailList != null)
 			this.mailList = mailList;
@@ -61,7 +61,7 @@ import com.sun.mail.imap.IMAPMessage;
 		return done;
 	}
 	
-	public List<EmailTableData_NEW> getMailList() {
+	public List<EmailTableData> getMailList() {
 		return mailList;
 	}
 	
@@ -78,7 +78,7 @@ import com.sun.mail.imap.IMAPMessage;
 				
 				if (ref.getMessage() instanceof IMAPMessage) 
 					((IMAPMessage) ref.getMessage()).setPeek(true);
-				EmailTableData_NEW etd = getEmailTableData(ref.getMessage());
+				EmailTableData etd = getEmailTableData(ref.getMessage());
 				ref.setUniqueId(etd.getUniqueID());
 				mailList.add(etd);
 			}
@@ -93,7 +93,7 @@ import com.sun.mail.imap.IMAPMessage;
 
 	}
 
-	private static EmailTableData_NEW getEmailTableData(Message msg) 
+	private static EmailTableData getEmailTableData(Message msg) 
 			throws MessagingException, IOException {
 		String from = ((InternetAddress[]) msg.getFrom())[0].getAddress();
 		String fromName = ((InternetAddress[]) msg.getFrom())[0].getPersonal();
@@ -117,6 +117,6 @@ import com.sun.mail.imap.IMAPMessage;
 		String hashText = from + fromName + subject + sentDate.toString();
 		String uniqueID = HashUtils.calcMD5Hash(hashText);
 
-		return new EmailTableData_NEW(from, fromName, subject, sentDate, attached, read, marked, uniqueID);
+		return new EmailTableData(from, fromName, subject, sentDate, attached, read, marked, uniqueID);
 	}
 }
