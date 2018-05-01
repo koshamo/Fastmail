@@ -51,6 +51,14 @@ public class MailModule implements EventHandler {
 	private final MessageBus messageBus;
 	private List<MailAccount> accounts;
 	
+	/* These fields store the current folder to show. 
+	 * If new mails arrive in a folder, that is not
+	 * currently shown, these events do not needed to
+	 * be posted on the message bus
+	 */
+	MailAccount currentDisplayedAccount;
+	String currentDisplayedFolder;
+	
 	/**
 	 * @param messageBus
 	 */
@@ -175,6 +183,8 @@ public class MailModule implements EventHandler {
 		if (meta.getOrder() == FolderItemOrders.REMOVE)
 			ma.removeFolder(meta.getOriginalFolder());
 		if (meta.getOrder() == FolderItemOrders.SHOW) {
+			currentDisplayedAccount = ma;
+			currentDisplayedFolder = meta.getOriginalFolder();
 			EmailTableData_NEW[] etdList = ma.getMails(meta.getOriginalFolder());
 			messageBus.postEvent(new ShowMailListEvent(this, event.getSource(), meta, etdList));
 		}
