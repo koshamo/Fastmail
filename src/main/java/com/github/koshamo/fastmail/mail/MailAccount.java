@@ -154,8 +154,7 @@ public class MailAccount /*implements MailTreeViewable*/{
 	 * @param list
 	 */
 	/*private*/ void propagateFolderChanges(List<MailTreeViewable> list) {
-		// TODO: currently only INBOX
-		// FIXME: probably needs new logic
+		List<FolderContent> currentlyAdded = new ArrayList<>();
 		for (MailTreeViewable mtv : list) {
 			if (mtv instanceof FolderWrapper) {
 				FolderWrapper wrapper = (FolderWrapper) mtv;
@@ -166,11 +165,16 @@ public class MailAccount /*implements MailTreeViewable*/{
 					}
 				} else {
 					FolderContent fc = new FolderContent(wrapper.getFolder());
-					if (!mailFolders.contains(fc))
+					if (!mailFolders.contains(fc)) {
 						mailFolders.add(fc);
-					// TODO: fetch new folders....
+						currentlyAdded.add(fc);
+					}
 				}
 			}
+		}
+		for (FolderContent fc : currentlyAdded) {
+			// TODO: sort that list, so folders with fewest mails will be processed first
+			fc.generateMailList();
 		}
 	}
 	

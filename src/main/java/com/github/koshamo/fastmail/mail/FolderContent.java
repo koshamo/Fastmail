@@ -31,6 +31,8 @@ import com.github.koshamo.fastmail.util.EmailTableData_NEW;
  */
 /*private*/ class FolderContent {
 	
+	// TODO: make FolderContent sortable for number of mails in it
+	
 	private final Folder folder;
 	private List<MailReference> mailRefs;
 	private List<EmailTableData_NEW> mailData;
