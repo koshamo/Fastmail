@@ -102,6 +102,9 @@ public class MailModule implements EventHandler {
 	@SuppressWarnings("unchecked")
 	private <T> Event createFolderTreeEvent(MailAccountMeta meta, T data) {
 		UnbalancedTree<MailTreeViewable> folders = null;
+		/* if a account finishes its folder update, it sends a message
+		 * with data = null, so we need to handle this explicitly
+		 */
 		if (data == null)
 			return new PropagateFolderTreeEvent(this, null, meta, null);
 		if (data instanceof UnbalancedTree) {
