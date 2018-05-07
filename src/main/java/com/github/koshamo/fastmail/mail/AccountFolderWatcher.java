@@ -108,6 +108,10 @@ import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
 	 * @param newFolderTree
 	 */
 	private void propagateFolderTree(final UnbalancedTree<MailTreeViewable> newFolderTree) {
+		/*
+		 * newFolderTree is null, if all folders have been loaded.
+		 * it signals folder update done.
+		 */
 		if (newFolderTree != null)
 			account.postDataEvent(MailAccountOrders.FOLDER_NEW, newFolderTree);
 		account.propagateFolderChanges(
