@@ -31,6 +31,7 @@ import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountOrders;
 import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.events.RequestFolderItemEvent;
+import com.github.koshamo.fastmail.events.ShowAddMailEvent;
 import com.github.koshamo.fastmail.events.ShowMailListEvent;
 import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
 import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
@@ -711,6 +712,9 @@ public class FastGui extends FiddlerFxApp {
 		if (event instanceof ShowMailListEvent) {
 			handleShowMailListEvent((ShowMailListEvent) event);
 		}
+		if (event instanceof ShowAddMailEvent) {
+			handleShowAddMailEvent((ShowAddMailEvent) event);
+		}
 	}
 
 	/**
@@ -771,6 +775,22 @@ public class FastGui extends FiddlerFxApp {
 		}
 	}
 	
+	/**
+	 * @param event
+	 */
+	private void handleShowAddMailEvent(ShowAddMailEvent event) {
+		FolderItemMeta meta = event.getMetaInformation();
+		MailTreeViewable mtv = 
+				accountTree.getSelectionModel().getSelectedItem().getValue();
+		// check, if folder still selected
+		if (mtv.getFullName().endsWith(meta.getOriginalFolder())) {
+			ObservableList<EmailTableData> mailList = folderMailTable.getItems();
+			Platform.runLater(() -> mailList.add(event.getData()));
+			Platform.runLater(() -> mailList.sort(null));
+		}
+	}
+
+
 	/* (non-Javadoc)
 	 * @see com.github.koshamo.fiddler.EventHandler#shutdown()
 	 */

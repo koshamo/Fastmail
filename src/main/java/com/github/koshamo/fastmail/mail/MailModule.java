@@ -32,6 +32,7 @@ import com.github.koshamo.fastmail.events.FolderItemOrders;
 import com.github.koshamo.fastmail.events.MailAccountMeta;
 import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
 import com.github.koshamo.fastmail.events.RequestFolderItemEvent;
+import com.github.koshamo.fastmail.events.ShowAddMailEvent;
 import com.github.koshamo.fastmail.events.ShowMailListEvent;
 import com.github.koshamo.fastmail.util.EmailTableData;
 import com.github.koshamo.fastmail.util.MailTreeViewable;
@@ -194,6 +195,14 @@ public class MailModule implements EventHandler {
 			currentDisplayedFolder = meta.getOriginalFolder();
 			EmailTableData[] etdList = ma.getMails(meta.getOriginalFolder());
 			messageBus.postEvent(new ShowMailListEvent(this, event.getSource(), meta, etdList));
+		}
+	}
+	
+	/*private*/ void postSingleMail(MailAccount account, String folderName, EmailTableData mail) {
+		if (currentDisplayedAccount == account 
+				&& currentDisplayedFolder.equals(folderName)) {
+			FolderItemMeta meta = new FolderItemMeta(account.getAccountName(), folderName, FolderItemOrders.SHOW);
+			messageBus.postEvent(new ShowAddMailEvent(this, null, meta, mail));
 		}
 	}
 

@@ -170,14 +170,14 @@ import javafx.concurrent.Task;
 				FolderWrapper wrapper = (FolderWrapper) mtv;
 				if (wrapper.getName().toLowerCase().equals("INBOX".toLowerCase())) {
 					if (inbox == null) {
-						inbox = new FolderContent(wrapper.getFolder());
+						inbox = new FolderContent(this, wrapper.getFolder());
 						inbox.generateMailList();
 					}
 				} else {
 					if (!canHoldMessages(wrapper.getFolder()))
 						// cannot hold message, of with next iteration!
 						continue;
-					FolderContent fc = new FolderContent(wrapper.getFolder());
+					FolderContent fc = new FolderContent(this, wrapper.getFolder());
 					if (!mailFolders.contains(fc)) {
 						mailFolders.add(fc);
 						currentlyAdded.add(fc);
@@ -187,6 +187,10 @@ import javafx.concurrent.Task;
 		}
 	}
 
+	/*private*/ void propagateSingleMail(String folderName, EmailTableData mail) {
+		mailModule.postSingleMail(this, folderName, mail);
+	}
+	
 	/**
 	 * @param currentlyAdded
 	 */

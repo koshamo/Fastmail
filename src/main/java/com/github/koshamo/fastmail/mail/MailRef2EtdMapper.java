@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -40,6 +41,7 @@ import com.sun.mail.imap.IMAPMessage;
  */
 /*private*/ class MailRef2EtdMapper implements Runnable {
 
+	private final FolderContent currentFolder;
 	private List<EmailTableData> mailList;
 	private final List<MailReference> messages;
 	private boolean stop = false;
@@ -48,7 +50,11 @@ import com.sun.mail.imap.IMAPMessage;
 	/**
 	 * @param folder
 	 */
-	public MailRef2EtdMapper(final List<MailReference> messages, List<EmailTableData> mailList) {
+	public MailRef2EtdMapper(final FolderContent currentFolder, 
+			final List<MailReference> messages, 
+			List<EmailTableData> mailList) {
+		this.currentFolder = 
+				Objects.requireNonNull(currentFolder, "currentFolder must not be null");
 		this.messages = messages;
 		if (mailList != null)
 			this.mailList = mailList;
@@ -87,6 +93,7 @@ import com.sun.mail.imap.IMAPMessage;
 				EmailTableData etd = getEmailTableData(ref.getMessage());
 				ref.setUniqueId(etd.getUniqueID());
 				mailList.add(etd);
+				currentFolder.propagateETD(etd);
 			}
 			done = true;
 			if (folder.isOpen())

@@ -20,6 +20,7 @@ package com.github.koshamo.fastmail.mail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.mail.Folder;
 
@@ -33,13 +34,15 @@ import com.github.koshamo.fastmail.util.EmailTableData;
 	
 	// TODO: make FolderContent sortable for number of mails in it
 	
+	private final MailAccount account;
 	private final Folder folder;
 	private List<MailReference> mailRefs;
 	private List<EmailTableData> mailData;
 	private final MailListFetcher fetcher;
 	
-	public FolderContent(final Folder folder) {
-		this.folder = folder;
+	public FolderContent(final MailAccount account, final Folder folder) {
+		this.account = Objects.requireNonNull(account, "account must not be null");
+		this.folder = Objects.requireNonNull(folder, "folder must not be null");
 //		mailRefs = new ArrayList<>();
 //		mailData = new ArrayList<>();
 		fetcher = new MailListFetcher(folder);
@@ -53,7 +56,11 @@ import com.github.koshamo.fastmail.util.EmailTableData;
 	public MailRef2EtdMapper generateMail2EtdRunner() {
 		mailRefs = fetcher.getMailRefs();
 		mailData = new ArrayList<>();
-		return new MailRef2EtdMapper(mailRefs, mailData);
+		return new MailRef2EtdMapper(this, mailRefs, mailData);
+	}
+	
+	/*private*/ void propagateETD(EmailTableData mail) {
+		account.propagateSingleMail(getFolderName(), mail);
 	}
 	
 //	public void fetchMails() {
