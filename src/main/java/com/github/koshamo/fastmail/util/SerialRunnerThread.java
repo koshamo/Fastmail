@@ -42,7 +42,6 @@ public class SerialRunnerThread extends Thread {
 	 */
 	@Override
 	public void run() {
-		System.out.println("Runners in here: " + runners.length);
 		for (Runnable runner : runners) {
 			if (run)
 				runner.run();
