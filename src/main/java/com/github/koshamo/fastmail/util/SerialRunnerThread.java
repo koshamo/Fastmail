@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Raßler
+ * Copyright (C) 2018  Dr. Jochen Raßler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,33 +18,33 @@
 
 package com.github.koshamo.fastmail.util;
 
-import java.time.Instant;
-import java.util.Comparator;
+import java.util.Objects;
 
 /**
- * The DateCellComparator is designed to work with the DateCellFactory.
- * <p>
- * As the date uses the rules: today only time is shown, last week we
- * see the day of the week plus the time, else we see the whole date.
- * We need a comparator to work with this date format to get a correct sorting 
- * order.
- * @author jochen
+ * @author Dr. Jochen Raßler
  *
  */
-public class DateCellComparator implements Comparator<String> {
+public class SerialRunnerThread extends Thread {
 
+	private final Runnable[] runners;
+	private boolean run = true;
+	
+	public SerialRunnerThread(Runnable[] runners) {
+		this.runners = Objects.requireNonNull(runners, "array runners must not be null");
+	}
+	
+	public void shutdown() {
+		run = false;
+	}
+	
 	/* (non-Javadoc)
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	 * @see java.lang.Thread#run()
 	 */
 	@Override
-	public int compare(final String o1, final String o2) {
-		Instant date1 = Instant.parse(o1);
-		Instant date2 = Instant.parse(o2);
-		if (date1.isBefore(date2))
-			return -1;
-		if (date1.isAfter(date2))
-			return 1;
-		return 0;
+	public void run() {
+		for (Runnable runner : runners) {
+			if (run)
+				runner.run();
+		}
 	}
-
 }

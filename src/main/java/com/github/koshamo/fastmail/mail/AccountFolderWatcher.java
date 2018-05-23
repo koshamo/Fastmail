@@ -18,15 +18,18 @@
 
 package com.github.koshamo.fastmail.mail;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 
-import javafx.collections.ObservableList;
-import javafx.concurrent.ScheduledService;
-import javafx.concurrent.Task;
-import javafx.scene.control.TreeItem;
+import com.github.koshamo.fastmail.FastmailGlobals;
+import com.github.koshamo.fastmail.events.MailAccountOrders;
+import com.github.koshamo.fastmail.util.AccountWrapper;
+import com.github.koshamo.fastmail.util.FolderWrapper;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
+import com.github.koshamo.fastmail.util.UnbalancedTree;
+import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
 
 /**
  * The class AccountFolderWatcher does its work in a separate thread.
@@ -38,135 +41,136 @@ import javafx.scene.control.TreeItem;
  * @author jochen
  *
  */
-public class AccountFolderWatcher extends ScheduledService<Void> {
+/*private*/ class AccountFolderWatcher implements Runnable {
 
-	MailAccount account;
-	TreeItem<MailTreeViewable> accountTreeItem;
-	boolean stop = false;
-	
+	private MailAccount account;
+	private boolean run = true;
+	// Folder Tree to save the propagated folders
+	private UnbalancedTree<MailTreeViewable> currentFolderTree = null;
+
 	/**
 	 * Basic constructor
 	 * 
 	 * @param account the current account to check for new folders
 	 * @param accountTreeItem root item of the account
 	 */
-	public AccountFolderWatcher(final MailAccount account, 
-			final TreeItem<MailTreeViewable> accountTreeItem) {
-		this.account = account;
-		this.accountTreeItem = accountTreeItem;
+	/*private*/ AccountFolderWatcher(final MailAccount account) {
+		this.account = Objects.requireNonNull(account, "account must not be null");
 	}
 	
-	/**
-	 * Overrides superclass' cancel method to add functionality:
-	 * this account has to be removed from the treeview
-	 * 
-	 * @see javafx.concurrent.ScheduledService#cancel()
-	 */
-	@Override 
-	public boolean cancel() {
-		boolean ret = super.cancel();
-		stop = true;
-		return ret;
+	/*private*/ void stop() {
+		run = false;
 	}
 
-	/* 
-	 * This task iterates over all folders within this account and
-	 * adds all folders to the tree view that aren't already there.
-	 * Excessive folders will be removed.
-	 * <p>
-	 * As we use an interface to produce the TreeItems, we would need
-	 * an equals method within the interface, which is not implementable.
-	 * Hence we need to manually check, if the items are there. The contains()
-	 * method of the collections framework will not work for this case.
-	 *   
-	 * @see javafx.concurrent.Service#createTask()
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
 	 */
 	@Override
-	protected Task<Void> createTask() {
-		return new Task<Void>() {
+	public void run() {
+		while (run) {
+			MailTreeViewable root = new AccountWrapper(account.getMailAccountData());
+			final UnbalancedTree<MailTreeViewable> newFolderTree = 
+					new UnbalancedTree<>(root);
+			newFolderTree.addSubtree(
+					getSubFolderTree(account.getDefaultFolder()), root);
+			currentFolderTree = compareAndPropagate(currentFolderTree, newFolderTree);
 
-			@Override
-			protected Void call() {
-				if (stop) return null;	// thread needs to be stopped
-				
-				final Folder[] folders = account.getFolders();
-				if (folders == null)
-					return null;
-				
-				if (stop) return null;	// thread needs to be stopped
-				buildFolderTree(folders, accountTreeItem);
+			// we are done!
+			propagateFolderTree(null);
 
-				return null;
+			try {
+				Thread.sleep(FastmailGlobals.FOLDER_REFRESH_MS);
+			} catch (InterruptedException e) {
+				account.postMessage("Thread to update folders for account "
+						+ account.getAccountName()
+						+ " was interrupted while sleeping");
 			}
-		};
+		}
 	}
 
 	/**
-	 * buildFolderTree is the actual working method for the task above.
-	 * It gets all the folders and subfolders of a mail account and
-	 * creates TreeItems for the TreeView in a recursive way and adds
-	 * them to the current TreeItem
-	 * 
-	 * @param folders the folders to be examined
-	 * @param root the current TreeItem, where subfolders can be added
+	 * @param currentFolderTree
+	 * @param newFolderTree
+	 * @return
 	 */
-	/*package private*/ 
-	void buildFolderTree(final Folder[] folders, final TreeItem<MailTreeViewable> root) {
-		final ObservableList<TreeItem<MailTreeViewable>> localList =
-				root.getChildren();
-		// add folders, if they aren't already in the tree view
-		final Folder[] localFolders = new Folder[localList.size()];
-		for (int i = 0; i < localList.size(); i++) 
-			localFolders[i] = localList.get(i).getValue().getFolder();
-		for (Folder sf : folders) {
-			boolean contained = false;
-			TreeItem<MailTreeViewable> treeItem = null;
-			for (Folder lf : localFolders) {
-				if (sf.getFullName().equals(lf.getFullName())) {
-					contained = true;
-					treeItem = localList.get(
-							localList.indexOf(new TreeItem<MailTreeViewable>(
-									new FolderItem(lf)))); 
-					break;
-				}
-			}
-			if (!contained) {
-				treeItem = new TreeItem<>(new FolderItem(sf));
-				localList.add(treeItem);
-			}
-			final Folder[] subFolders = MailTools.getSubFolders(sf);
-			buildFolderTree(subFolders, treeItem);
+	private UnbalancedTree<MailTreeViewable> compareAndPropagate(
+			final UnbalancedTree<MailTreeViewable> currentFolderTree,
+			final UnbalancedTree<MailTreeViewable> newFolderTree) {
+		if (currentFolderTree == null || 
+				!currentFolderTree.equals(newFolderTree)) {
+			propagateFolderTree(newFolderTree);
+			return newFolderTree;
 		}
-		
-		
-		if (stop) return;	// thread needs to be stopped
-		
-		// remove items from tree view, that aren't on the server anymore
-		// (e.g. because they are renamed)
-		final List<Folder> toRemove = new ArrayList<>();
-		for (Folder lf : localFolders) {
-			boolean contained = false;
-			for (Folder sf : folders) {
-				if (lf.getFullName().equals(sf.getFullName())) {
-					contained = true;
-					break; 
-				}
-			}
-			if (!contained) {
-				toRemove.add(lf);
-			}
-		}
-		if (!toRemove.isEmpty()) {
-			for (Folder tr : toRemove) {
-				for (TreeItem<MailTreeViewable> item : localList) {
-					if (item.getValue().getFolder().getFullName().equals(tr.getFullName()))
-						localList.remove(item);
-				}
-			}
-		}
-						
-		// sort the folder to represent items in a natural way
-		MailTools.sortFolders(localList);
-		
+		return currentFolderTree;
 	}
+
+	/**
+	 * @param newFolderTree
+	 */
+	private void propagateFolderTree(final UnbalancedTree<MailTreeViewable> newFolderTree) {
+		/*
+		 * newFolderTree is null, if all folders have been loaded.
+		 * it signals folder update done.
+		 */
+		if (newFolderTree != null)
+			account.postDataEvent(MailAccountOrders.FOLDER_NEW, newFolderTree);
+		account.propagateFolderChanges(
+				UnbalancedTreeUtils.unbalancedTreeToList(newFolderTree));
+	}
+
+	/**
+	 * 
+	 */
+	/*private*/ void propagateRemovefolderTree() {
+		account.postDataEvent(MailAccountOrders.FOLDER_REMOVE, currentFolderTree);
+	}
+	
+	
+	/**
+	 * Build a UnbalancedTree of folders with their subfolders
+	 * 
+	 * @param folders	the given folders of a folder
+	 *  
+	 * @return	the tree of folders
+	 */
+	private UnbalancedTree<MailTreeViewable> getFolderTree(final Folder[] folders) {
+		UnbalancedTree<MailTreeViewable> folderTree = new UnbalancedTree<>();
+		for (int i = 0; i < folders.length; ++i) {
+			FolderWrapper wrapper = new FolderWrapper(folders[i]);
+			folderTree.add(wrapper);
+			try {
+				if ((folders[i].getType() & Folder.HOLDS_FOLDERS) != 0) {
+					UnbalancedTree<MailTreeViewable> subFolderTree = getSubFolderTree(folders[i]);
+					if (subFolderTree != null)
+						folderTree.addSubtree(subFolderTree, wrapper);
+				}
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return folderTree;
+	}
+
+	/**
+	 * Checks if a folder has subfolders and builds a UnbalancedTree of 
+	 * all subfolders
+	 * 
+	 * @param folder	the current folder
+	 * @return	the tree of subfolders
+	 */
+	private UnbalancedTree<MailTreeViewable> getSubFolderTree(final Folder folder) {
+		try {
+			Folder[] subfolders = folder.list();
+			if (subfolders.length > 0) {
+				UnbalancedTree<MailTreeViewable> subFolderTree = getFolderTree(subfolders);
+				return subFolderTree;
+			}
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Raßler
+ * Copyright (C) 2018  Dr. Jochen Raßler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,26 +16,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail;
+package com.github.koshamo.fastmail.events;
 
-import com.github.koshamo.fastmail.gui.FastGui;
-import com.github.koshamo.fastmail.mail.MailModule;
-import com.github.koshamo.fastmail.util.SerializeManager;
-import com.github.koshamo.fiddler.MessageBus;
-import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
-import com.github.koshamo.fiddler.jfx.FiddlerFxAppRunner;
+import com.github.koshamo.fiddler.EventHandler;
+import com.github.koshamo.fiddler.RequestEvent;
 
-public class Fastmail {
+/**
+ * @author Dr. Jochen Raßler
+ *
+ */
+public class RequestFolderItemEvent extends RequestEvent<FolderItemMeta> {
 
-	public static void main(String[] args) {
-		SerializeManager.getInstance().deserialize();
-		
-		MessageBus messageBus = new MessageBus();
-		new Thread(new FiddlerFxAppRunner(FastGui.class, args)).start();
-		FiddlerFxApp.setMessageBus(messageBus);
-		MailModule mailModule = new MailModule(messageBus);
-		mailModule.start();
-
+	/**
+	 * @param source
+	 * @param target
+	 * @param meta
+	 */
+	public RequestFolderItemEvent(EventHandler source, EventHandler target, FolderItemMeta meta) {
+		super(source, target, meta);
 	}
 
 }

@@ -60,8 +60,6 @@ public class SerializeManager {
 	 * @return the one and only object of SerializeManager
 	 */
 	public static synchronized SerializeManager getInstance() {
-		if (manager == null)
-			manager = new SerializeManager();
 		return manager;
 	}
 
@@ -124,7 +122,7 @@ public class SerializeManager {
 			mailAccounts = (Vector<MailAccountData>) ois.readObject();
 		} catch (@SuppressWarnings("unused") FileNotFoundException e) {
 			// should be default case for newly installed programs
-			System.out.println(getLocaleMessages().getString("info.newcomer")); //$NON-NLS-1$
+			System.out.println(getLocaleMessageBundle().getString("info.newcomer")); //$NON-NLS-1$
 			return false;
 		} catch (@SuppressWarnings("unused") IOException e) {
 			MessageItem mItem = new MessageItem(
@@ -152,6 +150,18 @@ public class SerializeManager {
 	}
 	
 	/**
+	 * Change the mail account data within the serialization process
+	 * @param oldData	data to be removed
+	 * @param newData	data to be added
+	 */
+	public void changeMailAccount(final MailAccountData oldData, final MailAccountData newData) {
+		int index = mailAccounts.indexOf(oldData);
+		if (index == -1)
+			throw new IllegalArgumentException("item not found!");
+		mailAccounts.set(index, newData);
+	}
+	
+	/**
 	 * Remove a mail account from serialization
 	 * @param data the MailAccountData object belonging to the mail account
 	 */
@@ -173,7 +183,7 @@ public class SerializeManager {
 	 * loaded, otherwise the reference to the data object will be returned 
 	 * @return	the resource bundle containing the internationalized texts
 	 */
-	public static ResourceBundle getLocaleMessages() {
+	public static ResourceBundle getLocaleMessageBundle() {
 		if (i18nTexts == null)
 			i18nTexts = ResourceBundle.getBundle("messages"); //$NON-NLS-1$
 		return i18nTexts;
@@ -188,7 +198,7 @@ public class SerializeManager {
 	/**
 	 * Only one Instance of SerializeManager will exist in this application
 	 */
-	private static SerializeManager manager = null;
+	private static SerializeManager manager = new SerializeManager();
 	
 	private static ResourceBundle i18nTexts = null;
 	

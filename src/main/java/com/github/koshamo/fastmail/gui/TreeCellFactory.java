@@ -18,17 +18,14 @@
 
 package com.github.koshamo.fastmail.gui;
 
-import java.text.MessageFormat;
+import java.util.Objects;
 
-import javax.mail.Folder;
-import javax.mail.MessagingException;
-
-import com.github.koshamo.fastmail.mail.FolderItem;
-import com.github.koshamo.fastmail.mail.MailTools;
-import com.github.koshamo.fastmail.mail.MailTreeViewable;
-import com.github.koshamo.fastmail.util.MessageItem;
-import com.github.koshamo.fastmail.util.MessageMarket;
-import com.github.koshamo.fastmail.util.SerializeManager;
+import com.github.koshamo.fastmail.events.EditFolderItemEvent;
+import com.github.koshamo.fastmail.events.FolderItemMeta;
+import com.github.koshamo.fastmail.events.FolderItemOrders;
+import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
+import com.github.koshamo.fastmail.util.FolderWrapper;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeCell;
@@ -44,15 +41,17 @@ import javafx.scene.input.KeyEvent;
  * @author jochen
  *
  */
-public class TreeCellFactory extends TreeCell<MailTreeViewable> {
+/*private*/ class TreeCellFactory extends TreeCell<MailTreeViewable> {
 
 	private TextField textField;
 	private MailTreeViewable editItem;
+	private final FastGui handler;
 	
 	/**
 	 * The class constructor builds the context menu
 	 */
-	public TreeCellFactory() {
+	/*private*/ TreeCellFactory(FastGui handler) {
+		this.handler = Objects.requireNonNull(handler, "handler must not be null");
 	}
 	
 	/* 
@@ -134,14 +133,20 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 	 */
 	@Override 
 	public void commitEdit(final MailTreeViewable newValue) {
-		FolderItem folderItem = (FolderItem) editItem;
-		folderItem.renameTo(((FolderItem)newValue).getFolder());
-		super.commitEdit(newValue);
-		// resort tree view after renaming
 		TreeItem<MailTreeViewable> treeItem = getTreeItem();
+		String originalFolder = getItem().getName();
+		
 		while (!treeItem.getValue().isAccount())
 			treeItem = treeItem.getParent();
-		MailTools.sortFolders(treeItem.getChildren());
+		String account = treeItem.getValue().getName();
+		
+		FolderItemMeta meta = 
+				new FolderItemMeta(account, originalFolder, FolderItemOrders.RENAME);
+		handler.propagateEvent(new EditFolderItemEvent(handler, null, meta, newValue.getName()));
+		
+		super.commitEdit(newValue);
+		// resort tree view after renaming
+		TreeViewUtils.sortFolders(treeItem.getChildren());
 	}
 	
 	/**
@@ -162,18 +167,9 @@ public class TreeCellFactory extends TreeCell<MailTreeViewable> {
 			if (t.getCode() == KeyCode.ESCAPE) 
 				cancelEdit();
 			if (t.getCode() == KeyCode.ENTER) {
-				try {
-					Folder newFolder = editItem.getFolder().getParent().getFolder(textField.getText());
-					FolderItem newFolderItem = new FolderItem(newFolder);
-					commitEdit(newFolderItem);
-				} catch (MessagingException e) {
-					MessageItem mItem = new MessageItem(
-							MessageFormat.format(
-									SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
-									e.getMessage()),
-							0.0, MessageItem.MessageType.EXCEPTION);
-					MessageMarket.getInstance().produceMessage(mItem);
-				}
+				FolderWrapper fw = 
+						((FolderWrapper) editItem).createFolder(textField.getText());
+				commitEdit(fw);
 			}
 		});
 	}

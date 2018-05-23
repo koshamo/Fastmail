@@ -31,15 +31,11 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMultipart;
 
 import com.github.koshamo.fastmail.util.MessageItem;
 import com.github.koshamo.fastmail.util.MessageMarket;
 import com.github.koshamo.fastmail.util.SerializeManager;
 import com.sun.mail.util.BASE64DecoderStream;
-
-import javafx.collections.ObservableList;
-import javafx.scene.control.TreeItem;
 
 /**
  * MailTools is a helper class that holds some static methods which are useful
@@ -102,7 +98,7 @@ public class MailTools {
 				inetAdr[i] = new InternetAddress(adr[i]);
 			} catch (@SuppressWarnings("unused") AddressException e) {
 				MessageItem mItem = new MessageItem(
-						SerializeManager.getLocaleMessages().getString("error.mailaddress"), //$NON-NLS-1$
+						SerializeManager.getLocaleMessageBundle().getString("error.mailaddress"), //$NON-NLS-1$
 						0.0, MessageItem.MessageType.ERROR);
 				MessageMarket.getInstance().produceMessage(mItem);
 			}
@@ -153,34 +149,6 @@ public class MailTools {
 	}
 	
 	/**
-	 * The natural sort order of email folders is INBOX, Drafts, Sent, Trash,
-	 * then followed by the user folders in their natural sort order (which 
-	 * is alphabetically)
-	 * @param list the observable list containing the email folders
-	 */
-	public static void sortFolders(final ObservableList<TreeItem<MailTreeViewable>> list) {
-		list.sort((i1, i2) -> {
-			if ("INBOX".equals(i1.getValue().getName())) //$NON-NLS-1$
-				return -1;
-			if ("INBOX".equals(i2.getValue().getName())) //$NON-NLS-1$
-				return 1;
-			if ("Drafts".equals(i1.getValue().getName())) //$NON-NLS-1$
-				return -1;
-			if ("Drafts".equals(i2.getValue().getName())) //$NON-NLS-1$
-				return 1;
-			if ("Sent".equals(i1.getValue().getName())) //$NON-NLS-1$
-				return -1;
-			if ("Sent".equals(i2.getValue().getName())) //$NON-NLS-1$
-				return 1;
-			if ("Trash".equals(i1.getValue().getName())) //$NON-NLS-1$
-				return -1;
-			if ("Trash".equals(i2.getValue().getName())) //$NON-NLS-1$
-				return 1;
-			return i1.getValue().getName().compareTo(i2.getValue().getName());
-		});		
-	}
-	
-	/**
 	 * getSubFolders lists the subfolders of a given Folder.
 	 * This method is intended to encapsulate the try..catch surrounding
 	 * the the Folder.list() method to keep GUI-code clean.
@@ -194,7 +162,7 @@ public class MailTools {
 			subFolders = root.list();
 		} catch (@SuppressWarnings("unused") MessagingException e) {
 			MessageItem mItem = new MessageItem(
-					SerializeManager.getLocaleMessages().getString("exception.subfolders"), //$NON-NLS-1$
+					SerializeManager.getLocaleMessageBundle().getString("exception.subfolders"), //$NON-NLS-1$
 					0.0, MessageItem.MessageType.ERROR);
 			MessageMarket.getInstance().produceMessage(mItem);
 		}
@@ -217,7 +185,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);
@@ -242,7 +210,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);
@@ -269,7 +237,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);
@@ -296,7 +264,7 @@ public class MailTools {
 		} catch (MessagingException e) {
 			MessageItem mItem = new MessageItem(
 					MessageFormat.format(
-							SerializeManager.getLocaleMessages().getString("exception.mailaccess"),  //$NON-NLS-1$
+							SerializeManager.getLocaleMessageBundle().getString("exception.mailaccess"),  //$NON-NLS-1$
 							e.getMessage()),
 					0.0, MessageItem.MessageType.EXCEPTION);
 			MessageMarket.getInstance().produceMessage(mItem);

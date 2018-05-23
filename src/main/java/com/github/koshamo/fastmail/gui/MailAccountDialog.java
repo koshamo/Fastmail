@@ -60,7 +60,7 @@ public class MailAccountDialog {
 	 * data is available
 	 */
 	public MailAccountDialog() {
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 		accountData = new MailAccountData();
 		
 		addComponents(TYPE.ADD);
@@ -84,7 +84,7 @@ public class MailAccountDialog {
 	 * as parameter is null, this constructor throws a NullPointerException
 	 */
 	public MailAccountDialog(final MailAccountData accountData) {
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 
 		if (accountData == null)
 			throw new NullPointerException(i18n.getString("error.mailaccountdialog")); //$NON-NLS-1$

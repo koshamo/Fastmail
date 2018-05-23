@@ -16,11 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail.mail;
-
-import javax.mail.Folder;
-
-import javafx.collections.ObservableList;
+package com.github.koshamo.fastmail.util;
 
 /**
  * This interface is intended to be used for the TreeView.
@@ -48,7 +44,7 @@ public interface MailTreeViewable {
 	 * @return the ObservableList of EmailTableData or null for accounts, root,
 	 * and possibly folders containing only folders
 	 */
-	ObservableList<EmailTableData> getFolderContent();
+//	ObservableList<EmailTableData> getFolderContent();
 	
 	/**
 	 * Returns the parent folder for the mail folders. In accounts this is
@@ -57,7 +53,7 @@ public interface MailTreeViewable {
 	 * 
 	 * @return the parent of the mail folders
 	 */
-	Folder getParentFolder();
+//	Folder getParentFolder();
 	
 	/**
 	 * Get the current working folder. This is simple for email folders.
@@ -65,7 +61,7 @@ public interface MailTreeViewable {
 	 * 
 	 * @return the current working folder
 	 */
-	Folder getFolder();
+//	Folder getFolder();
 	
 	/**
 	 * The name of item represented by this MailTreeViewable.
@@ -76,5 +72,7 @@ public interface MailTreeViewable {
 	 * @return the name of the implementing objects data
 	 */
 	String getName();
+	
+	String getFullName();
 
 }

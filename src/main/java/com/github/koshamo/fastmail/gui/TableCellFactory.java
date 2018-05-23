@@ -18,7 +18,7 @@
 
 package com.github.koshamo.fastmail.gui;
 
-import com.github.koshamo.fastmail.mail.EmailTableData;
+import com.github.koshamo.fastmail.util.EmailTableData;
 
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;

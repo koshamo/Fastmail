@@ -20,25 +20,37 @@ package com.github.koshamo.fastmail.gui;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 import com.github.koshamo.fastmail.FastMailGenerals;
-import com.github.koshamo.fastmail.mail.AccountRootItem;
-import com.github.koshamo.fastmail.mail.EmailTableData;
-import com.github.koshamo.fastmail.mail.FolderItem;
-import com.github.koshamo.fastmail.mail.MailAccount;
+import com.github.koshamo.fastmail.events.EditAccountEvent;
+import com.github.koshamo.fastmail.events.EditType;
+import com.github.koshamo.fastmail.events.FolderItemMeta;
+import com.github.koshamo.fastmail.events.FolderItemOrders;
+import com.github.koshamo.fastmail.events.MailAccountOrders;
+import com.github.koshamo.fastmail.events.PropagateFolderTreeEvent;
+import com.github.koshamo.fastmail.events.RequestFolderItemEvent;
+import com.github.koshamo.fastmail.events.ShowAddMailEvent;
+import com.github.koshamo.fastmail.events.ShowMailListEvent;
+import com.github.koshamo.fastmail.gui.utils.DateCellComparator;
+import com.github.koshamo.fastmail.gui.utils.DateCellFactory;
+import com.github.koshamo.fastmail.gui.utils.TreeViewUtils;
 import com.github.koshamo.fastmail.mail.MailAccountData;
-import com.github.koshamo.fastmail.mail.MailTreeViewable;
-import com.github.koshamo.fastmail.util.DateCellComparator;
-import com.github.koshamo.fastmail.util.DateCellFactory;
+import com.github.koshamo.fastmail.util.AccountWrapper;
+import com.github.koshamo.fastmail.util.EmailTableData;
+import com.github.koshamo.fastmail.util.FolderWrapper;
+import com.github.koshamo.fastmail.util.MailTreeViewable;
 import com.github.koshamo.fastmail.util.MessageConsumer;
 import com.github.koshamo.fastmail.util.SerializeManager;
+import com.github.koshamo.fastmail.util.UnbalancedTreeUtils;
+import com.github.koshamo.fiddler.Event;
+import com.github.koshamo.fiddler.ExitEvent;
+import com.github.koshamo.fiddler.MessageBus.ListenerType;
+import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
 
-import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -73,7 +85,7 @@ import javafx.stage.Stage;
  * @author jochen
  *
  */
-public class FastGui extends Application {
+public class FastGui extends FiddlerFxApp {
 
 	/* start is the starting point of a JavaFX application
 	 * all we do here is to call methods to build the GUI
@@ -81,13 +93,16 @@ public class FastGui extends Application {
 	 */
 	@Override
 	public void start(final Stage primaryStage) {
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 		primaryStage.setTitle(FastMailGenerals.getApplicationName() + " "  //$NON-NLS-1$
 				+ FastMailGenerals.getVersion());
 		buildGUI(primaryStage);
 		primaryStage.show();
-		SerializeManager.getLocaleMessages();
-		i18n = SerializeManager.getLocaleMessages();
+		
+		SerializeManager.getLocaleMessageBundle();
+		i18n = SerializeManager.getLocaleMessageBundle();
+		
+		getMessageBus().registerAllEvents(this, ListenerType.ANY);
 	}
 
 	// the resource bundle containing the internationalized strings
@@ -123,22 +138,14 @@ public class FastGui extends Application {
 				buildBody(),
 				buildStatusLine());
 
-		
-		/*
-		 * if mail accounts had been added in a previous session,
-		 * load them from disk and initialize the tree view
-		 */
-		final List<MailAccountData> mad = SerializeManager.getInstance().getMailAccounts();
-		for (MailAccountData d : mad) {
-			final TreeItem<MailTreeViewable> account = 
-					new TreeItem<>(new MailAccount(d));
-			((MailAccount) account.getValue()).addFolderWatcher(account);
-			account.setExpanded(true);
-			rootItem.getChildren().add(account);
-		}
-
 		final Scene scene = new Scene(overallPane, 1300, 800);
 		primaryStage.setScene(scene);
+		// set on close operation
+		primaryStage.setOnCloseRequest(
+				ev -> {
+					SerializeManager.getInstance().serialize();
+					getMessageBus().postEvent(new ExitEvent(this, null));
+					});
 	}
 
 	/**
@@ -179,12 +186,8 @@ public class FastGui extends Application {
 			final MailAccountData accountData = dialog.showAndWait();
 			if (accountData == null)
 				return;
-			final TreeItem<MailTreeViewable> account = 
-					new TreeItem<>(new MailAccount(accountData));
-			((MailAccount) account.getValue()).addFolderWatcher(account);
-			rootItem.getChildren().add(account);
-			account.setExpanded(true);
 			SerializeManager.getInstance().addMailAccount(accountData);
+			getMessageBus().postEvent(new EditAccountEvent(this, null, EditType.ADD, accountData));
 		});
 		return addAccountItem;
 	}
@@ -199,8 +202,14 @@ public class FastGui extends Application {
 			while (!curItem.getValue().isAccount())
 				curItem.getParent();
 			final MailAccountDialog dialog = new MailAccountDialog(
-					((MailAccount) curItem.getValue()).getMailAccountData());
-			dialog.showAndWait();
+					((AccountWrapper) curItem.getValue()).getMailAccountData());
+			final MailAccountData accountData = dialog.showAndWait();
+			if (accountData == null)
+				return;
+			SerializeManager.getInstance().changeMailAccount(
+					((AccountWrapper) curItem.getValue()).getMailAccountData(), 
+					accountData);
+			getMessageBus().postEvent(new EditAccountEvent(this, null, EditType.EDIT, accountData));
 		});
 		return editAccountItem;
 	}
@@ -225,9 +234,9 @@ public class FastGui extends Application {
 				return;
 			if (opt.get().equals(ButtonType.YES)) {
 				SerializeManager.getInstance().removeMailAccount(
-						((MailAccount) curItem.getValue()).getMailAccountData());
-				((MailAccount) curItem.getValue()).remove();
-				folderMailTable.getItems().clear();
+						((AccountWrapper) curItem.getValue()).getMailAccountData());
+				getMessageBus().postEvent(new EditAccountEvent(this, null, EditType.REMOVE, 
+						((AccountWrapper) curItem.getValue()).getMailAccountData()));
 				mailBody.clear();
 			}
 			return;
@@ -269,16 +278,17 @@ public class FastGui extends Application {
 		final Button btnNew = new Button(i18n.getString("action.new")); //$NON-NLS-1$
 		btnNew.setPrefSize(90, 50);
 		btnNew.setMinSize(90, 50);
-		btnNew.setOnAction(ev -> {
-			ObservableList<TreeItem<MailTreeViewable>> accountList = 
-					rootItem.getChildren();
-			final MailAccount[] ma = new MailAccount[accountList.size()];
-			for (int i = 0; i < ma.length; i++)
-				ma[i] = (MailAccount)accountList.get(i).getValue();
-			// this is where a unused warning comes from
-			// as MailComposer does everything on its own
-			new MailComposer(ma);
-		});
+//		btnNew.setOnAction(ev -> {
+//			ObservableList<TreeItem<MailTreeViewable>> accountList = 
+//					rootItem.getChildren();
+//			// TODO:
+////			final MailAccount[] ma = new MailAccount[accountList.size()];
+////			for (int i = 0; i < ma.length; i++)
+////				ma[i] = (MailAccount)accountList.get(i).getValue();
+//			// this is where a unused warning comes from
+//			// as MailComposer does everything on its own
+////			new MailComposer(ma);
+//		});
 		// REPLY button
 		btnReply = new Button(i18n.getString("action.reply")); //$NON-NLS-1$
 		btnReply.setPrefSize(90, 50);
@@ -357,72 +367,117 @@ public class FastGui extends Application {
 				addReplyItem(), addReplyAllItem(), addDeleteItem(),
 				new SeparatorMenuItem(), moveTo);
 		folderMailTable.setContextMenu(tableContextMenu);
-		// SUBJECT column
-		final TableColumn<EmailTableData, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
-		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject")); //$NON-NLS-1$
-		subjectCol.setMinWidth(400);
-		// FROM column
-		final TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
-		fromCol.setCellValueFactory(new PropertyValueFactory<>("fromName")); //$NON-NLS-1$
-		fromCol.setMinWidth(250);
-		// DATE column
-		final TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
-		dateCol.setMinWidth(150);
-		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate")); //$NON-NLS-1$
-		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
-		dateCol.setComparator(new DateCellComparator());
-		// MESSAGE READ column
-		final TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
-		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
-		readCol.setCellFactory((TableColumn<EmailTableData, Boolean> p) -> new TableCellFactory(readCol));
-		readCol.setEditable(true);
-		readCol.setMaxWidth(30);
-		// ATTACHMENT column
-		final TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
-		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment")); //$NON-NLS-1$
-		attachmentCol.setCellFactory(CheckBoxTableCell.forTableColumn(attachmentCol));
-		attachmentCol.setEditable(false);
-		attachmentCol.setMaxWidth(30);
-		// MESSAGE MARKED column
-		final TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
-		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked")); //$NON-NLS-1$
-		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
-		markerCol.setEditable(true);
-		markerCol.setMaxWidth(30);
-		folderMailTable.getColumns().addAll(
-				Arrays.asList(subjectCol, fromCol, dateCol, readCol, 
-						attachmentCol, markerCol));
+		folderMailTable.getColumns().addAll(Arrays.asList(
+						buildSubjectTableCol(), 
+						buildFromTableCol(), 
+						buildDateTableCol(), 
+						buildReadTableCol(), 
+						buildAttachmentTableCol(), 
+						buildMarkerTableCol()));
 		// local field representing the mails in a folder, that should be shown
-		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
-				(obs, oldVal, newVal) -> {
-					if (newVal != null) {
-						// context Menu
-						moveTo.getItems().clear();
-						TreeItem<MailTreeViewable> treeItem = 
-								accountTree.getSelectionModel().getSelectedItem();
-						TreeItem<MailTreeViewable> accountItem = treeItem;
-						while (!accountItem.getValue().isAccount())
-							accountItem = accountItem.getParent();
-						ObservableList<TreeItem<MailTreeViewable>> folders = 
-								accountItem.getChildren();
-						folders	.stream()
-								.filter(p -> p != treeItem)
-								.forEach(p -> moveTo.getItems().add(addMoveToItem(newVal, (FolderItem)p.getValue())));
-						// disable buttons and show mail
-						btnReply.setDisable(false);
-						btnReplyAll.setDisable(false);
-						btnDelete.setDisable(false);
-						mailBody.setContent(newVal.getMailData());
-						// analyze mail content to get real content
-//						MailTools.analyzeContent(newVal.getMessage());
-					}
-				});
+//		folderMailTable.getSelectionModel().selectedItemProperty().addListener(
+//				(obs, oldVal, newVal) -> {
+//					if (newVal != null) {
+//						// context Menu
+//						moveTo.getItems().clear();
+//						TreeItem<FolderWrapper> treeItem = 
+//								accountTree.getSelectionModel().getSelectedItem();
+//						TreeItem<FolderWrapper> accountItem = treeItem;
+//						while (!accountItem.getValue().isAccount())
+//							accountItem = accountItem.getParent();
+//						ObservableList<TreeItem<FolderWrapper>> folders = 
+//								accountItem.getChildren();
+//						folders	.stream()
+//								.filter(p -> p != treeItem)
+//								.forEach(p -> moveTo.getItems().add(addMoveToItem(newVal, (FolderItem)p.getValue())));
+//						// disable buttons and show mail
+//						btnReply.setDisable(false);
+//						btnReplyAll.setDisable(false);
+//						btnDelete.setDisable(false);
+//						mailBody.setContent(newVal.getMailData());
+//						// analyze mail content to get real content
+////						MailTools.analyzeContent(newVal.getMessage());
+//					}
+//				});
 
 		final ScrollPane folderScroller = new ScrollPane(folderMailTable);
 		folderScroller.setFitToHeight(true);
 		folderScroller.setFitToWidth(true);
 		
 		return folderScroller;
+	}
+
+	/**
+	 * @return
+	 */
+	private TableColumn<EmailTableData, String> buildSubjectTableCol() {
+		// SUBJECT column
+		final TableColumn<EmailTableData, String> subjectCol = new TableColumn<>(i18n.getString("entry.subject")); //$NON-NLS-1$
+		subjectCol.setCellValueFactory(new PropertyValueFactory<>("subject")); //$NON-NLS-1$
+		subjectCol.setMinWidth(400);
+		return subjectCol;
+	}
+
+	/**
+	 * @return
+	 */
+	private TableColumn<EmailTableData, String> buildFromTableCol() {
+		// FROM column
+		final TableColumn<EmailTableData, String> fromCol = new TableColumn<>(i18n.getString("entry.from")); //$NON-NLS-1$
+		fromCol.setCellValueFactory(new PropertyValueFactory<>("fromName")); //$NON-NLS-1$
+		fromCol.setMinWidth(250);
+		return fromCol;
+	}
+	/**
+	 * @return
+	 */
+	private TableColumn<EmailTableData, String> buildDateTableCol() {
+		// DATE column
+		final TableColumn<EmailTableData, String> dateCol = new TableColumn<>(i18n.getString("entry.date")); //$NON-NLS-1$
+		dateCol.setMinWidth(150);
+		dateCol.setCellValueFactory(new PropertyValueFactory<>("sentDate")); //$NON-NLS-1$
+		dateCol.setCellFactory((TableColumn<EmailTableData, String> p) -> new DateCellFactory());
+		dateCol.setComparator(new DateCellComparator());
+		return dateCol;
+	}
+
+	/**
+	 * @return
+	 */
+	private TableColumn<EmailTableData, Boolean> buildReadTableCol() {
+		// MESSAGE READ column
+		final TableColumn<EmailTableData, Boolean> readCol = new TableColumn<>(i18n.getString("entry.short.read")); //$NON-NLS-1$
+		readCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("read")); //$NON-NLS-1$
+		readCol.setCellFactory((TableColumn<EmailTableData, Boolean> p) -> new TableCellFactory(readCol));
+		readCol.setEditable(true);
+		readCol.setMaxWidth(30);
+		return readCol;
+	}
+
+	/**
+	 * @return
+	 */
+	private TableColumn<EmailTableData, Boolean> buildAttachmentTableCol() {
+		// ATTACHMENT column
+		final TableColumn<EmailTableData, Boolean> attachmentCol = new TableColumn<>(i18n.getString("entry.short.attachment")); //$NON-NLS-1$
+		attachmentCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("attachment")); //$NON-NLS-1$
+		attachmentCol.setCellFactory(CheckBoxTableCell.forTableColumn(attachmentCol));
+		attachmentCol.setEditable(false);
+		attachmentCol.setMaxWidth(30);
+		return attachmentCol;
+	}
+
+	/**
+	 * @return
+	 */
+	private TableColumn<EmailTableData, Boolean> buildMarkerTableCol() {
+		// MESSAGE MARKED column
+		final TableColumn<EmailTableData, Boolean> markerCol = new TableColumn<>(i18n.getString("entry.short.marked")); //$NON-NLS-1$
+		markerCol.setCellValueFactory(new PropertyValueFactory<EmailTableData,Boolean>("marked")); //$NON-NLS-1$
+		markerCol.setCellFactory(CheckBoxTableCell.forTableColumn(markerCol));
+		markerCol.setEditable(true);
+		markerCol.setMaxWidth(30);
+		return markerCol;
 	}
 	
 	
@@ -435,48 +490,18 @@ public class FastGui extends Application {
 		 * we need to define the one and only root item, which has only
 		 * one function: be the root of all mail accounts. Actually we
 		 * do not need the root for any other function. So the root item
-		 * is hidden and provided with an empty interface implementation.
+		 * is hidden (and provided with an empty interface implementation).
 		 */
-		rootItem = new TreeItem<>(new AccountRootItem());
+		rootItem = new TreeItem<>(null);
 		rootItem.setExpanded(true);
 
 		accountTree = new TreeView<>(rootItem);
 		accountTree.setEditable(true);
 		treeContextMenu = new ContextMenu();
 		accountTree.setContextMenu(treeContextMenu);
-		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory());
+		accountTree.setCellFactory((TreeView<MailTreeViewable> p) -> new TreeCellFactory(this));
 		accountTree.getSelectionModel().selectedItemProperty().addListener(
-				new ChangeListener<TreeItem<MailTreeViewable>>() {
-					@Override
-					public void changed(
-							ObservableValue<? extends TreeItem<MailTreeViewable>> observedItem, 
-							TreeItem<MailTreeViewable> oldVal,
-							TreeItem<MailTreeViewable> newVal) {
-						// this should only be the case if a account has been removed
-						if (newVal == null) {
-							return;	
-						}
-						// context Menu
-						treeContextMenu.getItems().clear();
-						treeContextMenu.getItems().add(addAddFolderItem());
-						if (!newVal.getValue().isAccount() && 
-								!newVal.getValue().getName().equals("INBOX") && //$NON-NLS-1$
-								!newVal.getValue().getName().equals("Drafts") && //$NON-NLS-1$
-								!newVal.getValue().getName().equals("Sent") && //$NON-NLS-1$
-								!newVal.getValue().getName().equals("Trash")) //$NON-NLS-1$
-							treeContextMenu.getItems().add(addDeleteFolderItem());
-						if (newVal.getValue().isAccount()) {
-							treeContextMenu.getItems().add(new SeparatorMenuItem());
-							treeContextMenu.getItems().add(addEditAccountItem());
-						}
-						// buttons and table view
-						mailBody.clear();
-						btnReply.setDisable(true);
-						btnReplyAll.setDisable(true);
-						btnDelete.setDisable(true);
-						folderMailTable.setItems(newVal.getValue().getFolderContent().sorted());
-					}
-				});
+				new TreeViewChangeListener(this));
 		// we do not want to see the root item: simulate the Accounts as 
 		// multiple roots
 		accountTree.setShowRoot(false);
@@ -491,34 +516,34 @@ public class FastGui extends Application {
 	
 	private MenuItem addReplyItem() {
 		final MenuItem reply = new MenuItem(i18n.getString("action.reply")); //$NON-NLS-1$
-		reply.setOnAction(ev -> {
-			replyMail();
-		});
+//		reply.setOnAction(ev -> {
+//			replyMail();
+//		});
 		return reply;
 	}
 	
 	private MenuItem addReplyAllItem() {
 		final MenuItem replyAll = new MenuItem(i18n.getString("action.replyall")); //$NON-NLS-1$
-		replyAll.setOnAction(ev -> {
-			replyAllMail();
-		});
+//		replyAll.setOnAction(ev -> {
+//			replyAllMail();
+//		});
 		return replyAll;
 	}
 	
 	private MenuItem addDeleteItem() {
 		final MenuItem delete = new MenuItem(i18n.getString("action.delete")); //$NON-NLS-1$
-		delete.setOnAction(ev -> {
-			deleteMail();
-		});
+//		delete.setOnAction(ev -> {
+//			deleteMail();
+//		});
 		return delete;
 	}
 	
 	@SuppressWarnings("static-method")
-	private MenuItem addMoveToItem(EmailTableData mail, FolderItem target) {
+	private MenuItem addMoveToItem(EmailTableData mail, FolderWrapper target) {
 		final MenuItem move = new MenuItem(target.getName());
-		move.setOnAction(ev -> {
-			target.moveMessage(mail);
-		});
+//		move.setOnAction(ev -> {
+//			target.moveMessage(mail);
+//		});
 		return move;
 	}
 	
@@ -532,9 +557,10 @@ public class FastGui extends Application {
 		add.setOnAction(p -> {
 			TreeItem<MailTreeViewable> curItem = 
 					accountTree.getSelectionModel().getSelectedItem();
-			while (!curItem.getValue().isAccount())
-				curItem = curItem.getParent();
-			((MailAccount)curItem.getValue()).addFolder();
+			String curFolder = curItem.getValue().getFullName();
+			String account = getAccountName(curItem);
+			FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.NEW);
+			propagateEvent(new RequestFolderItemEvent(this, null, meta));
 		});
 		return add;
 	}
@@ -561,12 +587,12 @@ public class FastGui extends Application {
 			final Optional<ButtonType> opt = alert.showAndWait();
 			if (opt.get().equals(ButtonType.CANCEL))
 				return;
+
 			if (opt.get().equals(ButtonType.YES)) {
-				((FolderItem)curItem.getValue()).removeFolder();
-				// force update of tree view after folder deletion
-				while (!curItem.getValue().isAccount())
-					curItem = curItem.getParent();
-				((MailAccount)curItem.getValue()).forceFolderUpdate();
+				String curFolder = curItem.getValue().getFullName();
+				String account = getAccountName(curItem);
+				FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.REMOVE);
+				propagateEvent(new RequestFolderItemEvent(this, null, meta));
 			}
 		});
 		return delete;
@@ -575,9 +601,9 @@ public class FastGui extends Application {
 	/**
 	 * Reply Mail functionality, used for button and context menu
 	 */
-	@SuppressWarnings("unused")
 	private void replyMail() {
-		TreeItem<MailTreeViewable> treeItem = 
+		// TODO:
+/*		TreeItem<MailTreeViewable> treeItem = 
 				accountTree.getSelectionModel().getSelectedItem(); 
 		if (treeItem == null)
 			return;
@@ -594,14 +620,16 @@ public class FastGui extends Application {
 			ma[i] = (MailAccount)accountList.get(i).getValue();
 		final int index = rootItem.getChildren().indexOf(treeItem);
 		new MailComposer(ma, index, tableData.getMailData(), false);
+		*/
 	}
 
 
 	/**
 	 * Reply All functionality, used by button and context menu
 	 */
-	@SuppressWarnings("unused")
 	private void replyAllMail() {
+		// TODO:
+		/*
 		TreeItem<MailTreeViewable> treeItem = 
 				accountTree.getSelectionModel().getSelectedItem(); 
 		if (treeItem == null)
@@ -619,12 +647,15 @@ public class FastGui extends Application {
 			ma[i] = (MailAccount)accountList.get(i).getValue();
 		final int index = rootItem.getChildren().indexOf(treeItem);
 		new MailComposer(ma, index, tableData.getMailData(), true);
+		*/
 	}
 	
 	/**
 	 * Delete Mail functionality, used by button and context menu
 	 */
 	private void deleteMail() {
+		// TODO:
+		/*
 		final TreeItem<MailTreeViewable> treeItem = accountTree.getSelectionModel().getSelectedItem(); 
 		if (treeItem == null || treeItem.getValue().isAccount())
 			return;
@@ -640,6 +671,7 @@ public class FastGui extends Application {
 		btnReplyAll.setDisable(false);
 		btnDelete.setDisable(false);
 		mailBody.clear();
+		*/
 	}
 	
 	
@@ -663,6 +695,145 @@ public class FastGui extends Application {
 				new MessageConsumer(lbl.textProperty(), progressBar.progressProperty());
 		consumer.start();
 		return anchor;
+	}
+
+	/*private*/ static void propagateEvent(Event ev) {
+		getMessageBus().postEvent(ev);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fiddler.EventHandler#handle(com.github.koshamo.fiddler.Event)
+	 */
+	@Override
+	public void handle(Event event) {
+		if (event instanceof PropagateFolderTreeEvent) {
+			handleFolderTreeEvent((PropagateFolderTreeEvent) event);
+		}
+		if (event instanceof ShowMailListEvent) {
+			handleShowMailListEvent((ShowMailListEvent) event);
+		}
+		if (event instanceof ShowAddMailEvent) {
+			handleShowAddMailEvent((ShowAddMailEvent) event);
+		}
+	}
+
+	/**
+	 * @param fte
+	 */
+	private void handleFolderTreeEvent(PropagateFolderTreeEvent fte) {
+		MailAccountOrders mao = fte.getMetaInformation().getOrder();
+		if (mao == MailAccountOrders.FOLDER_NEW) {
+			if (fte.getData() == null)
+				return;
+			TreeItem<MailTreeViewable> item = 
+					UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
+			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
+			TreeViewUtils.sortFolders(accountItems.get(0).getChildren());
+		
+			// TODO: setting of changed tree is untested
+			Optional<TreeItem<MailTreeViewable>> optItem = 
+					rootItem.getChildren().stream().filter((it) -> 
+					it.getValue().getName().equals(accountItems.get(0).getValue().getName())).
+					findFirst(); 
+			if (optItem.isPresent()) {
+				int index = rootItem.getChildren().indexOf(optItem.get());
+				Platform.runLater(() -> rootItem.getChildren().set(index, accountItems.get(0)));
+			} else
+				Platform.runLater(() -> rootItem.getChildren().addAll(accountItems));
+		}
+		if (mao == MailAccountOrders.FOLDER_REMOVE) {
+			TreeItem<MailTreeViewable> item = 
+					UnbalancedTreeUtils.unbalancedTreeToJfxTreeItems(fte.getData());
+			ObservableList<TreeItem<MailTreeViewable>> accountItems = item.getChildren();
+
+			Optional<TreeItem<MailTreeViewable>> optItem = 
+					rootItem.getChildren().stream().filter((it) -> 
+					it.getValue().getName().equals(accountItems.get(0).getValue().getName())).
+					findFirst(); 
+			if (optItem.isPresent()) 
+				Platform.runLater(() -> rootItem.getChildren().remove(optItem.get()));
+		}
+	}
+
+	/**
+	 * @param smle
+	 */
+	private void handleShowMailListEvent(ShowMailListEvent smle) {
+		MailTreeViewable mtv = 
+				accountTree.getSelectionModel().getSelectedItem().getValue();
+		// check, if folder still selected
+		if (mtv.getFullName().endsWith(smle.getMetaInformation().getOriginalFolder())) {
+			if (smle.getData() == null) {
+				Platform.runLater(
+						() -> folderMailTable.setPlaceholder(new Label("Mails still loading")));
+			} else {
+				ObservableList<EmailTableData> mailList = 
+						FXCollections.observableArrayList(smle.getData());
+				mailList.sort(null);
+				folderMailTable.setItems(mailList);
+			}
+		}
+	}
+	
+	/**
+	 * @param event
+	 */
+	private void handleShowAddMailEvent(ShowAddMailEvent event) {
+		FolderItemMeta meta = event.getMetaInformation();
+		MailTreeViewable mtv = 
+				accountTree.getSelectionModel().getSelectedItem().getValue();
+		// check, if folder still selected
+		if (mtv.getFullName().endsWith(meta.getOriginalFolder())) {
+			ObservableList<EmailTableData> mailList = folderMailTable.getItems();
+			Platform.runLater(() -> mailList.add(event.getData()));
+			Platform.runLater(() -> mailList.sort(null));
+		}
+	}
+
+
+	/* (non-Javadoc)
+	 * @see com.github.koshamo.fiddler.EventHandler#shutdown()
+	 */
+	@Override
+	public void shutdown() {
+		Platform.exit();
+	}
+
+	/**
+	 * 
+	 */
+	void setComponentsForNoMailSelected() {
+		mailBody.clear();
+		btnReply.setDisable(true);
+		btnReplyAll.setDisable(true);
+		btnDelete.setDisable(true);
+	}
+
+	/**
+	 * @return
+	 */
+	ObservableList<MenuItem> getTreeContextMenuItems() {
+		return treeContextMenu.getItems();
+	}
+	
+	/**
+	 * 
+	 */
+	void propagateFolderSelected() {
+		TreeItem<MailTreeViewable> curItem = 
+				accountTree.getSelectionModel().getSelectedItem();
+		String curFolder = curItem.getValue().getFullName();
+		String account = getAccountName(curItem);
+		FolderItemMeta meta = new FolderItemMeta(account, curFolder, FolderItemOrders.SHOW);
+		propagateEvent(new RequestFolderItemEvent(this, null, meta));
+
+	}
+	
+	private static String getAccountName(TreeItem<MailTreeViewable> item) {
+		TreeItem<MailTreeViewable> curItem = item;
+		while (!curItem.getValue().isAccount())
+			curItem = curItem.getParent();
+		return curItem.getValue().getFullName();
 	}
 
 }

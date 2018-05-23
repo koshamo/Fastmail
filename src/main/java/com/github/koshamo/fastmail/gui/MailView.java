@@ -79,7 +79,7 @@ public class MailView extends StackPane {
 	 * The constructor that builds the GUI component
 	 */
 	public MailView() {
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 		VBox vbox = new VBox();
 		
 		Node infoScroller = buildInfoPanel();

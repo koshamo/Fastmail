@@ -70,7 +70,7 @@ public class FolderSynchronizerTask extends Task<Void> {
 			final ObservableList<EmailTableData> mailList) {
 		this.folder = folder;
 		this.mailList = mailList;
-		i18n = SerializeManager.getLocaleMessages();
+		i18n = SerializeManager.getLocaleMessageBundle();
 	}
 	
 	/**

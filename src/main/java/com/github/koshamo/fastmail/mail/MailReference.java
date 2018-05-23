@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017  Dr. Jochen Raßler
+ * Copyright (C) 2018  Dr. Jochen Raßler
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,26 +16,44 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.github.koshamo.fastmail;
+package com.github.koshamo.fastmail.mail;
 
-import com.github.koshamo.fastmail.gui.FastGui;
-import com.github.koshamo.fastmail.mail.MailModule;
-import com.github.koshamo.fastmail.util.SerializeManager;
-import com.github.koshamo.fiddler.MessageBus;
-import com.github.koshamo.fiddler.jfx.FiddlerFxApp;
-import com.github.koshamo.fiddler.jfx.FiddlerFxAppRunner;
+import javax.mail.Message;
 
-public class Fastmail {
-
-	public static void main(String[] args) {
-		SerializeManager.getInstance().deserialize();
-		
-		MessageBus messageBus = new MessageBus();
-		new Thread(new FiddlerFxAppRunner(FastGui.class, args)).start();
-		FiddlerFxApp.setMessageBus(messageBus);
-		MailModule mailModule = new MailModule(messageBus);
-		mailModule.start();
-
+/**
+ * @author Dr. Jochen Raßler
+ *
+ */
+/* private */ class MailReference {
+	private final Message message;
+	private String uniqueId;
+	
+	/**
+	 * @param message
+	 */
+	public MailReference(Message message) {
+		this.message = message;
 	}
 
+	/**
+	 * @return the uniqueId
+	 */
+	public String getUniqueId() {
+		return uniqueId;
+	}
+
+	/**
+	 * @param uniqueId the uniqueId to set
+	 */
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
+	}
+
+	/**
+	 * @return the message
+	 */
+	public Message getMessage() {
+		return message;
+	}
+	
 }
